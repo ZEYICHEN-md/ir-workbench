@@ -1,0 +1,40 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    # 用 Windows：工作台只在 Windows 上运行，而且已经踩过两个 Windows 特有的
+    # 编码缺陷（GBK argv、CRLF 换行）。在 Linux 上跑绿等于没测到那些路径。
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: 安装工作台（不拉重依赖）
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e . --no-deps
+          python -m pip install "openpyxl==3.1.5"
+
+      - name: 回归测试
+        run: python -m unittest discover -s tests -v
+
+      - name: doctor 冒烟
+        shell: pwsh
+        run: |
+          python -m workbench doctor --json
+          # 0=success 1=failed 2=blocked；CI 环境没配工作簿，partial/blocked 都算正常，
+          # 这一步只保证 doctor 本身不崩（不抛异常、不因编码挂掉）。
+          if ($LASTEXITCODE -eq 1) { throw "doctor 返回 failed" }
+
+      - name: 域注册表冒烟
+        run: python -m workbench domains --json

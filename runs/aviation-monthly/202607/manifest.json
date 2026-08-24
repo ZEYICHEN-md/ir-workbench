@@ -1,0 +1,38 @@
+{
+  "domain": "aviation-monthly",
+  "period": "202607",
+  "created": "2026-08-24T11:13:27+08:00",
+  "updated": "2026-08-24T15:02:48+08:00",
+  "steps": {
+    "dry-run": {
+      "state": "done",
+      "at": "2026-08-24T15:02:48+08:00",
+      "note": "东航: missing explicit passenger rows: total"
+    },
+    "commit": {
+      "state": "pending"
+    },
+    "resync": {
+      "state": "pending"
+    }
+  },
+  "inputs": {
+    "airline": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\Airline Data_0727.xlsx",
+      "sha256": "170584e5c17a32ca7620196ef1be41cf00ad9a97d030fa4c9803215a5175c5cf",
+      "at": "2026-08-24T15:02:48+08:00"
+    },
+    "industry": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\国内行业数据_0817.xlsx",
+      "sha256": "5313cae1a5f55694d73e28f73810832c0931e8c0b7577406a7d484eb42f20520",
+      "at": "2026-08-24T15:02:48+08:00"
+    }
+  },
+  "outputs": {},
+  "notes": [],
+  "order": [
+    "dry-run",
+    "commit",
+    "resync"
+  ]
+}

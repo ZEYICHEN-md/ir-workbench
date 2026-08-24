@@ -1,0 +1,179 @@
+---
+name: industry-data
+description: >-
+  国内行业数据端到端更新：指标底稿 Excel → 全量重建指标快照（diff 门禁）→ 看板投影
+  → 可选飞书多维表投影 → 可选洞察确认 → 上线 datamax.fun。当用户说更新国内行业数据、
+  补数、同步指标、更新看板、同步飞书、刷新洞察、上线看板时使用。
+---
+
+# industry-data
+
+## 权威与投影（勿颠倒）
+
+| 角色 | 路径 |
+|---|---|
+| **指标底稿**（唯一真源、唯一人工编辑面） | `data/workbooks/国内行业数据_MMDD.xlsx` |
+| 指标快照（底稿的机器投影，可重建，**不接受手改**） | `data/canonical/travel.json` |
+| 洞察底稿（独立真源） | `data/canonical/travel-insights.json` |
+| 洞察 Markdown 投影 | `modules/industry_data/insights/`（`archive/<数据截至日>/` 存快照） |
+| 看板投影 | `dashboard/travel/`（`data.js` / `insights.js` / `i18n.js` / `index.html`） |
+| 飞书多维表 | 投影；默认仅新建 + 填空 |
+| 临时产物 | `scratch/` only |
+
+见 **ADR 0001**。禁止：手改 `travel.json`；把 `data.js` 或飞书导出当权威回写；密钥进仓。
+
+## 主链顺序
+
+```text
+Excel → merge（全量重建 + diff 门禁）→ travel.json
+      → generate-dashboard → data.js / insights.js / 洞察 md
+      → commit
+      → 复制四文件 → 发布仓 push → datamax.fun
+      →（可选）feishu plan → 用户确认 → feishu apply --yes
+      →（可选）insights draft → 用户确认中文 → insights confirm
+```
+
+## 用户说「更新数据」时的默认范围
+
+跑满：**merge → generate-dashboard → commit → 发布仓 push 上线**。开跑前一句话说明范围即可，不必每次问是否上线。
+
+用户说「不要上线 / 只本地」时跳过 push。
+
+**不含在默认内**（须用户另说）：飞书写入、洞察刷新。
+
+## 命令
+
+```powershell
+ir industry status                      # 本域状态 + 本期五步进度
+ir industry merge                       # 按底稿全量重建快照
+ir industry merge --confirm-clears      # 确认清空后重建
+ir industry generate-dashboard          # 生成 data.js / insights.js / 洞察 md
+ir industry publish                     # dry-run：算出线上会变什么，逐行摆出 diff
+ir industry publish --yes               # 确认后提交并推送发布仓
+ir industry feishu plan                 # dry-run：待写入 + 冲突清单
+ir industry feishu apply --yes          # 写入（仅新建 + 填空）
+ir industry insights draft [--period weekly|monthly|quarterly]
+ir industry insights confirm <草稿包.json>
+ir industry insights mark-stale
+ir industry mark <步骤> <状态> --note    # 手动标记，主要用于跳过可选步骤
+```
+
+## 本期五步
+
+进度写在 `runs/industry-data/<数据截至日>/manifest.json`，**换个会话也能接着做**。
+周期键就是数据截至日，所以 `merge` 跑完才知道本期是哪一期。
+
+| # | 步骤 | 可选 | 门禁 |
+|---|---|---|---|
+| 1 | 重建指标快照 | 否 | 出现清空须确认 |
+| 2 | 生成看板投影 | 否 | — |
+| 3 | 刷新洞察 | 是 | 须用户确认中文后入库 |
+| 4 | 飞书多维表投影 | 是 | 须用户明确说「写入」 |
+| 5 | 上线 datamax.fun | 是 | 对外发布，须用户明确要求 |
+
+用户说「不要上线」时：`ir industry mark publish skipped --note "用户要求只本地"`。
+
+## diff 门禁（ADR 0001 的必要条件）
+
+全量重建意味着 **Excel 空格 = 该数据不存在**。容错由这道门禁提供，不再由「保留旧值」提供。
+
+| 情况 | 行为 |
+|---|---|
+| 仅新增 / 数值变更 | 直接写入 |
+| 出现清空（原有值 → 空） | 列出被清空的时间标签与指标，**停下等人确认** |
+| 清空 > 10 格，或某序列被清空 > 30%（该序列原有非空 ≥ 5 格） | `blocked`，不写入，报疑似结构问题 |
+| 底稿结构读不出（缺工作表 / 找不到 2026 块 / 找不到周轴） | `blocked`，不写入，保留上一版快照 |
+
+正常每周只是新增周次，清空基本不会出现——所以这道门禁平时不会打扰用户。
+
+## 硬门禁（须用户明确措辞）
+
+未听到下列措辞前，停在 dry-run / 草稿，并说明「需要你说什么才能继续」：
+
+1. **飞书写入** — `feishu apply --yes`（要覆盖冲突还要 `--overwrite-conflicts`）
+2. **洞察入库** — `insights confirm`（先确认中文，再译英文）
+3. **确认清空** — `merge --confirm-clears`
+
+## 上线（`publish`）
+
+发布链：工作台 `dashboard/travel/` 四文件 → 发布仓本地副本（独立 clone）→ push → EdgeOne 自动部署 → https://datamax.fun
+
+`ir industry publish` 不带 `--yes` 时只做 dry-run：复制、算 diff、**逐行摆出线上会变什么**，
+然后把发布仓还原干净。确认后才 `--yes` 提交并推送。
+
+五道硬检查，任一不过就拒发并还原：
+
+| 检查 | 为什么 |
+|---|---|
+| 四个源文件齐全 | 少一个会把线上页面弄坏 |
+| 源文件必须是 LF | CRLF 会让 git 把整份文件当改写，把真正的数据变化埋掉（ADR 0006） |
+| 发布仓无无关的未提交改动 | 避免把别人的东西一起推上线 |
+| diff 不是整份重写（单文件改动行数 ≤ 80%） | 整份重写通常是格式问题；这种 diff 没法核对，等于放弃验证 |
+| 无变化时不空提交 | 保持发布历史可读 |
+
+发布仓路径由 `ir config publish-repo <路径>` 指定，**不是工作台子目录**。
+
+推完之后：等 1～几分钟 → https://datamax.fun 硬刷新 → EdgeOne 控制台「构建部署」应有本次记录。
+不对就在发布仓 `git revert HEAD` 后重推。
+
+## 底稿选择：绝不代选
+
+底稿由 `ir config set industry <路径>` 显式锁定。**不按文件名猜最新**（ADR 0001）。
+
+多候选时用 `ir config candidates` 列出，让**用户**指定。换新版底稿的流程：放进 `data/workbooks/` → 列候选 → 用户指定 → 锁定 → merge。
+
+## 洞察
+
+维度固定三槽：**亮点 / 风险 / 展望**。每槽最多 2 条，可缺槽，不写占位句。
+
+流程是混合确认：AI 出草稿 → **人确认中文** → 入库 → 再译英文。看板运行时不调用模型。
+
+指标快照更新后，若对应粒度洞察未重新确认，会被标为可能过期（`mark-stale`），**不自动重写**。
+
+### 显著波动的归因约定
+
+| 粒度 | 触发阈值 |
+|---|---|
+| 周度 | \|同比\| ≥ 5% |
+| 月度 / 季度 | \|同比\| ≥ 3% |
+| 季度另加 | Q1↔Q2 等摆动 ≥ 5 个百分点 |
+
+**时段门禁（先于文采）**：归因事件的监测窗口必须与指标时段重叠；仅相邻须标明「此前/背景」；对不齐就省略归因，只写本表数据。禁止把更早周/月的事实写成当周/当月原因。
+
+**时间感知（先于归因）**：以「今天」为锚，只聊当前可得的最新数据窗口；旧数据只作对照。周度只聊最近 3 周；月度以最近一期完整月度为主体；季度聊当季展望 + 最近一期完整季度。前一期距今天所在月份不得超过 2 个月。空窗期可以留空，不凑数聊旧数据。
+
+**文笔（研报短评）**：每条 2～3 句，「数字 →（可选）一句归因 → 一句后续」；归因最多 1 句；正文禁止方法论/meta（「本表」「不做归因」等）。
+
+## 底稿结构校验
+
+`ir doctor` 会核对底稿是否符合读表契约（`layout.py`）：工作表名、2026 块位置、
+16 个指标列的表头与分组名、12 个月份行、Q1–Q4、QTD 回退块。
+
+**为什么必须有这个**：`excel.py` 按固定列号取值，列一挪取到的就是别的指标，而且不会报错。
+校验在跑之前就能发现底稿改版，而不是等 merge 出来一堆 blocked 或者更糟——静默读错。
+
+列位真的变了：**先改 `layout.py` 的契约和 `excel.py` 的列号，再重跑**。不要绕过。
+
+## 底稿读表要点（同步前必核对）
+
+2026 块：周轴 **R**；酒店 **S/T/U**；航空 **W/X/Y** = 客运量/票价/客运航班量（固定列，全年含 Q1）；火车票 Z+ 本管道不读。左侧「QTD周度」G/H/I 仅作航空回退。
+
+月份行**可能带后缀**（如 `7月 (preliminary)`），只取月份号归一成 `N月`。旧实现用 `^\d{1,2}月$` 严格匹配会在 7 月处提前停止，导致月度只读到 6 个月。
+
+文件名 `国内行业数据_MMDD.xlsx` 的 `MMDD` 是**交付日**；数据截至日只认快照 `meta.dataUpdate`（按最新周结束日自动盖章）。
+
+## Agent 行为清单
+
+- 「更新数据」默认跑满到上线；开跑前一句话说明范围
+- 用户说「不要上线 / 只本地」时跳过发布仓 push
+- 飞书、洞察、确认清空三道门禁必须听到明确措辞
+- 每段结束汇报：改了哪些权威或投影；`dataUpdate` 盖成哪天；哪些门禁还挡着
+- 底稿多候选时列出让用户选，不猜
+- 不发明第二套同步脚本；一次性探测进 `scratch/`
+- 流程或入口变了：改本 SKILL + `docs/MIGRATION.md`，避免只改一处
+
+## 相关
+
+- `docs/adr/0001-excel-as-metrics-authority.md` — 为什么 Excel 是权威
+- `docs/GLOSSARY.md` § 数据 — 指标底稿 / 指标快照 / 洞察底稿
+- `tests/test_industry_data.py` — diff 门禁与投影等价性的回归测试

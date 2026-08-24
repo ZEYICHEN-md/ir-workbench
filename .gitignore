@@ -1,0 +1,26 @@
+# 本机配置（本机配置与共享代码分离）
+.ir-workbench/
+
+# 三个旧项目：各自冻结在 GitHub 作为历史（ADR 0003），不嵌进本仓。
+# 它们各自带 .git——不排除的话会被记成未初始化的子模块，内容根本不会被追踪。
+0703_Travel_Pulse/
+database_matain/
+peers_rs_update/
+
+# 一次性产物
+scratch/
+_tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Excel 临时锁文件
+~$*.xls*
+
+# 环境
+.venv/
+.env

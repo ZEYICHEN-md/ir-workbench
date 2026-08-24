@@ -1,0 +1,40 @@
+{
+  "domain": "industry-data",
+  "period": "2026-08-15",
+  "created": "2026-08-24T20:10:36+08:00",
+  "updated": "2026-08-24T20:15:57+08:00",
+  "steps": {
+    "merge": {
+      "state": "done",
+      "at": "2026-08-24T20:15:57+08:00"
+    },
+    "dashboard": {
+      "state": "pending"
+    },
+    "insights": {
+      "state": "pending"
+    },
+    "feishu": {
+      "state": "pending"
+    },
+    "publish": {
+      "state": "pending"
+    }
+  },
+  "inputs": {
+    "workbook": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\国内行业数据_0824.xlsx",
+      "sha256": "d14253e6f57566cb762a84a7bdde227ce5acee5333c6a5fed1ec3b9ee301df78",
+      "at": "2026-08-24T20:15:57+08:00"
+    }
+  },
+  "outputs": {},
+  "notes": [],
+  "order": [
+    "merge",
+    "dashboard",
+    "insights",
+    "feishu",
+    "publish"
+  ]
+}

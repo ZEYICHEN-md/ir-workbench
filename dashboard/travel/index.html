@@ -1,0 +1,2378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026年旅游行业数据看板</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.5.0/echarts.min.js"
+            onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js';document.head.appendChild(s);"></script>
+    <script src="data.js?v=20260804"></script>
+    <script src="insights.js?v=20260804"></script>
+    <script src="i18n.js"></script>
+    <style>
+        :root {
+            /* 全站仅 5 实色：黑 / 蓝 / 浅蓝 / 涨 / 跌；其余靠透明度 */
+            --black: #082256;
+            --blue: #2658fd;
+            --light: #98e8ff;
+            --c02: #082256;
+            --c03: #2658fd;
+            --c04: #98e8ff;
+            --c04-deep: #3d9fd0;
+            --up: #c75050;
+            --down: #0d8a5a;
+            --bg: #f7f9fb;
+            --card-bg: #ffffff;
+            --border: rgba(8,34,86, 0.12);
+            --text: var(--black);
+            --text-secondary: rgba(8,34,86, 0.55);
+            --radius: 6px;
+            --shadow: 0 1px 2px rgba(8,34,86, 0.04);
+            --shadow-hover: 0 2px 8px rgba(8,34,86, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            padding-top: 52px; /* fixed topnav */
+        }
+
+        .container {
+            max-width: 1680px;
+            margin: 0 auto;
+            padding: 16px 28px 24px;
+        }
+
+        /* Top navigation — fixed; tabs left, actions right */
+        .topnav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 0 rgba(8, 34, 86, 0.03);
+        }
+        .topnav-inner {
+            max-width: 1680px;
+            margin: 0 auto;
+            padding: 10px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-height: 48px;
+        }
+        .topnav-tabs {
+            display: flex;
+            gap: 2px;
+            background: rgba(8, 34, 86, 0.04);
+            padding: 3px;
+            border-radius: 8px;
+            flex: 0 1 auto;
+            width: fit-content;
+            max-width: 100%;
+        }
+        .topnav-tabs .tab {
+            padding: 7px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+            white-space: nowrap;
+        }
+        .topnav-tabs .tab.active {
+            background: var(--black);
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .topnav-tabs .tab:hover:not(.active) {
+            color: var(--black);
+            background: rgba(38, 88, 253, 0.08);
+        }
+        .topnav-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+
+        /* Title block below nav */
+        .page-hero {
+            max-width: 1680px;
+            margin: 0 auto;
+            padding: 24px 28px 8px;
+        }
+        .page-hero-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 28px 32px 24px;
+            text-align: center;
+        }
+        .ir-brand {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .ir-logo-badge {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 3px;
+            padding: 5px 9px 5px 8px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #2577e3 0%, #1a5fc0 100%);
+            color: #fff;
+            line-height: 1;
+            box-shadow: 0 1px 3px rgba(37, 119, 227, 0.35);
+        }
+        .ir-logo-text {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .ir-logo-sub {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            opacity: 0.88;
+        }
+        .ir-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(8, 34, 86, 0.42);
+            line-height: 1;
+        }
+        .ir-dot {
+            margin: 0 0.35em;
+            opacity: 0.55;
+        }
+        .page-hero h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--black);
+            margin: 0;
+            letter-spacing: -0.4px;
+            line-height: 1.3;
+        }
+        .page-hero-accent {
+            width: 40px;
+            height: 3px;
+            margin: 14px auto 16px;
+            border-radius: 2px;
+            background: var(--blue);
+        }
+        .page-meta-block {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+        }
+        .page-meta-line {
+            margin: 0;
+            font-size: 13px;
+            color: rgba(8, 34, 86, 0.48);
+            line-height: 1.55;
+        }
+
+        .lang-toggle {
+            padding: 7px 12px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .lang-toggle:hover {
+            background: rgba(8,34,86, 0.04);
+        }
+
+        /* KPI Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .kpi-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: box-shadow 0.2s, border-color 0.2s;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-areas:
+                "label value"
+                "sub value";
+            column-gap: 12px;
+            row-gap: 2px;
+            align-items: center;
+            align-content: center;
+            box-sizing: border-box;
+            min-height: 64px;
+            height: 64px;
+        }
+        .kpi-card:hover {
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(38, 88, 253, 0.35);
+        }
+        .kpi-label {
+            grid-area: label;
+            font-size: 12px;
+            color: var(--black);
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            line-height: 1.3;
+            align-self: end;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .kpi-value {
+            grid-area: value;
+            grid-row: 1 / 3;
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+            line-height: 1.1;
+            white-space: nowrap;
+            align-self: center;
+        }
+        .kpi-value.up { color: var(--up); }
+        .kpi-value.down { color: var(--down); }
+        .kpi-sub {
+            grid-area: sub;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.3;
+            align-self: start;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Q1 sector overview (KPI cards, not bars) */
+        .q-overview-block {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        .q-overview-block > .chart-title {
+            margin-bottom: 16px;
+        }
+        .kpi-sector-block {
+            margin-bottom: 20px;
+        }
+        .q-sector-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(270px, 340px));
+            gap: 12px;
+            align-items: stretch;
+            width: fit-content;
+            max-width: 100%;
+        }
+        .q-sector {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+            min-height: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(8, 34, 86, 0.018);
+            border: 1px solid rgba(8, 34, 86, 0.06);
+        }
+        /* 国内酒店 Color02 → 国内/航空 Color03 → 国际 Color04 */
+        .q-sector--hotel { --sector-accent: var(--c02); }
+        .q-sector--domestic,
+        .q-sector--aviation { --sector-accent: var(--c03); }
+        .q-sector--intl { --sector-accent: var(--c04-deep); }
+        .q-sector-grid--2 {
+            grid-template-columns: repeat(2, minmax(270px, 340px));
+        }
+        .kpi-sector-block {
+            margin-bottom: 20px;
+        }
+        .q-sector-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--sector-accent);
+            letter-spacing: 0.04em;
+            padding-bottom: 8px;
+            margin-bottom: 2px;
+            border-bottom: 2px solid var(--sector-accent);
+        }
+        .q-sector .kpi-card {
+            box-shadow: none;
+            background: #fff;
+            flex: 0 0 64px;
+        }
+
+        /* Chart Grid */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(560px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .chart-grid.single { grid-template-columns: 1fr; }
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .chart-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--black);
+            margin: 0;
+            flex: 1;
+            min-width: 0;
+            letter-spacing: -0.01em;
+        }
+        .series-toggles {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 6px;
+            padding: 0;
+        }
+        .chart-container.zoomable .series-toggles {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            bottom: 34px;
+            z-index: 6;
+            margin-top: 0;
+            pointer-events: none;
+        }
+        .chart-container.zoomable .series-toggles .series-toggle {
+            pointer-events: auto;
+        }
+        .series-toggle {
+            --series-c: #2658fd;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 6px 2px 7px;
+            border: 1px solid rgba(8, 34, 86, 0.10);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.92);
+            color: rgba(8, 34, 86, 0.55);
+            font-size: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            line-height: 1.2;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+        }
+        .series-toggle.is-on {
+            color: rgba(8, 34, 86, 0.72);
+            border-color: rgba(8, 34, 86, 0.14);
+        }
+        .series-toggle-swatch {
+            width: 10px;
+            height: 2px;
+            border-radius: 1px;
+            background: var(--series-c);
+            flex-shrink: 0;
+            opacity: 0.85;
+        }
+        .series-toggle-label {
+            max-width: none;
+            white-space: nowrap;
+        }
+        .series-toggle-switch {
+            position: relative;
+            width: 18px;
+            height: 10px;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--series-c) 55%, rgba(8,34,86,0.25));
+            flex-shrink: 0;
+            opacity: 0.9;
+            transition: background 0.15s, opacity 0.15s;
+        }
+        .series-toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 1px;
+            right: 1px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 0 1px rgba(8,34,86,0.05);
+            transition: left 0.15s, right 0.15s;
+        }
+        .series-toggle:hover {
+            border-color: rgba(8, 34, 86, 0.22);
+            color: rgba(8, 34, 86, 0.8);
+            background: #fff;
+        }
+        .series-toggle:not(.is-on) {
+            background: rgba(255, 255, 255, 0.7);
+            border-color: rgba(8, 34, 86, 0.08);
+            color: rgba(8, 34, 86, 0.32);
+            font-weight: 400;
+        }
+        .series-toggle:not(.is-on) .series-toggle-swatch {
+            background: rgba(8, 34, 86, 0.2);
+            opacity: 1;
+        }
+        .series-toggle:not(.is-on) .series-toggle-switch {
+            background: rgba(8, 34, 86, 0.14);
+            opacity: 1;
+        }
+        .series-toggle:not(.is-on) .series-toggle-switch::after {
+            right: auto;
+            left: 1px;
+        }
+        .series-toggle:focus-visible {
+            outline: 1px solid rgba(8, 34, 86, 0.35);
+            outline-offset: 2px;
+        }
+        .chart-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #fff;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .chart-download:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+            background: rgba(38, 88, 253, 0.06);
+        }
+        .chart-download svg {
+            width: 14px;
+            height: 14px;
+        }
+        .download-all {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border: 1px solid var(--c02);
+            border-radius: 6px;
+            background: var(--c02);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .download-all:hover {
+            background: rgba(8, 34, 86, 0.88);
+            border-color: rgba(8, 34, 86, 0.88);
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .section-header .view-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .chart-container {
+            width: 100%;
+            height: 360px;
+        }
+        .chart-container.tall {
+            height: 420px;
+        }
+        .chart-container.zoomable {
+            height: 460px;
+            position: relative;
+        }
+        .series-focus-tag {
+            display: none;
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            z-index: 20;
+            padding: 5px 10px;
+            border-radius: 2px;
+            background: #98e8ff;
+            color: #082256;
+            font: 600 12px Arial, 'PingFang SC', sans-serif;
+            pointer-events: none;
+            box-shadow: 0 1px 2px rgba(8,34,86,0.08);
+        }
+        .series-focus-tag.is-on { display: block; }
+        .ytd-avg-tag {
+            position: absolute;
+            z-index: 15;
+            transform: translateY(-50%);
+            font: 700 13px "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            white-space: nowrap;
+            pointer-events: none;
+            line-height: 1.2;
+            padding: 2px 0;
+            background: rgba(255,255,255,0.92);
+        }
+        .chart-zoom-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 2px;
+            margin-top: 2px;
+            padding: 0 2px;
+        }
+        .zoom-metric-hint {
+            font-size: 10px;
+            font-weight: 400;
+            color: rgba(8, 34, 86, 0.35);
+            margin-right: 6px;
+        }
+        .zoom-metric-btn {
+            border: none;
+            background: transparent;
+            color: rgba(8, 34, 86, 0.38);
+            font-size: 10px;
+            font-weight: 500;
+            padding: 1px 6px;
+            border-radius: 2px;
+            cursor: pointer;
+            line-height: 1.5;
+        }
+        .zoom-metric-btn:hover {
+            color: #2658fd;
+            background: rgba(38, 88, 253, 0.06);
+        }
+        .zoom-metric-btn.is-active {
+            background: transparent;
+            border-color: transparent;
+            color: rgba(8, 34, 86, 0.72);
+            font-weight: 600;
+            box-shadow: inset 0 -1px 0 rgba(8, 34, 86, 0.45);
+        }
+
+        /* Conclusions / Insights */
+        .conclusions {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 28px 28px 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        .conclusions h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: var(--c02);
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+        .insight-group {
+            display: grid;
+            grid-template-columns: 96px 1fr;
+            gap: 16px 20px;
+            padding: 18px 0;
+            border-top: 1px solid rgba(8, 34, 86, 0.08);
+        }
+        .insight-group:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+        .insight-group-label {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: var(--c03);
+            padding-top: 1px;
+            line-height: 1.35;
+        }
+        .insight-group--positive .insight-group-label { color: var(--blue); }
+        .insight-group--negative .insight-group-label { color: var(--up); }
+        .insight-group--neutral .insight-group-label { color: var(--c02); opacity: 0.65; }
+        .insight-points {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .insight-point-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--c02);
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        .insight-point-body {
+            font-size: 13.5px;
+            line-height: 1.75;
+            color: rgba(8, 34, 86, 0.78);
+        }
+        .insights-scope {
+            margin: -10px 0 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: rgba(8, 34, 86, 0.62);
+            font-weight: 500;
+        }
+        .insights-stale {
+            margin: 0 0 16px;
+            padding: 8px 12px;
+            font-size: 12.5px;
+            line-height: 1.5;
+            color: rgba(8, 34, 86, 0.72);
+            background: rgba(8, 34, 86, 0.04);
+            border-left: 3px solid var(--c03);
+        }
+        .insights-empty {
+            font-size: 13.5px;
+            color: rgba(8, 34, 86, 0.55);
+            padding: 4px 0 8px;
+        }
+        .num-highlight {
+            font-weight: 700;
+            color: var(--c02);
+            background: var(--c04);
+            padding: 1px 5px;
+            border-radius: 2px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 16px;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .view { display: none; }
+        .view.active { display: block; }
+
+        @media (max-width: 900px) {
+            .q-sector-grid,
+            .q-sector-grid--2 { grid-template-columns: minmax(0, 1fr); width: 100%; }
+        }
+        @media (max-width: 768px) {
+            .chart-grid { grid-template-columns: 1fr; }
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .kpi-value { font-size: 20px; }
+            .kpi-card {
+                padding: 8px 12px;
+                column-gap: 8px;
+                min-height: 58px;
+                height: 58px;
+            }
+            .q-sector .kpi-card {
+                flex-basis: 58px;
+            }
+            .topnav-inner {
+                padding: 10px 14px;
+                gap: 10px;
+            }
+            .topnav-tabs .tab { padding: 7px 10px; font-size: 12px; }
+            .page-hero {
+                padding: 16px 14px 6px;
+            }
+            .page-hero-card {
+                padding: 22px 18px 18px;
+                border-radius: 10px;
+            }
+            .ir-brand {
+                gap: 8px;
+                margin-bottom: 14px;
+            }
+            .ir-logo-badge {
+                padding: 4px 8px 4px 7px;
+            }
+            .ir-logo-text { font-size: 12px; }
+            .ir-logo-sub { font-size: 9px; }
+            .ir-label {
+                font-size: 10px;
+                letter-spacing: 0.1em;
+            }
+            .page-hero h1 { font-size: 22px; }
+            .page-hero-accent {
+                margin: 12px auto 14px;
+            }
+            .insight-group {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="topnav" aria-label="Primary">
+        <div class="topnav-inner">
+            <div class="topnav-tabs" role="tablist">
+                <button type="button" class="tab active" id="i18n-tab-weekly" onclick="switchView('weekly')">周度趋势</button>
+                <button type="button" class="tab" id="i18n-tab-monthly" onclick="switchView('monthly')">月度趋势</button>
+                <button type="button" class="tab" id="i18n-tab-quarterly" onclick="switchView('quarterly')">季度总览</button>
+            </div>
+            <div class="topnav-actions">
+                <button type="button" class="lang-toggle" id="lang-toggle" onclick="toggleLang()">EN</button>
+                <button type="button" class="download-all" onclick="downloadAllCharts()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span id="i18n-download-all">下载全部图表</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <header class="page-hero">
+        <div class="page-hero-card">
+            <div class="ir-brand" aria-label="Trip.com Group Investor Relations">
+                <div class="ir-logo-badge" aria-hidden="true">
+                    <span class="ir-logo-text" id="i18n-ir-logo">携程</span>
+                    <span class="ir-logo-sub">IR</span>
+                </div>
+                <span class="ir-label" id="i18n-ir-brand">TRIP.COM GROUP<span class="ir-dot">•</span>INVESTOR RELATIONS</span>
+            </div>
+            <h1 id="i18n-title">2026年旅游行业数据看板</h1>
+            <div class="page-hero-accent" aria-hidden="true"></div>
+            <div class="page-meta-block">
+                <p class="page-meta-line" id="i18n-meta-update">数据更新：2026/07/28</p>
+                <p class="page-meta-line" id="i18n-meta-detail">最新数据周：7/19-7/25 · 同比2025年（国际航班运力为同比2019年）</p>
+                <p class="page-meta-line" id="i18n-meta-sources">来源：STR、民航局、三大航、国铁、航班管家、飞常准</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- ==================== WEEKLY VIEW ==================== -->
+        <div id="view-weekly" class="view active">
+            <div class="q-overview-block" id="weekly-kpi-row">
+                <div class="chart-title" id="i18n-chart-weekly-overview">最新周各板块同比表现总览</div>
+                <div class="q-sector-grid q-sector-grid--2">
+                    <div class="q-sector q-sector--hotel">
+                        <div class="q-sector-title" id="i18n-sector-hotel-w">国内酒店</div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="i18n-kpi-revpar">国内酒店 RevPAR（最新周）</div>
+                            <div class="kpi-value" id="kpi-revpar"></div>
+                            <div class="kpi-sub" id="kpi-revpar-week"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="i18n-kpi-adr">国内酒店 ADR（最新周）</div>
+                            <div class="kpi-value" id="kpi-adr"></div>
+                            <div class="kpi-sub" id="kpi-adr-week"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="i18n-kpi-occ">国内酒店入住率（最新周）</div>
+                            <div class="kpi-value" id="kpi-occ"></div>
+                            <div class="kpi-sub" id="kpi-occ-week"></div>
+                        </div>
+                    </div>
+                    <div class="q-sector q-sector--domestic">
+                        <div class="q-sector-title" id="i18n-sector-aviation-w">国内航空</div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="i18n-kpi-pax">机票客运量（最新周）</div>
+                            <div class="kpi-value" id="kpi-pax"></div>
+                            <div class="kpi-sub" id="kpi-pax-week"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="i18n-kpi-ticket">机票票价（最新周）</div>
+                            <div class="kpi-value" id="kpi-ticket"></div>
+                            <div class="kpi-sub" id="kpi-ticket-week"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="i18n-kpi-flight">客运航班量（最新周）</div>
+                            <div class="kpi-value" id="kpi-flight"></div>
+                            <div class="kpi-sub" id="kpi-flight-week"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-grid single">
+                <div class="chart-card">
+                    <div class="chart-header">
+                    <div class="chart-title" id="i18n-chart-weekly-hotel">国内酒店周度指标（RevPAR / ADR / 入住率 同比）</div>
+                    <button class="chart-download" onclick="downloadChart('weekly-hotel')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span class="dl-text">下载图片</span>
+                    </button>
+                </div>
+                    <div class="chart-container tall zoomable" id="weekly-hotel"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                    <div class="chart-title" id="i18n-chart-weekly-aviation">航空周度指标（客运量 / 票价 / 航班量 同比）</div>
+                    <button class="chart-download" onclick="downloadChart('weekly-aviation')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span class="dl-text">下载图片</span>
+                    </button>
+                </div>
+                    <div class="chart-container tall zoomable" id="weekly-aviation"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== MONTHLY VIEW ==================== -->
+        <div id="view-monthly" class="view">
+            <div class="q-overview-block" id="monthly-kpi-row">
+                <div class="chart-title" id="i18n-chart-monthly-overview">最新月度各板块同比表现总览</div>
+                <div class="q-sector-grid">
+                    <div class="q-sector q-sector--hotel">
+                        <div class="q-sector-title" id="i18n-sector-hotel-m">国内酒店</div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="m-kpi-0-label"></div>
+                            <div class="kpi-value" id="m-kpi-0-value"></div>
+                            <div class="kpi-sub" id="m-kpi-0-sub"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="m-kpi-1-label"></div>
+                            <div class="kpi-value" id="m-kpi-1-value"></div>
+                            <div class="kpi-sub" id="m-kpi-1-sub"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="m-kpi-2-label"></div>
+                            <div class="kpi-value" id="m-kpi-2-value"></div>
+                            <div class="kpi-sub" id="m-kpi-2-sub"></div>
+                        </div>
+                    </div>
+                    <div class="q-sector q-sector--domestic">
+                        <div class="q-sector-title" id="i18n-sector-domestic-m">国内航空</div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="m-kpi-3-label"></div>
+                            <div class="kpi-value" id="m-kpi-3-value"></div>
+                            <div class="kpi-sub" id="m-kpi-3-sub"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="m-kpi-4-label"></div>
+                            <div class="kpi-value" id="m-kpi-4-value"></div>
+                            <div class="kpi-sub" id="m-kpi-4-sub"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="m-kpi-5-label"></div>
+                            <div class="kpi-value" id="m-kpi-5-value"></div>
+                            <div class="kpi-sub" id="m-kpi-5-sub"></div>
+                        </div>
+                    </div>
+                    <div class="q-sector q-sector--intl">
+                        <div class="q-sector-title" id="i18n-sector-intl-m">国际航空</div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="m-kpi-6-label"></div>
+                            <div class="kpi-value" id="m-kpi-6-value"></div>
+                            <div class="kpi-sub" id="m-kpi-6-sub"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="m-kpi-7-label"></div>
+                            <div class="kpi-value" id="m-kpi-7-value"></div>
+                            <div class="kpi-sub" id="m-kpi-7-sub"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="m-kpi-8-label"></div>
+                            <div class="kpi-value" id="m-kpi-8-value"></div>
+                            <div class="kpi-sub" id="m-kpi-8-sub"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                    <div class="chart-title" id="i18n-chart-monthly-hotel">国内酒店月度指标（RevPAR / ADR / 入住率 同比）</div>
+                    <button class="chart-download" onclick="downloadChart('monthly-hotel')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span class="dl-text">下载图片</span>
+                    </button>
+                </div>
+                    <div class="chart-container tall" id="monthly-hotel"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                    <div class="chart-title" id="i18n-chart-monthly-dom-av">国内航空客运量月度同比（民航局 vs 三大航）</div>
+                    <button class="chart-download" onclick="downloadChart('monthly-domestic-aviation')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span class="dl-text">下载图片</span>
+                    </button>
+                </div>
+                    <div class="chart-container tall" id="monthly-domestic-aviation"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                    <div class="chart-title" id="i18n-chart-monthly-railway">铁路客运量月度同比</div>
+                    <button class="chart-download" onclick="downloadChart('monthly-railway')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span class="dl-text">下载图片</span>
+                    </button>
+                </div>
+                    <div class="chart-container" id="monthly-railway"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                    <div class="chart-title" id="i18n-chart-monthly-intl">国际航空客运量 & 运力月度同比</div>
+                    <button class="chart-download" onclick="downloadChart('monthly-international')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span class="dl-text">下载图片</span>
+                    </button>
+                </div>
+                    <div class="chart-container" id="monthly-international"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== QUARTERLY VIEW ==================== -->
+        <div id="view-quarterly" class="view">
+            <div class="q-overview-block" id="quarterly-kpi-row">
+                <div class="chart-title" id="i18n-chart-q-overview">Q2 各板块同比表现总览</div>
+                <div class="q-sector-grid">
+                    <div class="q-sector q-sector--hotel">
+                        <div class="q-sector-title" id="i18n-sector-hotel">国内酒店</div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="q-kpi-0-label"></div>
+                            <div class="kpi-value" id="q-kpi-0-value"></div>
+                            <div class="kpi-sub" id="q-kpi-0-sub"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="q-kpi-1-label"></div>
+                            <div class="kpi-value" id="q-kpi-1-value"></div>
+                            <div class="kpi-sub" id="q-kpi-1-sub"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="q-kpi-2-label"></div>
+                            <div class="kpi-value" id="q-kpi-2-value"></div>
+                            <div class="kpi-sub" id="q-kpi-2-sub"></div>
+                        </div>
+                    </div>
+                    <div class="q-sector q-sector--domestic">
+                        <div class="q-sector-title" id="i18n-sector-domestic">国内航空</div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="q-kpi-3-label"></div>
+                            <div class="kpi-value" id="q-kpi-3-value"></div>
+                            <div class="kpi-sub" id="q-kpi-3-sub"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="q-kpi-4-label"></div>
+                            <div class="kpi-value" id="q-kpi-4-value"></div>
+                            <div class="kpi-sub" id="q-kpi-4-sub"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="q-kpi-5-label"></div>
+                            <div class="kpi-value" id="q-kpi-5-value"></div>
+                            <div class="kpi-sub" id="q-kpi-5-sub"></div>
+                        </div>
+                    </div>
+                    <div class="q-sector q-sector--intl">
+                        <div class="q-sector-title" id="i18n-sector-intl">国际航空</div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="q-kpi-6-label"></div>
+                            <div class="kpi-value" id="q-kpi-6-value"></div>
+                            <div class="kpi-sub" id="q-kpi-6-sub"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="q-kpi-7-label"></div>
+                            <div class="kpi-value" id="q-kpi-7-value"></div>
+                            <div class="kpi-sub" id="q-kpi-7-sub"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label" id="q-kpi-8-label"></div>
+                            <div class="kpi-value" id="q-kpi-8-value"></div>
+                            <div class="kpi-sub" id="q-kpi-8-sub"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title" id="i18n-chart-q-trend">Q1 → Q2 月度趋势变化（核心指标同比）</div>
+                        <button class="chart-download" onclick="downloadChart('quarterly-trend')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span class="dl-text">下载图片</span>
+                    </button>
+                    </div>
+                    <div class="chart-container tall" id="quarterly-trend"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title" id="i18n-chart-q-compare">Q1 vs Q2 对比（Q2 为 4–6 月各月同比平均）</div>
+                        <button class="chart-download" onclick="downloadChart('quarterly-compare')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span class="dl-text">下载图片</span>
+                    </button>
+                    </div>
+                    <div class="chart-container tall" id="quarterly-compare"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== CONCLUSIONS ==================== -->
+                <div class="conclusions">
+            <h2 id="i18n-insights-title">数据洞察与结论</h2>
+            <p id="insights-scope" class="insights-scope"></p>
+            <div id="insights-stale" class="insights-stale" hidden></div>
+            <div id="insights-body"></div>
+        </div>
+
+        <div class="footer" id="i18n-footer"></div>
+    </div>
+
+    <script>
+        const chartInstances = {};
+
+        function getChart(id) {
+            if (chartInstances[id]) chartInstances[id].dispose();
+            const dom = document.getElementById(id);
+            const c = echarts.init(dom);
+            chartInstances[id] = c;
+            return c;
+        }
+
+        function switchView(view) {
+            if (typeof currentView !== 'undefined') currentView = view;
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            const viewEl = document.getElementById('view-' + view);
+            if (viewEl) viewEl.classList.add('active');
+            const tabEl = document.querySelector(`.tab[onclick*="switchView('${view}')"]`);
+            if (tabEl) tabEl.classList.add('active');
+            if (typeof renderInsights === 'function') renderInsights();
+            if (view === 'quarterly') {
+                renderQuarterlyTrend();
+                renderQuarterlyCompare();
+            }
+            setTimeout(() => {
+                Object.values(chartInstances).forEach(c => {
+                    c.resize();
+                    if (typeof c.__ytdRefresh === 'function') c.__ytdRefresh();
+                    if (typeof c.__qBoundaryRefresh === 'function') c.__qBoundaryRefresh();
+                });
+            }, 100);
+        }
+
+        // ============ DOWNLOAD ============
+        function downloadChart(id) {
+            const c = chartInstances[id];
+            if (!c) return;
+            const host = c.getDom();
+            const ytdTag = host && host.querySelector('.ytd-avg-tag');
+            const showYtdOnCanvas = ytdTag && !ytdTag.hidden;
+            if (showYtdOnCanvas) {
+                c.setOption({ graphic: [{ id: 'ytd-avg-label', style: { opacity: 1 } }] });
+            }
+            const url = c.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+            if (showYtdOnCanvas) {
+                c.setOption({ graphic: [{ id: 'ytd-avg-label', style: { opacity: 0 } }] });
+            }
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = id + '.png';
+            a.click();
+        }
+
+        function downloadAllCharts() {
+            // Collect all chart IDs grouped by view
+            const viewCharts = {
+                weekly: ['weekly-hotel', 'weekly-aviation'],
+                monthly: ['monthly-hotel', 'monthly-domestic-aviation', 'monthly-railway', 'monthly-international'],
+                quarterly: ['quarterly-trend', 'quarterly-compare'],
+            };
+            const views = Object.keys(viewCharts);
+            const currentView = document.querySelector('.view.active').id.replace('view-', '');
+
+            let viewIdx = 0;
+            function processView() {
+                if (viewIdx >= views.length) {
+                    switchView(currentView);
+                    return;
+                }
+                const view = views[viewIdx];
+                switchView(view);
+                setTimeout(() => {
+                    const ids = viewCharts[view];
+                    ids.forEach((id, i) => {
+                        setTimeout(() => {
+                            const c = chartInstances[id];
+                            if (!c) return;
+                            const url = c.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = id + '.png';
+                            a.click();
+                        }, i * 300);
+                    });
+                    viewIdx++;
+                    setTimeout(processView, ids.length * 300 + 200);
+                }, 300);
+            }
+            processView();
+        }
+
+        const C = {
+            c02:   '#082256',
+            c03:   '#2658fd',
+            c04:   '#3d9fd0',      // 图表用加深浅蓝（原 #98e8ff 在白底不可见）
+            c04Soft: '#98e8ff',   // 洞察高亮底仍用浅青
+            black: '#082256',
+            blue:  '#2658fd',
+            light: '#3d9fd0',
+            lightSolid: '#98e8ff',
+            up:    '#c75050',     // 涨红
+            down:  '#0d8a5a',     // 跌绿
+            green: '#082256',
+            orange: '#3d9fd0',
+            purple: '#2658fd',
+            red:   '#3d9fd0',     // 禁止图表用红，别名改走浅蓝
+            cyan:  '#3d9fd0',
+            ink:   '#082256',
+            sky:   '#2658fd',
+            ytdAvg: '#149888',   // YTD 参考线 / 标注（青绿，略深于 #18C0A8）
+        };
+
+        const tooltipFmt = function(params) {
+            let s = '<strong>' + params[0].axisValue + '</strong><br/>';
+            params.forEach(p => {
+                const v = p.value;
+                const sign = v >= 0 ? '+' : '';
+                const clr = v >= 0 ? C.up : C.down;
+                s += `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${p.color};margin-right:6px;"></span>`;
+                s += `${p.seriesName}: <span style="color:${clr};font-weight:600;">${sign}${(v*100).toFixed(1)}%</span><br/>`;
+            });
+            return s;
+        };
+
+        const baseOpts = {
+            backgroundColor: 'transparent',
+            aria: { enabled: false, decal: { show: true } },
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: '#fff',
+                borderColor: 'rgba(8,34,86,0.12)',
+                borderWidth: 1,
+                textStyle: { color: '#082256', fontSize: 12 },
+                extraCssText: 'border-radius:4px;padding:8px 12px;box-shadow:0 2px 8px rgba(8,34,86,0.06);',
+                formatter: tooltipFmt,
+                axisPointer: { type: 'line', lineStyle: { color: 'rgba(8,34,86,0.25)' } },
+            },
+            legend: {
+                show: false,
+                selectedMode: true,
+            },
+            grid: { left: '3%', right: '4%', top: '8%', bottom: '10%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                axisLine: { lineStyle: { color: 'rgba(8,34,86,0.12)' } },
+                axisTick: { show: false },
+                axisLabel: { color: 'rgba(8,34,86,0.55)', fontSize: 11 },
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    color: 'rgba(8,34,86,0.55)',
+                    fontSize: 11,
+                    formatter: v => (v * 100).toFixed(1) + '%',
+                },
+                splitLine: { lineStyle: { color: 'rgba(8,34,86,0.06)', type: 'solid', width: 1 } },
+                axisLine: { show: false },
+                axisTick: { show: false },
+            },
+        };
+
+        const zeroLine = { silent: true, data: [{ yAxis: 0, lineStyle: { color: 'rgba(8,34,86,0.35)', type: 'dashed', width: 1 } }], label: { show: false }, symbol: 'none' };
+
+        // ============ WEEKLY ============
+        function weeklyXAxis(weeks) {
+            const step = weeks.length > 16 ? 2 : 1;
+            return {
+                ...baseOpts.xAxis,
+                data: weeks,
+                axisLabel: {
+                    ...baseOpts.xAxis.axisLabel,
+                    rotate: 35,
+                    fontSize: 10,
+                    hideOverlap: true,
+                    interval: (idx) => idx === 0 || idx === weeks.length - 1 || idx % step === 0,
+                },
+            };
+        }
+
+        // 底部滑块：经典 dataZoom 阴影；用隐藏首序列指定预览指标
+        const zoomShadowIndex = { 'weekly-hotel': 1, 'weekly-aviation': 0 };
+
+        function weeklyDataZoom() {
+            return [
+                {
+                    type: 'inside',
+                    xAxisIndex: 0,
+                    filterMode: 'filter',
+                    zoomOnMouseWheel: true,
+                    moveOnMouseMove: true,
+                    moveOnMouseWheel: false,
+                },
+                {
+                    type: 'slider',
+                    xAxisIndex: 0,
+                    filterMode: 'filter',
+                    height: 22,
+                    bottom: 8,
+                    showDetail: true,
+                    showDataShadow: true,
+                    borderColor: 'rgba(8,34,86,0.10)',
+                    fillerColor: 'rgba(8,34,86,0.06)',
+                    handleIcon: 'path://M-1,0 L1,0 L1,12 L-1,12 Z',
+                    handleSize: '80%',
+                    handleStyle: {
+                        color: 'rgba(8,34,86,0.35)',
+                        borderColor: 'rgba(8,34,86,0.25)',
+                        borderWidth: 1,
+                        shadowBlur: 0,
+                    },
+                    moveHandleSize: 5,
+                    moveHandleStyle: { color: 'rgba(8,34,86,0.22)' },
+                    textStyle: { color: 'rgba(8,34,86,0.4)', fontSize: 9 },
+                    dataBackground: {
+                        lineStyle: { color: 'rgba(8,34,86,0.25)', width: 1 },
+                        areaStyle: { color: 'rgba(8,34,86,0.04)' },
+                    },
+                    selectedDataBackground: {
+                        lineStyle: { color: 'rgba(8,34,86,0.45)', width: 1 },
+                        areaStyle: { color: 'rgba(8,34,86,0.08)' },
+                    },
+                    brushSelect: false,
+                },
+            ];
+        }
+
+        function weeklyChartOpts(weeks, series, shadowIdx) {
+            const idx = Math.max(0, Math.min(series.length - 1, shadowIdx == null ? 0 : shadowIdx));
+            const src = series[idx];
+            const shadow = {
+                name: '__dz_shadow',
+                type: 'line',
+                data: src.data,
+                showSymbol: false,
+                symbol: 'none',
+                lineStyle: { opacity: 0, width: 1 },
+                itemStyle: { opacity: 0 },
+                silent: true,
+                tooltip: { show: false },
+                legendHoverLink: false,
+                emphasis: { disabled: true },
+                z: 0,
+            };
+            return {
+                ...baseOpts,
+                legend: {
+                    show: false,
+                    selectedMode: true,
+                    data: series.map(s => s.name).filter(Boolean),
+                },
+                grid: { ...baseOpts.grid, right: 168, bottom: 78, top: '10%' },
+                dataZoom: weeklyDataZoom(),
+                xAxis: weeklyXAxis(weeks),
+                series: [shadow].concat(series),
+            };
+        }
+
+        function bindZoomMetricSwitch(chartId, labels, selectedIdx, onPick) {
+            const chartDom = document.getElementById(chartId);
+            if (!chartDom || !chartDom.parentElement) return;
+            const card = chartDom.parentElement;
+            let row = card.querySelector('.chart-zoom-metrics');
+            if (!row) {
+                row = document.createElement('div');
+                row.className = 'chart-zoom-metrics';
+            }
+            const toggles = card.querySelector('.series-toggles') || chartDom.querySelector('.series-toggles');
+            if (row.parentElement !== card) {
+                // Always keep preview metrics below the chart block (slider lives inside chart)
+                chartDom.insertAdjacentElement('afterend', row);
+            } else if (toggles && toggles.parentElement === card && toggles.nextElementSibling !== row) {
+                toggles.insertAdjacentElement('afterend', row);
+            }
+
+            const hint = currentLang === 'zh' ? '滑块预览' : 'Slider preview';
+            row.innerHTML = '<span class="zoom-metric-hint">' + hint + '</span>' +
+                labels.map((lab, i) =>
+                    '<button type="button" class="zoom-metric-btn' + (i === selectedIdx ? ' is-active' : '') +
+                    '" data-i="' + i + '">' + lab + '</button>'
+                ).join('');
+            row.querySelectorAll('.zoom-metric-btn').forEach(btn => {
+                btn.onclick = function() { onPick(+btn.getAttribute('data-i')); };
+            });
+        }
+
+        function seriesToggleMeta(seriesList) {
+            return (seriesList || [])
+                .filter(s => s && s.name && String(s.name).indexOf('__') !== 0)
+                .map(s => {
+                    let color = C.c03;
+                    if (s.itemStyle && typeof s.itemStyle.color === 'string') color = s.itemStyle.color;
+                    else if (s.lineStyle && typeof s.lineStyle.color === 'string') color = s.lineStyle.color;
+                    return { name: s.name, color };
+                });
+        }
+
+        function bindSeriesToggles(chart, seriesList) {
+            const host = chart.getDom();
+            if (!host || !host.parentElement) return;
+            const card = host.parentElement;
+            const items = seriesToggleMeta(seriesList);
+            let row = card.querySelector('.series-toggles') || host.querySelector('.series-toggles');
+            if (items.length < 2) {
+                if (row) {
+                    row.innerHTML = '';
+                    row.hidden = true;
+                }
+                return;
+            }
+            if (!row) {
+                row = document.createElement('div');
+                row.className = 'series-toggles';
+            }
+            row.hidden = false;
+
+            const inZoomable = host.classList.contains('zoomable');
+            if (inZoomable) {
+                if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+                if (row.parentElement !== host) host.appendChild(row);
+            } else {
+                const zoom = card.querySelector('.chart-zoom-metrics');
+                if (zoom) card.insertBefore(row, zoom);
+                else if (row.parentElement !== card) host.insertAdjacentElement('afterend', row);
+            }
+
+            let selected = {};
+            try {
+                const leg = chart.getOption().legend;
+                const leg0 = Array.isArray(leg) ? leg[0] : leg;
+                selected = (leg0 && leg0.selected) || {};
+            } catch (e) { /* ignore */ }
+
+            const tip = t('legendToggleHint');
+            row.innerHTML = items.map(item => {
+                const on = selected[item.name] !== false;
+                return '<button type="button" class="series-toggle' + (on ? ' is-on' : '') +
+                    '" data-name="' + escapeHtmlAttr(item.name) +
+                    '" style="--series-c:' + item.color +
+                    '" aria-pressed="' + (on ? 'true' : 'false') +
+                    '" title="' + tip + '">' +
+                    '<span class="series-toggle-swatch" aria-hidden="true"></span>' +
+                    '<span class="series-toggle-label">' + escapeHtml(item.name) + '</span>' +
+                    '<span class="series-toggle-switch" aria-hidden="true"></span>' +
+                    '</button>';
+            }).join('');
+
+            row.querySelectorAll('.series-toggle').forEach(btn => {
+                btn.onclick = function() {
+                    const name = btn.getAttribute('data-name');
+                    chart.dispatchAction({ type: 'legendToggleSelect', name });
+                };
+            });
+            chart.off('legendselectchanged');
+            chart.on('legendselectchanged', function(e) {
+                row.querySelectorAll('.series-toggle').forEach(btn => {
+                    const name = btn.getAttribute('data-name');
+                    const on = e.selected[name] !== false;
+                    btn.classList.toggle('is-on', on);
+                    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                });
+            });
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function escapeHtmlAttr(str) {
+            return escapeHtml(str).replace(/'/g, '&#39;');
+        }
+
+        function renderWeeklyHotel() {
+            const chartId = 'weekly-hotel';
+            const c = getChart(chartId);
+            const weeks = DATA.weekly.weeks;
+            const occ = DATA.weekly.hotelOccupancy;
+            const adr = DATA.weekly.hotelADR;
+            const rev = DATA.weekly.hotelRevPAR;
+            const arrays = [rev, adr, occ];
+            if (zoomShadowIndex[chartId] == null) zoomShadowIndex[chartId] = 1;
+            const shadowIdx = zoomShadowIndex[chartId];
+
+            const series = withHoverFocus([
+                lineSeries(t('seriesRevpar'), rev, C.c03, true, true, -14),
+                lineSeries(t('seriesAdr'), adr, C.c02, false, true, 0),
+                lineSeries(t('seriesOcc'), occ, C.c04, false, true, 14),
+            ]);
+            c.setOption(weeklyChartOpts(weeks, series, shadowIdx));
+            attachExtrema(c, arrays, null, 1, {
+                mode: 'ytdAvg',
+                avgSeriesIndex: 0,
+                color: C.ytdAvg,
+                labelKey: 'markYtdAvgRevpar',
+            });
+            bindSeriesToggles(c, series);
+            bindZoomMetricSwitch(chartId, [t('seriesRevpar'), t('seriesAdr'), t('seriesOcc')], shadowIdx, function(i) {
+                zoomShadowIndex[chartId] = i;
+                renderWeeklyHotel();
+            });
+        }
+
+        function renderWeeklyAviation() {
+            const chartId = 'weekly-aviation';
+            const c = getChart(chartId);
+            const weeks = DATA.weekly.weeks;
+            const pax = DATA.weekly.aviationPax;
+            const tkt = DATA.weekly.aviationTicket;
+            const flt = DATA.weekly.aviationFlight;
+            const arrays = [pax, tkt, flt];
+            if (zoomShadowIndex[chartId] == null) zoomShadowIndex[chartId] = 1;
+            const shadowIdx = zoomShadowIndex[chartId];
+
+            const series = withHoverFocus([
+                lineSeries(t('seriesPax'), pax, C.c03, true, true, -14),
+                lineSeries(t('seriesTicket'), tkt, C.c02, false, true, 0),
+                lineSeries(t('seriesFlight'), flt, C.c04, false, true, 14),
+            ]);
+            c.setOption(weeklyChartOpts(weeks, series, shadowIdx));
+            attachExtrema(c, arrays, null, 1, {
+                mode: 'ytdAvg',
+                avgSeriesIndex: 0,
+                color: C.ytdAvg,
+                labelKey: 'markYtdAvgPax',
+            });
+            bindSeriesToggles(c, series);
+            bindZoomMetricSwitch(chartId, [t('seriesPax'), t('seriesTicket'), t('seriesFlight')], shadowIdx, function(i) {
+                zoomShadowIndex[chartId] = i;
+                renderWeeklyAviation();
+            });
+        }
+
+        // ============ MONTHLY ============
+        /** Slice monthly series through the latest month that has any non-null value. */
+        function monthlyThru(...arrays) {
+            let last = -1;
+            arrays.forEach(arr => {
+                for (let i = 0; i < arr.length; i++) {
+                    if (arr[i] != null && !Number.isNaN(arr[i])) last = Math.max(last, i);
+                }
+            });
+            const n = Math.max(last + 1, 1);
+            return {
+                months: localizeMonths(DATA.monthly.months.slice(0, n)),
+                slice: (arr) => arr.slice(0, n),
+            };
+        }
+
+        function renderMonthlyHotel() {
+            const c = getChart('monthly-hotel');
+            const occAll = DATA.monthly.hotelOccupancy;
+            const adrAll = DATA.monthly.hotelADR;
+            const revAll = DATA.monthly.hotelRevPAR;
+            const thru = monthlyThru(occAll, adrAll, revAll);
+            const occ = thru.slice(occAll);
+            const adr = thru.slice(adrAll);
+            const rev = thru.slice(revAll);
+            const arrays = [rev, adr, occ];
+
+            const series = withHoverFocus([
+                barSeries(t('seriesRevpar'), rev, C.c03),
+                barSeries(t('seriesAdr'), adr, C.c02),
+                barSeries(t('seriesOcc'), occ, C.c04),
+            ]);
+            c.setOption({
+                ...baseOpts,
+                xAxis: { ...baseOpts.xAxis, data: thru.months },
+                series,
+            });
+            attachExtrema(c, arrays);
+            bindSeriesToggles(c, series);
+        }
+
+        function renderMonthlyDomesticAviation() {
+            const c = getChart('monthly-domestic-aviation');
+            const caacAll = DATA.monthly.domAviationCAAC;
+            const big3All = DATA.monthly.domAviationBig3;
+            const thru = monthlyThru(caacAll, big3All);
+            const caac = thru.slice(caacAll);
+            const big3 = thru.slice(big3All);
+
+            const series = withHoverFocus([
+                lineSeries(t('seriesCaac'), caac, C.c03, true, true, -8),
+                lineSeries(t('seriesBig3'), big3, C.c02, false, true, 8),
+            ]);
+            c.setOption({
+                ...baseOpts,
+                grid: { ...baseOpts.grid, right: '8%' },
+                xAxis: { ...baseOpts.xAxis, data: thru.months },
+                series,
+            });
+            attachExtrema(c, [caac, big3]);
+            bindSeriesToggles(c, series);
+        }
+
+        function renderMonthlyRailway() {
+            const c = getChart('monthly-railway');
+            const railwayAll = DATA.monthly.railway;
+            const thru = monthlyThru(railwayAll);
+            const railway = thru.slice(railwayAll);
+
+            c.setOption({
+                ...baseOpts,
+                xAxis: { ...baseOpts.xAxis, data: thru.months },
+                series: withHoverFocus([{
+                    name: t('seriesRailway'), type: 'bar',
+                    data: railway.map(v => ({
+                        value: v,
+                        itemStyle: barItemStyleForSign(C.c02, v),
+                    })),
+                    barWidth: '40%',
+                    itemStyle: { color: C.c02 },
+                    label: { show: true, position: 'outside', formatter: p => pctLabel(p.value), color: 'rgba(8,34,86,0.55)', fontSize: 11 },
+                    markLine: extremaMarkLine(null, null, true),
+                }]),
+            });
+            attachExtrema(c, [railway]);
+            bindSeriesToggles(c, [{ name: t('seriesRailway'), itemStyle: { color: C.c02 } }]);
+        }
+
+        function renderMonthlyInternational() {
+            const c = getChart('monthly-international');
+            const caacAll = DATA.monthly.intlAviationCAAC;
+            const big3All = DATA.monthly.intlAviationBig3;
+            const capAll = DATA.monthly.intlCapacity;
+            const thru = monthlyThru(caacAll, big3All, capAll);
+            const caac = thru.slice(caacAll);
+            const big3 = thru.slice(big3All);
+            const cap = thru.slice(capAll);
+
+            const series = withHoverFocus([
+                lineSeries(t('seriesIntlCaac'), caac, C.c03, true, true, -14),
+                lineSeries(t('seriesIntlBig3'), big3, C.c02, false, true, 0),
+                Object.assign(lineSeries(t('seriesCapacity'), cap, C.c04, false, true, 14), {
+                    lineStyle: { color: C.c04, width: 1.5, type: 'dashed' },
+                }),
+            ]);
+            c.setOption({
+                ...baseOpts,
+                grid: { ...baseOpts.grid, right: '8%' },
+                xAxis: { ...baseOpts.xAxis, data: thru.months },
+                series,
+            });
+            attachExtrema(c, [caac, big3, cap]);
+            bindSeriesToggles(c, series);
+        }
+
+        // ============ QUARTERLY ============
+        function placeQuarterShading(chart) {
+            try {
+                const toX = (idx) => chart.convertToPixel({ xAxisIndex: 0 }, idx);
+                const xLeft = toX(-0.5);
+                const xQ1End = (toX(2) + toX(3)) / 2;   // between Mar & Apr
+                const xQ2End = (toX(5) + toX(6)) / 2;   // between Jun & Jul
+                const xQ3End = (toX(8) + toX(9)) / 2;   // between Sep & Oct
+                const xRight = toX(11.5);
+                if ([xLeft, xQ1End, xQ2End, xQ3End, xRight].some(v => v == null || Number.isNaN(v))) return;
+                const gridComp = chart.getModel().getComponent('grid', 0);
+                const rect = gridComp && gridComp.coordinateSystem && gridComp.coordinateSystem.getRect();
+                if (!rect) return;
+                const shades = [
+                    { id: 'q-shade-1', left: xLeft, right: xQ1End, color: 'rgba(8,34,86,0.04)' },
+                    { id: 'q-shade-2', left: xQ1End, right: xQ2End, color: 'rgba(38,88,253,0.06)' },
+                    { id: 'q-shade-3', left: xQ2End, right: xQ3End, color: 'rgba(8,34,86,0.04)' },
+                    { id: 'q-shade-4', left: xQ3End, right: xRight, color: 'rgba(38,88,253,0.06)' },
+                ];
+                chart.setOption({
+                    graphic: [
+                        ...shades.map(s => ({
+                            id: s.id,
+                            type: 'rect',
+                            zlevel: -1,
+                            shape: { x: s.left, y: rect.y, width: s.right - s.left, height: rect.height },
+                            style: { fill: s.color },
+                            silent: true,
+                            z: 0,
+                        })),
+                        {
+                            id: 'q1-label',
+                            type: 'text',
+                            style: { text: 'Q1', fill: C.c02, fontSize: 13, fontWeight: 700, textAlign: 'center' },
+                            left: (xLeft + xQ1End) / 2,
+                            top: rect.y - 22,
+                            silent: true,
+                            z: 100,
+                        },
+                        {
+                            id: 'q2-label',
+                            type: 'text',
+                            style: { text: 'Q2', fill: C.c03, fontSize: 13, fontWeight: 700, textAlign: 'center' },
+                            left: (xQ1End + xQ2End) / 2,
+                            top: rect.y - 22,
+                            silent: true,
+                            z: 100,
+                        },
+                    ],
+                });
+            } catch (e) { /* ignore layout races */ }
+        }
+
+        function renderQuarterlyTrend() {
+            const c = getChart('quarterly-trend');
+            const months = localizeMonths(DATA.monthly.months);
+            const hotelRev = DATA.monthly.hotelRevPAR;
+            const domAviation = DATA.monthly.domAviationCAAC;
+            const railway = DATA.monthly.railway;
+            const s0 = lineSeries(t('seriesHotelRev'), hotelRev, C.c04, true, true, -14);
+            // Quarter shading drawn in placeQuarterShading() — pixel midpoints between months.
+
+            const series = withHoverFocus([
+                s0,
+                lineSeries(t('seriesDomAv'), domAviation, C.c03, false, true, 0),
+                lineSeries(t('seriesRailway'), railway, C.c02, false, true, 14),
+            ]);
+            c.setOption({
+                ...baseOpts,
+                grid: { left: '4%', right: '8%', top: '14%', bottom: '10%', containLabel: true },
+                xAxis: { ...baseOpts.xAxis, data: months },
+                series,
+            });
+            attachExtrema(c, [hotelRev, domAviation, railway]);
+            bindSeriesToggles(c, series);
+            const refreshBoundary = () => placeQuarterShading(c);
+            c.__qBoundaryRefresh = refreshBoundary;
+            // Defer until coordinateSystem is ready (hidden-tab init / first paint).
+            setTimeout(refreshBoundary, 0);
+            setTimeout(refreshBoundary, 120);
+        }
+
+        function quarterData(key) {
+            const q = DATA.quarterly || {};
+            return q[key] || q[key + 'partial'] || {};
+        }
+
+        function renderQuarterlyCompare() {
+            const c = getChart('quarterly-compare');
+            const metrics = currentLang === 'zh'
+                ? ['国内酒店\nRevPAR', '国内航空\n客运量', '铁路\n客运量', '国际客运\n(三大航)']
+                : ['Domestic hotel\nRevPAR', 'Domestic air\npax', 'Railway\npax', 'Intl pax\n(Big3)'];
+            const q1 = quarterData('q1');
+            const q2 = quarterData('q2');
+            const q1Vals = [q1.hotelRevPAR, q1.domAviationCAAC, q1.railway, q1.intlAviationBig3];
+            const q2Vals = [q2.hotelRevPAR, q2.domAviationCAAC, q2.railway, q2.intlAviationBig3];
+            const q1Color = C.c02;
+            const q2Color = C.c03;
+
+            const series = withHoverFocus([
+                {
+                    name: 'Q1', type: 'bar',
+                    data: q1Vals.map(v => ({
+                        value: v,
+                        itemStyle: barItemStyleForSign(q1Color, v),
+                    })),
+                    barWidth: '28%',
+                    barGap: '20%',
+                    itemStyle: { color: q1Color },
+                    label: { show: true, position: 'outside', formatter: p => pctLabel(p.value), color: 'rgba(8,34,86,0.55)', fontSize: 11 },
+                    markLine: extremaMarkLine(null, null, true),
+                },
+                {
+                    name: currentLang==='zh' ? 'Q2（4–6月均值）' : 'Q2 (Apr–Jun avg)', type: 'bar',
+                    data: q2Vals.map(v => ({
+                        value: v,
+                        itemStyle: barItemStyleForSign(q2Color, v),
+                    })),
+                    barWidth: '28%',
+                    itemStyle: { color: q2Color },
+                    label: { show: true, position: 'outside', formatter: p => pctLabel(p.value), color: 'rgba(8,34,86,0.55)', fontSize: 11 },
+                },
+            ]);
+            c.setOption({
+                ...baseOpts,
+                legend: { show: false, selectedMode: true },
+                grid: { left: '3%', right: '4%', top: '12%', bottom: '12%', containLabel: true },
+                xAxis: {
+                    type: 'category', data: metrics,
+                    axisLine: { lineStyle: { color: 'rgba(8,34,86,0.12)' } },
+                    axisTick: { show: false },
+                    axisLabel: { color: 'rgba(8,34,86,0.55)', fontSize: 11 },
+                },
+                series,
+            });
+            bindSeriesFocusLabel(c);
+            bindSeriesToggles(c, series);
+        }
+
+        // ============ HELPERS ============
+        function pctLabel(v) {
+            if (v == null || Number.isNaN(+v)) return '';
+            return (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
+        }
+
+        function seriesValueAt(arr, i) {
+            const v = arr[i];
+            if (v == null) return null;
+            if (typeof v === 'object') return v.value != null ? v.value : null;
+            return v;
+        }
+
+        function findExtrema(arrays, start, end) {
+            let min = Infinity, max = -Infinity;
+            arrays.forEach(arr => {
+                for (let i = start; i <= end; i++) {
+                    const v = seriesValueAt(arr, i);
+                    if (v == null || Number.isNaN(+v)) continue;
+                    if (v < min) min = v;
+                    if (v > max) max = v;
+                }
+            });
+            if (!isFinite(min) || !isFinite(max)) return null;
+            return { min, max };
+        }
+
+        /** Year-to-date mean of a series from index 0 through `end` (inclusive). */
+        function ytdAverage(arr, end) {
+            let sum = 0, count = 0;
+            const last = end == null ? arr.length - 1 : end;
+            for (let i = 0; i <= last; i++) {
+                const v = seriesValueAt(arr, i);
+                if (v == null || Number.isNaN(+v)) continue;
+                sum += +v;
+                count++;
+            }
+            if (!count) return null;
+            return sum / count;
+        }
+
+        function extremaMarkLine(min, max, withZero) {
+            const data = [];
+            if (withZero) {
+                data.push({ yAxis: 0, lineStyle: { color: 'rgba(8,34,86,0.35)', type: 'dashed', width: 1 }, label: { show: false } });
+            }
+            if (min != null && max != null) {
+                data.push({
+                    yAxis: max,
+                    lineStyle: { color: C.c03, type: 'dashed', width: 1 },
+                    label: {
+                        show: true,
+                        position: 'insideEndTop',
+                        formatter: 'Max ' + pctLabel(max),
+                        color: C.c03,
+                        fontSize: 10,
+                        fontWeight: 600,
+                    },
+                });
+                data.push({
+                    yAxis: min,
+                    lineStyle: { color: C.c04, type: 'dashed', width: 1 },
+                    label: {
+                        show: true,
+                        position: 'insideEndBottom',
+                        formatter: 'Min ' + pctLabel(min),
+                        color: C.c02,
+                        fontSize: 10,
+                        fontWeight: 600,
+                    },
+                });
+            }
+            return { silent: true, symbol: 'none', data };
+        }
+
+        function ytdAvgMarkLine(avg, withZero, color) {
+            const lineColor = color || C.ytdAvg;
+            const data = [];
+            if (withZero) {
+                data.push({ yAxis: 0, lineStyle: { color: 'rgba(8,34,86,0.35)', type: 'dashed', width: 1 }, label: { show: false } });
+            }
+            if (avg != null && isFinite(avg)) {
+                data.push({
+                    yAxis: avg,
+                    lineStyle: { color: lineColor, type: [10, 8], width: 1.5 },
+                    label: { show: false },
+                });
+            }
+            return { silent: true, symbol: 'none', data };
+        }
+
+        /** Place YTD Avg text in the right gutter via DOM overlay (outside the plot). */
+        function upsertYtdAvgLabel(chart, avg, color, labelText) {
+            const host = chart.getDom();
+            if (!host) return;
+            if (getComputedStyle(host).position === 'static') {
+                host.style.position = 'relative';
+            }
+            let tag = host.querySelector('.ytd-avg-tag');
+            if (!tag) {
+                tag = document.createElement('div');
+                tag.className = 'ytd-avg-tag';
+                host.appendChild(tag);
+            }
+            if (avg == null || !isFinite(avg)) {
+                tag.hidden = true;
+                tag.textContent = '';
+                chart.setOption({ graphic: [{ id: 'ytd-avg-label', $action: 'remove' }] });
+                return;
+            }
+            let left = 0, top = 0;
+            try {
+                const yPx = chart.convertToPixel({ yAxisIndex: 0 }, avg);
+                const rect = chart.getModel().getComponent('grid', 0).coordinateSystem.getRect();
+                // Anchor LEFT edge just past the plot so text stays in the right blank margin
+                left = Math.round(rect.x + rect.width + 10);
+                top = Math.round(yPx);
+            } catch (e) {
+                return;
+            }
+            tag.hidden = false;
+            tag.textContent = (labelText || '') + ' ' + pctLabel(avg);
+            tag.style.right = 'auto';
+            tag.style.left = left + 'px';
+            tag.style.top = top + 'px';
+            tag.style.color = color || C.ytdAvg;
+            chart.setOption({
+                graphic: [{
+                    id: 'ytd-avg-label',
+                    type: 'text',
+                    left,
+                    top,
+                    silent: true,
+                    z: 100,
+                    style: {
+                        text: tag.textContent,
+                        fill: color || C.ytdAvg,
+                        font: '700 13px "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif',
+                        align: 'left',
+                        verticalAlign: 'middle',
+                        opacity: 0,
+                    },
+                }],
+            });
+        }
+
+        function withHoverFocus(seriesList) {
+            return seriesList.map(s => {
+                const isLine = s.type === 'line';
+                const isBar = s.type === 'bar';
+                const color = (s.itemStyle && s.itemStyle.color) || (s.lineStyle && s.lineStyle.color) || C.c03;
+                const out = {
+                    ...s,
+                    emphasis: {
+                        ...(s.emphasis || {}),
+                        focus: 'series',
+                    },
+                    blur: {
+                        lineStyle: { opacity: 0.3 },
+                        itemStyle: { opacity: 0.3 },
+                        areaStyle: { opacity: 0.1 },
+                    },
+                };
+                if (isLine) {
+                    out.showSymbol = true;
+                    out.symbol = 'circle';
+                    out.symbolSize = 5;
+                    out.itemStyle = { ...(s.itemStyle || {}), color, opacity: 0, borderWidth: 0 };
+                    out.emphasis.lineStyle = { width: (s.lineStyle && s.lineStyle.width ? s.lineStyle.width : 1.5) + 0.5 };
+                    out.emphasis.itemStyle = { opacity: 1, color, borderWidth: 0 };
+                    out.emphasis.scale = false;
+                    out.blur.itemStyle = { opacity: 0 };
+                } else if (isBar) {
+                    out.emphasis.label = { ...(s.label || {}), ...(s.emphasis && s.emphasis.label), show: true };
+                } else {
+                    out.emphasis.itemStyle = { opacity: 1, color };
+                }
+                return out;
+            });
+        }
+
+        function bindSeriesFocusLabel(chart) {
+            const host = chart.getDom();
+            if (host && getComputedStyle(host).position === 'static') {
+                host.style.position = 'relative';
+            }
+            let tag = host && host.querySelector('.series-focus-tag');
+            if (host && !tag) {
+                tag = document.createElement('div');
+                tag.className = 'series-focus-tag';
+                host.appendChild(tag);
+            }
+            function showTag(name) {
+                if (!tag || !name || String(name).indexOf('__') === 0) return;
+                tag.textContent = name;
+                tag.classList.add('is-on');
+            }
+            function hideTag() {
+                if (!tag) return;
+                tag.classList.remove('is-on');
+                tag.textContent = '';
+            }
+            chart.off('mouseover');
+            chart.off('highlight');
+            chart.off('downplay');
+            chart.off('globalout');
+            chart.on('mouseover', function(p) {
+                if (p.componentType === 'series' && p.seriesName) showTag(p.seriesName);
+            });
+            chart.on('highlight', function(p) {
+                const name = p.seriesName || (p.batch && p.batch[0] && p.batch[0].seriesName);
+                if (name) showTag(name);
+            });
+            chart.on('downplay', hideTag);
+            chart.on('globalout', hideTag);
+        }
+
+        function markLineSeriesPatch(chart, seriesIndex, markLine, extraOption) {
+            const seriesList = chart.getOption().series;
+            const count = Array.isArray(seriesList) ? seriesList.length : 0;
+            if (!count) return;
+            const payload = [];
+            for (let i = 0; i < count; i++) {
+                payload.push(i === seriesIndex ? { markLine } : {});
+            }
+            chart.setOption(Object.assign({ series: payload }, extraOption || {}));
+        }
+
+        function attachExtrema(chart, arrays, extraMarkData, markSeriesIndex, opts) {
+            const n = Math.max(...arrays.map(a => a.length), 0);
+            const si = markSeriesIndex == null ? 0 : markSeriesIndex;
+            const mode = (opts && opts.mode) || 'extrema';
+            const avgSeriesIndex = (opts && opts.avgSeriesIndex != null) ? opts.avgSeriesIndex : 0;
+            function refresh() {
+                if (!n) return;
+                let start = 0, end = n - 1;
+                try {
+                    const dzList = chart.getOption().dataZoom || [];
+                    const dz = dzList.find(d => d.start != null && d.end != null);
+                    if (dz) {
+                        start = Math.floor(n * (dz.start || 0) / 100);
+                        end = Math.min(n - 1, Math.max(start, Math.ceil(n * (dz.end != null ? dz.end : 100) / 100) - 1));
+                    }
+                } catch (e) { /* ignore */ }
+                let ml;
+                if (mode === 'ytdAvg') {
+                    const avg = ytdAverage(arrays[avgSeriesIndex] || [], end);
+                    if (avg == null) return;
+                    const labelKey = (opts && opts.labelKey) || 'markYtdAvgPax';
+                    const color = (opts && opts.color) || C.ytdAvg;
+                    ml = ytdAvgMarkLine(avg, true, color);
+                    if (extraMarkData && extraMarkData.length) {
+                        ml.data = ml.data.concat(extraMarkData);
+                    }
+                    markLineSeriesPatch(chart, si, ml);
+                    requestAnimationFrame(function() {
+                        upsertYtdAvgLabel(chart, avg, color, t(labelKey));
+                    });
+                    return;
+                }
+                const ex = findExtrema(arrays, start, end);
+                if (!ex) return;
+                ml = extremaMarkLine(ex.min, ex.max, true);
+                if (extraMarkData && extraMarkData.length) {
+                    ml.data = ml.data.concat(extraMarkData);
+                }
+                markLineSeriesPatch(chart, si, ml);
+            }
+            chart.__ytdRefresh = mode === 'ytdAvg' ? refresh : null;
+            chart.off('datazoom');
+            chart.on('datazoom', refresh);
+            refresh();
+            bindSeriesFocusLabel(chart);
+        }
+
+        function gradient(color, alpha) {
+            return { color: new echarts.graphic.LinearGradient(0,0,0,1,[
+                { offset: 0, color: color.replace(')', `,${alpha})`).replace('rgb(', 'rgba(') },
+                { offset: 1, color: 'rgba(255,255,255,0)' },
+            ])};
+        }
+
+        function lineSeries(name, data, color, isFirst, showLabel, labelOffsetY) {
+            const labelColor = (color === C.c04 || color === C.light) ? C.c02 : color;
+            const s = {
+                name, type: 'line', data, smooth: true,
+                showSymbol: false,
+                symbol: 'none',
+                lineStyle: { color, width: 1.5 },
+                itemStyle: { color },
+                z: color === C.c02 ? 3 : 2,
+            };
+            if (isFirst) s.markLine = extremaMarkLine(null, null, true);
+            if (showLabel) {
+                const lastIdx = data.reduce((last, v, i) => v != null ? i : last, -1);
+                s.label = {
+                    show: true,
+                    formatter: function(p) {
+                        return p.dataIndex === lastIdx ? pctLabel(p.value) : '';
+                    },
+                    fontSize: 11,
+                    fontWeight: color === C.c02 ? 700 : 600,
+                    color: labelColor,
+                    position: 'right',
+                    distance: 8,
+                    offset: [0, labelOffsetY || 0],
+                };
+                s.labelLayout = { hideOverlap: true, moveOverlap: 'shiftY' };
+            }
+            return s;
+        }
+
+        function barSeries(name, data, color) {
+            return {
+                name,
+                type: 'bar',
+                data: (data || []).map(v => {
+                    const val = v != null && typeof v === 'object' ? v.value : v;
+                    return {
+                        value: v,
+                        itemStyle: barItemStyleForSign(color, val),
+                    };
+                }),
+                barWidth: '20%',
+                itemStyle: { color },
+                label: {
+                    show: false,
+                    position: 'outside',
+                    formatter: p => pctLabel(p.value),
+                    color: 'rgba(8,34,86,0.55)',
+                    fontSize: 11,
+                },
+                emphasis: {
+                    label: { show: true },
+                },
+            };
+        }
+
+        function hexToRgba(hex, alpha) {
+            const n = String(hex).replace('#', '');
+            if (n.length !== 6) return hex;
+            const r = parseInt(n.slice(0, 2), 16);
+            const g = parseInt(n.slice(2, 4), 16);
+            const b = parseInt(n.slice(4, 6), 16);
+            return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+        }
+
+        /**
+         * Positive: solid series color.
+         * Negative: same hue, ghost fill + hatch — same series, signed contrast.
+         */
+        function barItemStyleForSign(baseHex, v) {
+            const neg = v != null && !Number.isNaN(+v) && v < 0;
+            if (!neg) {
+                return {
+                    color: baseHex,
+                    borderRadius: [2, 2, 0, 0],
+                };
+            }
+            return {
+                color: hexToRgba(baseHex, 0.22),
+                borderColor: hexToRgba(baseHex, 0.7),
+                borderWidth: 1,
+                borderRadius: [0, 0, 2, 2],
+                decal: {
+                    symbol: 'rect',
+                    dashArrayX: [1, 0],
+                    dashArrayY: [3, 2],
+                    rotation: -Math.PI / 4,
+                    color: hexToRgba(baseHex, 0.55),
+                },
+            };
+        }
+
+        // ============ INIT ============
+        function lastNonNull(arr) {
+            for (let i = arr.length - 1; i >= 0; i--) {
+                if (arr[i] != null) return { value: arr[i], index: i };
+            }
+            return { value: null, index: -1 };
+        }
+
+        function fillCard(prefix, i, label, value, sub) {
+            const lab = document.getElementById(prefix + i + '-label');
+            const val = document.getElementById(prefix + i + '-value');
+            const sb = document.getElementById(prefix + i + '-sub');
+            if (lab) lab.textContent = label;
+            if (val) {
+                val.textContent = fmtPct(value);
+                val.className = 'kpi-value ' + (value == null ? '' : (value >= 0 ? 'up' : 'down'));
+            }
+            if (sb) sb.textContent = sub || '';
+        }
+
+        function latestSeriesIndex(seriesList) {
+            let maxIdx = -1;
+            for (const arr of seriesList) {
+                const hit = lastNonNull(arr);
+                if (hit.index > maxIdx) maxIdx = hit.index;
+            }
+            return maxIdx;
+        }
+
+        function latestQuarterInfo() {
+            const qd = DATA.quarterly || {};
+            for (const key of ['q4', 'q3', 'q2', 'q1']) {
+                const q = qd[key];
+                if (!q) continue;
+                if (Object.values(q).some(v => v != null)) {
+                    return { key, label: key.toUpperCase(), data: q };
+                }
+            }
+            return { key: 'q1', label: 'Q1', data: qd.q1 || {} };
+        }
+
+        function setOverviewTitle(id, scopeLabel) {
+            const el = document.getElementById(id);
+            if (el && typeof sectorOverviewTitle === 'function') {
+                el.textContent = sectorOverviewTitle(scopeLabel);
+            }
+        }
+
+        function updateKPI() {
+            const occ = lastNonNull(DATA.weekly.hotelOccupancy);
+            document.getElementById('kpi-occ').textContent = fmtPct(occ.value);
+            document.getElementById('kpi-occ').className = 'kpi-value ' + (occ.value >= 0 ? 'up' : 'down');
+            document.getElementById('kpi-occ-week').textContent = DATA.weekly.weeks[occ.index] + ' ' + t('weekYoY');
+
+            const adr = lastNonNull(DATA.weekly.hotelADR);
+            document.getElementById('kpi-adr').textContent = fmtPct(adr.value);
+            document.getElementById('kpi-adr').className = 'kpi-value ' + (adr.value >= 0 ? 'up' : 'down');
+            document.getElementById('kpi-adr-week').textContent = DATA.weekly.weeks[adr.index] + ' ' + t('weekYoY');
+
+            const rev = lastNonNull(DATA.weekly.hotelRevPAR);
+            document.getElementById('kpi-revpar').textContent = fmtPct(rev.value);
+            document.getElementById('kpi-revpar').className = 'kpi-value ' + (rev.value >= 0 ? 'up' : 'down');
+            document.getElementById('kpi-revpar-week').textContent = DATA.weekly.weeks[rev.index] + ' ' + t('weekYoY');
+
+            const pax = lastNonNull(DATA.weekly.aviationPax);
+            document.getElementById('kpi-pax').textContent = fmtPct(pax.value);
+            document.getElementById('kpi-pax').className = 'kpi-value ' + (pax.value >= 0 ? 'up' : 'down');
+            document.getElementById('kpi-pax-week').textContent = DATA.weekly.weeks[pax.index] + ' ' + t('weekYoY');
+
+            const tkt = lastNonNull(DATA.weekly.aviationTicket);
+            document.getElementById('kpi-ticket').textContent = fmtPct(tkt.value);
+            document.getElementById('kpi-ticket').className = 'kpi-value ' + (tkt.value >= 0 ? 'up' : 'down');
+            document.getElementById('kpi-ticket-week').textContent = DATA.weekly.weeks[tkt.index] + ' ' + t('weekYoY');
+
+            const flt = lastNonNull(DATA.weekly.aviationFlight);
+            document.getElementById('kpi-flight').textContent = fmtPct(flt.value);
+            document.getElementById('kpi-flight').className = 'kpi-value ' + (flt.value >= 0 ? 'up' : 'down');
+            document.getElementById('kpi-flight-week').textContent = DATA.weekly.weeks[flt.index] + ' ' + t('weekYoY');
+
+            const wIdx = latestSeriesIndex([
+                DATA.weekly.hotelOccupancy,
+                DATA.weekly.hotelADR,
+                DATA.weekly.hotelRevPAR,
+                DATA.weekly.aviationPax,
+                DATA.weekly.aviationTicket,
+                DATA.weekly.aviationFlight,
+            ]);
+            const weekLabel = wIdx >= 0 ? DATA.weekly.weeks[wIdx] : (currentLang === 'zh' ? '最新周' : 'Latest week');
+            setOverviewTitle('i18n-chart-weekly-overview', weekLabel);
+        }
+
+        function updateMonthlyKPI() {
+            const m = DATA.monthly;
+            const occ = lastNonNull(m.hotelOccupancy);
+            const adr = lastNonNull(m.hotelADR);
+            const rev = lastNonNull(m.hotelRevPAR);
+            const caac = lastNonNull(m.domAviationCAAC);
+            const big3 = lastNonNull(m.domAviationBig3);
+            const rail = lastNonNull(m.railway);
+            const intlCaac = lastNonNull(m.intlAviationCAAC);
+            const intlBig3 = lastNonNull(m.intlAviationBig3);
+            const cap = lastNonNull(m.intlCapacity);
+            const prev = (arr, idx) => (idx > 0 ? arr[idx - 1] : null);
+            const prevLine = (arr, idx) =>
+                t('prevMonth') + ': ' + monthLabel(m.months[idx - 1] || '') + ' ' + fmtPct(prev(arr, idx));
+            fillCard('m-kpi-', 0,
+                currentLang === 'zh' ? ('国内酒店 RevPAR（' + m.months[rev.index] + '）') : ('Domestic hotel RevPAR (' + monthLabel(m.months[rev.index]) + ')'),
+                rev.value,
+                prevLine(m.hotelRevPAR, rev.index)
+            );
+            fillCard('m-kpi-', 1,
+                currentLang === 'zh' ? ('国内酒店 ADR（' + m.months[adr.index] + '）') : ('Domestic hotel ADR (' + monthLabel(m.months[adr.index]) + ')'),
+                adr.value,
+                prevLine(m.hotelADR, adr.index)
+            );
+            fillCard('m-kpi-', 2,
+                currentLang === 'zh' ? ('国内酒店入住率（' + m.months[occ.index] + '）') : ('Domestic hotel occupancy (' + monthLabel(m.months[occ.index]) + ')'),
+                occ.value,
+                prevLine(m.hotelOccupancy, occ.index)
+            );
+            fillCard('m-kpi-', 3,
+                currentLang === 'zh' ? ('国内航空客运量（' + m.months[caac.index] + ' · 民航局）') : ('Domestic air pax (' + monthLabel(m.months[caac.index]) + ' · CAAC)'),
+                caac.value,
+                prevLine(m.domAviationCAAC, caac.index)
+            );
+            fillCard('m-kpi-', 4,
+                currentLang === 'zh' ? ('国内航空客运量（' + m.months[big3.index] + ' · 三大航）') : ('Domestic air pax (' + monthLabel(m.months[big3.index]) + ' · Big3)'),
+                big3.value,
+                prevLine(m.domAviationBig3, big3.index)
+            );
+            fillCard('m-kpi-', 5,
+                currentLang === 'zh' ? ('铁路客运量（' + m.months[rail.index] + '）') : ('Railway pax (' + monthLabel(m.months[rail.index]) + ')'),
+                rail.value,
+                prevLine(m.railway, rail.index)
+            );
+            fillCard('m-kpi-', 6,
+                currentLang === 'zh' ? ('国际航线客运量（' + m.months[intlCaac.index] + ' · 民航局）') : ('Intl air pax (' + monthLabel(m.months[intlCaac.index]) + ' · CAAC)'),
+                intlCaac.value,
+                t('crossBorder')
+            );
+            fillCard('m-kpi-', 7,
+                currentLang === 'zh' ? ('国际航线客运量（' + m.months[intlBig3.index] + ' · 三大航）') : ('Intl air pax (' + monthLabel(m.months[intlBig3.index]) + ' · Big3)'),
+                intlBig3.value,
+                t('crossBorder')
+            );
+            fillCard('m-kpi-', 8,
+                currentLang === 'zh' ? ('国际航班运力（' + m.months[cap.index] + ' · vs 2019）') : ('Intl capacity (' + monthLabel(m.months[cap.index]) + ' · vs 2019)'),
+                cap.value,
+                t('vs2019')
+            );
+
+            const mIdx = latestSeriesIndex([
+                m.hotelOccupancy,
+                m.hotelADR,
+                m.hotelRevPAR,
+                m.domAviationCAAC,
+                m.domAviationBig3,
+                m.railway,
+                m.intlAviationCAAC,
+                m.intlAviationBig3,
+                m.intlCapacity,
+            ]);
+            const monthScope = mIdx >= 0
+                ? (currentLang === 'zh' ? m.months[mIdx] : monthLabel(m.months[mIdx]))
+                : (currentLang === 'zh' ? '最新月度' : 'Latest month');
+            setOverviewTitle('i18n-chart-monthly-overview', monthScope);
+        }
+
+        function updateQuarterlyKPI() {
+            const { label: ql, data: q } = latestQuarterInfo();
+            setOverviewTitle('i18n-chart-q-overview', ql);
+            fillCard('q-kpi-', 0,
+                currentLang === 'zh' ? ('国内酒店 RevPAR（' + ql + '）') : ('Domestic hotel RevPAR (' + ql + ')'),
+                q.hotelRevPAR,
+                t('strSource')
+            );
+            fillCard('q-kpi-', 1,
+                currentLang === 'zh' ? ('国内酒店 ADR（' + ql + '）') : ('Domestic hotel ADR (' + ql + ')'),
+                q.hotelADR,
+                t('strSource')
+            );
+            fillCard('q-kpi-', 2,
+                currentLang === 'zh' ? ('国内酒店入住率（' + ql + '）') : ('Domestic hotel occupancy (' + ql + ')'),
+                q.hotelOccupancy,
+                t('strSource')
+            );
+            fillCard('q-kpi-', 3,
+                currentLang === 'zh' ? ('国内航空客运量（' + ql + ' · 民航局）') : ('Domestic air pax (' + ql + ' · CAAC)'),
+                q.domAviationCAAC,
+                currentLang === 'zh' ? '民航局口径' : 'CAAC'
+            );
+            fillCard('q-kpi-', 4,
+                currentLang === 'zh' ? ('国内航空客运量（' + ql + ' · 三大航）') : ('Domestic air pax (' + ql + ' · Big3)'),
+                q.domAviationBig3,
+                currentLang === 'zh' ? '三大航口径' : 'Big3'
+            );
+            fillCard('q-kpi-', 5,
+                currentLang === 'zh' ? ('铁路客运量（' + ql + '）') : ('Railway pax (' + ql + ')'),
+                q.railway,
+                t('railSource')
+            );
+            fillCard('q-kpi-', 6,
+                currentLang === 'zh' ? ('国际航线客运量（' + ql + ' · 民航局）') : ('Intl air pax (' + ql + ' · CAAC)'),
+                q.intlAviationCAAC,
+                t('crossBorder')
+            );
+            fillCard('q-kpi-', 7,
+                currentLang === 'zh' ? ('国际航线客运量（' + ql + ' · 三大航）') : ('Intl air pax (' + ql + ' · Big3)'),
+                q.intlAviationBig3,
+                t('crossBorder')
+            );
+            fillCard('q-kpi-', 8,
+                currentLang === 'zh' ? ('国际航班运力（' + ql + ' · vs 2019）') : ('Intl capacity (' + ql + ' · vs 2019)'),
+                q.intlCapacity,
+                t('vs2019')
+            );
+        }
+
+        function initAll() {
+            applyStaticI18n();
+            updateKPI();
+            updateMonthlyKPI();
+            updateQuarterlyKPI();
+            renderWeeklyHotel();
+            renderWeeklyAviation();
+            renderMonthlyHotel();
+            renderMonthlyDomesticAviation();
+            renderMonthlyRailway();
+            renderMonthlyInternational();
+            renderQuarterlyTrend();
+            renderQuarterlyCompare();
+        }
+
+        window.addEventListener('load', function() {
+            if (typeof echarts === 'undefined') {
+                document.body.innerHTML = '<div style="text-align:center;padding:60px 20px;font-family:sans-serif;"><h2>Chart failed to load</h2><p style="color:#888;">Please check network and refresh</p></div>';
+                return;
+            }
+            currentLang = localStorage.getItem(LANG_KEY) || 'zh';
+            initAll();
+        });
+        window.addEventListener('resize', () => {
+            Object.values(chartInstances).forEach(c => {
+                c.resize();
+                if (typeof c.__ytdRefresh === 'function') c.__ytdRefresh();
+            });
+        });
+    </script>
+</body>
+</html>

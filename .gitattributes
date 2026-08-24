@@ -1,0 +1,14 @@
+# 生成文件一律 LF，避免 Windows 检出后产生「全部行都变了」的 diff 噪音。
+# 详见 workbench/fileio.py
+* text=auto eol=lf
+
+# 二进制，不做换行转换
+*.xlsx binary
+*.xls  binary
+*.xlsm binary
+*.docx binary
+*.doc  binary
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.woff2 binary
