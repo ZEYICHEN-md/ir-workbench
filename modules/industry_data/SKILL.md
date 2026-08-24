@@ -114,7 +114,17 @@ ir industry mark <步骤> <状态> --note    # 手动标记，主要用于跳过
 发布仓路径由 `ir config publish-repo <路径>` 指定，**不是工作台子目录**。
 
 推完之后：等 1～几分钟 → https://datamax.fun 硬刷新 → EdgeOne 控制台「构建部署」应有本次记录。
-不对就在发布仓 `git revert HEAD` 后重推。
+
+**核对线上要绕 CDN 缓存**：`Cache-Control: no-cache` 请求头不够，边缘节点仍会返回缓存副本
+（响应头 `age` 几十到几百秒）。加随机查询参数 `?nocache=<随机数>` 再请求一次，对比两者才准。
+实测曾因此把「推送后 1 分钟已生效」误判成「3 分钟没部署」。浏览器里对应硬刷新（Ctrl+F5）。
+
+### 出错了怎么退（已实测）
+
+1. 发布仓 `git revert HEAD` → push，线上回上一版（约 1 分钟生效）
+2. **恢复走 `ir industry publish`，不要手动 git** —— dry-run 会认出线上缺什么，确认后 `--yes` 推回
+
+细节与实测记录见 `docs/specs/2026-08-22-industry-data-cutover-runbook.md`。
 
 ## 底稿选择：绝不代选
 

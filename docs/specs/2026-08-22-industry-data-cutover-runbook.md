@@ -148,12 +148,45 @@ ir industry publish --yes
       —— 保留 git 历史、`docs/`、`MIGRATED.md`
 - [ ] 更新 `docs/MIGRATION.md`：第 1 步全部打勾，进入第 2 步 `aviation-monthly`
 
+## 核对线上必须绕开 CDN 缓存
+
+**这条先看，否则会把「已经生效」误判成「没部署」。**
+
+datamax.fun 走 EdgeOne 边缘节点，`Cache-Control: no-cache` 请求头**不足以**拿到最新内容 ——
+边缘会返回自己缓存的副本，响应头里 `age` 是几十到几百秒。实测回退时因此连续 3 分多钟
+看到旧内容，误以为部署没生效，实际推送后一分钟内就已经生效。
+
+判断方法：给 URL 加一个随机查询参数（`?nocache=<随机数>`）再请求一次，对比两者。
+
+| 加参数后 | 不加参数 | 结论 |
+|---|---|---|
+| 新内容（`age: 0`） | 旧内容（`age: N`） | **已生效**，只是边缘缓存未过期 |
+| 旧内容 | 旧内容 | 部署确实还没完成，继续等 |
+
+浏览器里对应的动作是硬刷新（Ctrl+F5）。看 `last-modified` 响应头能直接确认源站文件的更新时间。
+
 ## 出问题怎么退
 
-1. 发布仓：`git revert HEAD` → push，线上回到切换前（`publish --yes` 成功时的输出里也写了这条）
-2. 工作台：`data/canonical/travel.json` 在 git 里，可回退
-3. 旧仓 `database_matain` 完整保留，必要时可临时解封（**须先撕掉 `MIGRATED.md` 的停用声明，
+**这条路径已于 2026-08-24 实测通过**，不是纸面方案。
+
+1. 发布仓：`git revert HEAD` → push，线上回到上一版（`publish --yes` 成功时的输出里也写了这条）
+2. **恢复用 `ir industry publish`，不要手动 git** —— dry-run 会认出线上缺什么并逐行摆出来，
+   确认后 `--yes` 推回去。这条才是接手人能走的路（他只会说「重新上线」）
+3. 工作台：`data/canonical/travel.json` 在 git 里，可回退
+4. 旧仓 `database_matain` 完整保留，必要时可临时解封（**须先撕掉 `MIGRATED.md` 的停用声明，
    并记录为什么退回**，不要悄悄双轨运行）
+
+### 实测记录（2026-08-24）
+
+| 步骤 | 结果 |
+|---|---|
+| 发布仓 `git revert HEAD` + push | 提交 `43aa291` |
+| 线上回到上一版 | `dataUpdate` 回到 `2026-08-08`，新周次消失；推送后约 1 分钟生效 |
+| `ir industry publish`（dry-run） | 正确认出线上缺 `data.js` 56 行、`insights.js` 12 行 |
+| `ir industry publish --yes` | 提交 `e07a610`，线上恢复 `2026-08-15` |
+| 中断窗口 | 约 6 分钟（含中间的缓存误判等待） |
+
+发布仓历史里会留下 revert 与恢复两个提交，这是有意的 —— 事故痕迹可追溯，比强推覆盖干净。
 
 ## 已知会变的东西（不是 bug）
 
