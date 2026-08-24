@@ -6,13 +6,14 @@ confirmedAt:
   weekly: 2026-08-17
   monthly: 2026-08-17
   quarterly: 2026-08-17
-stale: none
+stale: weekly, monthly, quarterly
 source: data/canonical/travel-insights.json
 ---
 
 # Travel industry dashboard insights
 
 > Data as of **2026-08-08**; projected from `travel-insights.json` for reuse in briefs and docs.
+> ⚠️ Possibly stale: weekly, monthly, quarterly
 
 ## Weekly
 

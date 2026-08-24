@@ -49,9 +49,7 @@ def _log(base, step: str, result: Result, *, note: str | None = None, **paths_kw
     period = steps.current_period(DomainPaths(base))
     if not period:
         return result
-    state = {"success": "done", "partial": "running", "blocked": "blocked", "failed": "failed"}[
-        result.status
-    ]
+    state = steps.step_state(result.status, result.data)
     steps.record(base, period, step, state, note=note, **paths_kw)
     result.period = period
     info = steps.progress(base, period)
@@ -69,7 +67,28 @@ def cmd_merge(args, base) -> Result:
     workbook, blocked = _resolve_workbook(base)
     if blocked:
         return blocked
-    result = snapshot.rebuild(DomainPaths(base), workbook, confirm_clears=args.confirm_clears)
+    paths = DomainPaths(base)
+    result = snapshot.rebuild(paths, workbook, confirm_clears=args.confirm_clears)
+
+    # 快照写进去了，洞察就可能跟不上——SKILL 承诺过期会被标记，这里落实它。
+    # 不重写洞察内容，只打标；重写要人确认中文（ADR 0001 的洞察独立真源）。
+    if result.status == "success":
+        try:
+            newly_stale = insights_mod.mark_stale_if_outdated(paths)
+        except insights_mod.InsightsError:
+            newly_stale = []  # 洞察底稿不存在不该拖垮 merge
+        if newly_stale:
+            result.warnings.append(
+                "洞察已标为可能过期（指标更新后未重新确认）：" + "、".join(newly_stale)
+            )
+            result.checks.append(
+                {
+                    "name": "洞察",
+                    "level": "warn",
+                    "detail": "已标过期：" + "、".join(newly_stale),
+                }
+            )
+
     return _log(base, "merge", result, inputs={"workbook": workbook})
 
 

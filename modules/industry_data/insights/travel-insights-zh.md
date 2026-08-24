@@ -6,13 +6,14 @@ confirmedAt:
   weekly: 2026-08-17
   monthly: 2026-08-17
   quarterly: 2026-08-17
-stale: none
+stale: weekly, monthly, quarterly
 source: data/canonical/travel-insights.json
 ---
 
 # 旅游行业数据看板 · 洞察
 
 > 数据截至 **2026-08-08**；由 `travel-insights.json` 投影生成，供简报/飞书等复用。
+> ⚠️ 可能过期粒度：weekly, monthly, quarterly
 
 ## 周度
 

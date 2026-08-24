@@ -40,6 +40,29 @@ STEP_ORDER = [step.key for step in STEPS]
 STEP_BY_KEY = {step.key: step for step in STEPS}
 
 
+#: 命令可在 `Result.data` 里放这个键，声明「本步的产出是否完整」。
+#: 只在 `partial` 时被用到——见 `step_state()`。
+COMPLETE_KEY = "step_complete"
+
+
+def step_state(status: str, data: dict | None = None) -> str:
+    """结果状态 → 步骤状态。
+
+    直白的映射只有一处不成立：**`partial` 有两种含义。**
+
+    - 「做完了，但有提醒」——`generate-dashboard` 三个文件都写出了，只是洞察可能过期；
+    - 「没做完，等人处理」——`merge` 遇到清空未确认时根本没写入。
+
+    早先一律映射成 `running`，后果是第一种会永久停在「进行中」：进度少算一步，
+    状态机还一直提示回头重做已经做完的那一步（实测 publish 成功后被提示去
+    `generate-dashboard`）。所以由最清楚语义的那个命令用 `data["step_complete"]`
+    自己声明，状态机不去猜。
+    """
+    if status == "partial" and (data or {}).get(COMPLETE_KEY):
+        return "done"
+    return {"success": "done", "partial": "running", "blocked": "blocked", "failed": "failed"}[status]
+
+
 def current_period(paths: DomainPaths) -> str | None:
     """本期 = 指标快照的数据截至日。快照还没生成就没有「本期」。"""
     if not paths.snapshot.is_file():

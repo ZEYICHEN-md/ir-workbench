@@ -2,14 +2,15 @@
   "domain": "industry-data",
   "period": "2026-08-15",
   "created": "2026-08-24T20:10:36+08:00",
-  "updated": "2026-08-24T20:15:57+08:00",
+  "updated": "2026-08-24T21:10:49+08:00",
   "steps": {
     "merge": {
       "state": "done",
-      "at": "2026-08-24T20:15:57+08:00"
+      "at": "2026-08-24T20:59:32+08:00"
     },
     "dashboard": {
-      "state": "pending"
+      "state": "done",
+      "at": "2026-08-24T21:10:49+08:00"
     },
     "insights": {
       "state": "pending"
@@ -18,17 +19,29 @@
       "state": "pending"
     },
     "publish": {
-      "state": "pending"
+      "state": "done",
+      "at": "2026-08-24T21:06:48+08:00"
     }
   },
   "inputs": {
     "workbook": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\国内行业数据_0824.xlsx",
       "sha256": "d14253e6f57566cb762a84a7bdde227ce5acee5333c6a5fed1ec3b9ee301df78",
-      "at": "2026-08-24T20:15:57+08:00"
+      "at": "2026-08-24T20:59:32+08:00"
     }
   },
-  "outputs": {},
+  "outputs": {
+    "data_js": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\dashboard\\travel\\data.js",
+      "sha256": "4540284f3ed9dd106a156bd507e3774bc4d6f3a10000f01f669955ae5faac7d6",
+      "at": "2026-08-24T21:10:49+08:00"
+    },
+    "insights_js": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\dashboard\\travel\\insights.js",
+      "sha256": "2ee7faad79c0d14e73b411fb4f30b82f508209d5a37f928d2f755c57fe6ceb5b",
+      "at": "2026-08-24T21:10:49+08:00"
+    }
+  },
   "notes": [],
   "order": [
     "merge",

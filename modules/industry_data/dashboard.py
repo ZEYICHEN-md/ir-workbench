@@ -11,6 +11,7 @@ from workbench.fileio import write_text
 from workbench.result import Result
 
 from . import insights as insights_mod
+from . import steps
 from .jsonio import dumps
 from .paths import DOMAIN, DomainPaths
 
@@ -65,8 +66,10 @@ def generate(paths: DomainPaths) -> Result:
             warnings.append(
                 "以下粒度的洞察可能已过期（指标更新后未重新确认）：" + "、".join(stale)
             )
+        complete = True
     else:
         warnings.append("没有洞察底稿，只生成了看板数据。")
+        complete = False
 
     return Result(
         status="partial" if warnings else "success",
@@ -74,5 +77,8 @@ def generate(paths: DomainPaths) -> Result:
         domain=DOMAIN,
         checks=checks,
         warnings=warnings,
+        # 洞察过期只是提醒，四个投影文件都已写出——这一步算做完了。
+        # 缺洞察底稿则是真没做完（insights.js 没生成），不能标完成。见 steps.step_state()
+        data={steps.COMPLETE_KEY: complete},
         # 「下一步是什么」由状态机（steps.py）统一给出
     )

@@ -431,3 +431,149 @@ class TestValueTolerance(unittest.TestCase):
             self.assertTrue(
                 any(c["name"] == "已修改" and "railway" in c["detail"] for c in result.checks)
             )
+
+
+class TestInsightsStaleOnMerge(unittest.TestCase):
+    """指标更新后洞察必须被标为可能过期。
+
+    真实缺陷：SKILL 写着「指标快照更新后…会被标为可能过期」，但 `mark_all_stale` 只有
+    手动命令会调用，merge 完全不碰它。实测洞察 basedOn 停在 2026-08-08、快照已到
+    2026-08-15，而 stale 三项全是 False——看板拿上一周的洞察配这一周的图表且无提示。
+    """
+
+    def _paths(self, tmp: str, *, based_on: str, snapshot_date: str, stale=None):
+        root = Path(tmp)
+        (root / "workbench").mkdir()
+        (root / "docs").mkdir()
+        (root / "docs" / "GLOSSARY.md").write_text("x", encoding="utf-8")
+        paths = DomainPaths(Paths(root))
+        paths.snapshot.parent.mkdir(parents=True, exist_ok=True)
+        paths.snapshot.write_text(
+            json.dumps({"meta": {"dataUpdate": snapshot_date}}), encoding="utf-8"
+        )
+        paths.insights_canonical.write_text(
+            json.dumps(
+                {
+                    "meta": {
+                        "basedOnTravelJsonUpdatedAt": based_on,
+                        "stale": stale if stale is not None else dict.fromkeys(("weekly", "monthly", "quarterly"), False),
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        return paths
+
+    def test_outdated_insights_are_marked(self):
+        from modules.industry_data import insights
+
+        with TemporaryDirectory() as tmp:
+            paths = self._paths(tmp, based_on="2026-08-08", snapshot_date="2026-08-15")
+            newly = insights.mark_stale_if_outdated(paths)
+            self.assertEqual(sorted(newly), ["monthly", "quarterly", "weekly"])
+            saved = json.loads(paths.insights_canonical.read_text(encoding="utf-8"))
+            self.assertTrue(all(saved["meta"]["stale"].values()))
+
+    def test_up_to_date_insights_are_left_alone(self):
+        """洞察已基于最新数据确认时不能误标——否则每次 doctor 都在喊过期。"""
+        from modules.industry_data import insights
+
+        with TemporaryDirectory() as tmp:
+            paths = self._paths(tmp, based_on="2026-08-15", snapshot_date="2026-08-15")
+            self.assertEqual(insights.mark_stale_if_outdated(paths), [])
+            saved = json.loads(paths.insights_canonical.read_text(encoding="utf-8"))
+            self.assertFalse(any(saved["meta"]["stale"].values()))
+
+    def test_already_stale_is_not_reported_twice(self):
+        from modules.industry_data import insights
+
+        with TemporaryDirectory() as tmp:
+            paths = self._paths(
+                tmp,
+                based_on="2026-08-08",
+                snapshot_date="2026-08-15",
+                stale=dict.fromkeys(("weekly", "monthly", "quarterly"), True),
+            )
+            self.assertEqual(insights.mark_stale_if_outdated(paths), [])
+
+    def test_missing_insights_file_is_tolerated(self):
+        """洞察底稿不存在不该拖垮 merge。"""
+        from modules.industry_data import insights
+
+        with TemporaryDirectory() as tmp:
+            paths = self._paths(tmp, based_on="2026-08-08", snapshot_date="2026-08-15")
+            paths.insights_canonical.unlink()
+            self.assertEqual(insights.mark_stale_if_outdated(paths), [])
+
+
+class TestStepStateFromResult(unittest.TestCase):
+    """`partial` 有两种含义，不能一刀切。
+
+    真实缺陷：`generate-dashboard` 因洞察过期提醒返回 partial，四个投影文件其实都写出了，
+    但步骤被记成 running。后果是进度少算一步，而且 publish 成功之后状态机还提示回头去
+    `generate-dashboard`——提示自相矛盾，使用者会以为哪里没做完。
+    """
+
+    def test_success_is_done(self):
+        from modules.industry_data import steps
+
+        self.assertEqual(steps.step_state("success"), "done")
+
+    def test_partial_with_complete_output_is_done(self):
+        from modules.industry_data import steps
+
+        self.assertEqual(steps.step_state("partial", {steps.COMPLETE_KEY: True}), "done")
+
+    def test_partial_without_flag_stays_running(self):
+        """merge 遇到清空未确认时根本没写入——这种 partial 必须留在未完成。"""
+        from modules.industry_data import steps
+
+        self.assertEqual(steps.step_state("partial"), "running")
+        self.assertEqual(steps.step_state("partial", {}), "running")
+        self.assertEqual(steps.step_state("partial", {steps.COMPLETE_KEY: False}), "running")
+
+    def test_blocked_and_failed_unchanged(self):
+        from modules.industry_data import steps
+
+        self.assertEqual(steps.step_state("blocked"), "blocked")
+        self.assertEqual(steps.step_state("failed"), "failed")
+
+    def test_dashboard_declares_complete_when_insights_present(self):
+        """洞察过期只是提醒，产出是完整的。"""
+        from modules.industry_data import dashboard, steps
+
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "workbench").mkdir()
+            (root / "docs").mkdir()
+            (root / "docs" / "GLOSSARY.md").write_text("x", encoding="utf-8")
+            paths = DomainPaths(Paths(root))
+            paths.snapshot.parent.mkdir(parents=True, exist_ok=True)
+            paths.snapshot.write_text(json.dumps({"meta": {"dataUpdate": "2026-08-15"}}), encoding="utf-8")
+            paths.insights_canonical.write_text(
+                json.dumps({"meta": {"stale": {"weekly": True, "monthly": True, "quarterly": True}}}),
+                encoding="utf-8",
+            )
+            result = dashboard.generate(paths)
+
+            self.assertEqual(result.status, "partial")
+            self.assertTrue(result.data[steps.COMPLETE_KEY])
+            self.assertEqual(steps.step_state(result.status, result.data), "done")
+
+    def test_dashboard_declares_incomplete_without_insights_source(self):
+        """缺洞察底稿时 insights.js 根本没生成，不能算做完。"""
+        from modules.industry_data import dashboard, steps
+
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "workbench").mkdir()
+            (root / "docs").mkdir()
+            (root / "docs" / "GLOSSARY.md").write_text("x", encoding="utf-8")
+            paths = DomainPaths(Paths(root))
+            paths.snapshot.parent.mkdir(parents=True, exist_ok=True)
+            paths.snapshot.write_text(json.dumps({"meta": {"dataUpdate": "2026-08-15"}}), encoding="utf-8")
+            result = dashboard.generate(paths)
+
+            self.assertEqual(result.status, "partial")
+            self.assertFalse(result.data[steps.COMPLETE_KEY])
+            self.assertEqual(steps.step_state(result.status, result.data), "running")

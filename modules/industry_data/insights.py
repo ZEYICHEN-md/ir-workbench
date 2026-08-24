@@ -80,6 +80,36 @@ def mark_all_stale(data: dict) -> dict:
     return data
 
 
+def mark_stale_if_outdated(paths: DomainPaths) -> list[str]:
+    """洞察依据的数据日期落后于快照时，标记全部粒度过期。返回**新**标记的粒度。
+
+    为什么要自动做：SKILL 承诺「指标快照更新后，若对应粒度洞察未重新确认，会被标为
+    可能过期」，但此前 `mark_all_stale` 只有手动命令会调用——merge 完全不碰它。
+    实测后果是洞察 `basedOnTravelJsonUpdatedAt` 停在 2026-08-08、快照已到 2026-08-15，
+    而 `stale` 三项全是 `False`，看板会拿上一周的洞察配这一周的图表且不作任何提示。
+
+    判据用「洞察依据日期 vs 快照日期」而不是「本次 diff 是否为空」：空跑一次也不该把
+    真实的落后状态抹掉，而洞察若已基于最新数据确认，空跑也不会被误标。
+    """
+    current = snapshot_data_update(paths)
+    if not current or not paths.insights_canonical.is_file():
+        return []
+
+    data = load(paths)
+    meta = data.setdefault("meta", {})
+    if (meta.get("basedOnTravelJsonUpdatedAt") or "") == current:
+        return []
+
+    stale = meta.setdefault("stale", {})
+    newly = [period for period in PERIODS if not stale.get(period)]
+    if not newly:
+        return []
+
+    mark_all_stale(data)
+    save(paths, data)
+    return newly
+
+
 def snapshot_data_update(paths: DomainPaths) -> str | None:
     if not paths.snapshot.is_file():
         return None
