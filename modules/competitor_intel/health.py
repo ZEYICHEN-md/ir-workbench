@@ -88,16 +88,28 @@ def checks(base: Paths) -> list[dict]:
     # 建档层覆盖：某家长期没条目，可能是名单该调，也可能是采集漏了这一家
     covered = {key for e in entries for key in e.all_companies}
     empty = [k for k in vocab.PROFILED_KEYS if k not in covered]
-    if empty:
+    unexpected = [k for k in empty if k not in vocab.SPARSE_EXPECTED]
+    expected = [k for k in empty if k in vocab.SPARSE_EXPECTED]
+    if unexpected:
         rows.append(
             {
                 "name": "建档层覆盖",
                 "level": "warn",
-                "detail": "无任何条目：" + "、".join(empty),
+                "detail": "无任何条目：" + "、".join(unexpected),
                 "advice": "要么是采集漏了这几家，要么是名单该调整（名单变更须走决策，ADR 0002 §2）。",
             }
         )
-    else:
+    if expected:
+        # 已裁定这几家条目稀疏属正常。仍然报出来，但不当成待办——
+        # 一条永远清不掉的 warn 会让人开始忽略整栏。
+        rows.append(
+            {
+                "name": "建档层覆盖（预期稀疏）",
+                "level": "ok",
+                "detail": "暂无条目：" + "、".join(expected) + "　—— 已裁定属正常，见 vocab.SPARSE_EXPECTED",
+            }
+        )
+    if not empty:
         rows.append(
             {
                 "name": "建档层覆盖",

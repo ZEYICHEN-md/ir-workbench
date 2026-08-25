@@ -21,7 +21,7 @@ from pathlib import Path
 from workbench.fileio import write_text
 from workbench.result import Result
 
-from . import backfill, profiles, query, steps, vocab
+from . import backfill, profiles, query, steps, vocab  # noqa: F401 —— backfill 供 retag 用
 from .entry import KIND_ZH, Entry, normalize
 from .steps import DOMAIN
 from .store import Store
@@ -394,6 +394,127 @@ def cmd_vocab(args, base) -> Result:
     )
 
 
+def cmd_retag(args, base) -> Result:
+    """按当前规则重算已入库条目的主题，先摆差异再改。
+
+    存在的理由：ADR 0002 说打标「自动，事后可改」。抽查 39 条时发现关键词表有几处
+    系统性误命中（「独家」命中 Skift 的独家报道标签、「政策」命中企业差旅政策、
+    「CEO」命中任何引用 CEO 的稿子），修完表就得能把已入库的标签跟着修。
+    """
+    store = Store(base)
+    entries = store.load()
+    if not entries:
+        return Result(status="partial", summary="库里还没有条目。", domain=DOMAIN)
+
+    changed: list[tuple[Entry, list[str], list[str]]] = []
+    emptied: list[Entry] = []
+    updated: list[Entry] = []
+
+    for entry in entries:
+        if args.period and entry.period != args.period:
+            updated.append(entry)
+            continue
+        # 只重算周度通道的条目：季度与访谈通道的标签是人手打的，不该被关键词覆盖。
+        if entry.channel != "weekly":
+            updated.append(entry)
+            continue
+        # 人核过的标签不再被关键词覆盖。没有这道保护，「事后可改」仍然是空话——
+        # 人改完，下一次 retag 就把它算回去了，而且不会有任何提示。
+        if entry.topics_reviewed:
+            updated.append(entry)
+            continue
+        topics, _hits = backfill._guess_topics(entry.title, entry.body)
+        # 只比集合：顺序变化不是改动，报出来只会让人以为动了很多条
+        if set(topics) == set(entry.topics):
+            updated.append(entry)
+            continue
+        if not topics:
+            emptied.append(entry)
+            updated.append(entry)      # 猜不出就保留原标签，不清空
+            continue
+        changed.append((entry, entry.topics, topics))
+        replaced = Entry.from_dict({**entry.to_dict(), "topics": topics})
+        updated.append(replaced)
+
+    rows: list[dict] = []
+    for entry, before, after in changed[: args.limit]:
+        dropped = [t for t in before if t not in after]
+        added = [t for t in after if t not in before]
+        detail = entry.title[:30]
+        if dropped:
+            detail += "　去掉 " + "、".join(dropped)
+        if added:
+            detail += "　加上 " + "、".join(added)
+        rows.append({"name": entry.date, "level": "ok", "detail": detail})
+    for entry in emptied[:5]:
+        rows.append(
+            {"name": "猜不出主题", "level": "warn",
+             "detail": f"{entry.title[:30]}（保留原标签 {'、'.join(entry.topics)}，建议人工核）"}
+        )
+
+    if not args.commit:
+        return Result(
+            status="partial",
+            summary=f"{len(changed)} 条主题会变，**未写入**。",
+            domain=DOMAIN,
+            checks=rows or [{"name": "差异", "level": "ok", "detail": "当前规则下没有条目需要改"}],
+            next_steps=["确认这些改动后加 --commit 写入。"] if changed else [],
+            data={"changed": len(changed), "emptied": len(emptied)},
+        )
+
+    store.replace(updated)
+    written = profiles.rebuild(base, store.load())
+    return Result(
+        status="success",
+        summary=f"重打 {len(changed)} 条的主题，档案重建 {len(written)} 份。",
+        domain=DOMAIN,
+        checks=rows,
+        data={"changed": len(changed), "emptied": len(emptied)},
+    )
+
+
+def cmd_set_topics(args, base) -> Result:
+    """人工改一条的主题，并标为已核（此后 retag 不再动它）。"""
+    store = Store(base)
+    entries = store.load()
+    matched = [e for e in entries if e.id == args.id or args.id in (e.title or "")]
+    if len(matched) != 1:
+        return Result(
+            status="blocked",
+            summary=f"按 {args.id!r} 匹配到 {len(matched)} 条，需要唯一。",
+            domain=DOMAIN,
+            checks=[{"name": e.id or "?", "level": "warn", "detail": e.title} for e in matched[:8]],
+            next_steps=["用条目 id，或给一段只匹配一条的标题片段。"],
+        )
+    target = matched[0]
+    topics = [vocab.resolve_topic(t) for t in args.topics]
+    before = list(target.topics)
+
+    updated = [
+        Entry.from_dict({**e.to_dict(), "topics": topics, "topics_reviewed": True})
+        if e.id == target.id else e
+        for e in entries
+    ]
+    if not args.commit:
+        return Result(
+            status="partial",
+            summary=f"「{target.title[:24]}」主题 {before} → {topics}，**未写入**。",
+            domain=DOMAIN,
+            next_steps=["确认后加 --commit。"],
+        )
+    store.replace(updated)
+    profiles.rebuild(base, store.load())
+    return Result(
+        status="success",
+        summary=f"已改「{target.title[:24]}」的主题并标为已核。",
+        domain=DOMAIN,
+        checks=[
+            {"name": "改前", "level": "ok", "detail": "、".join(before) or "无"},
+            {"name": "改后", "level": "ok", "detail": "、".join(topics)},
+        ],
+    )
+
+
 def cmd_rebuild(args, base) -> Result:
     store = Store(base)
     entries = store.load()
@@ -487,6 +608,22 @@ def register(subparsers, common) -> None:
 
     p_vc = sub.add_parser("vocab", help="列出受控词表", parents=[common])
     p_vc.set_defaults(func=cmd_vocab)
+
+    p_rt = sub.add_parser(
+        "retag", help="按当前规则重算主题（先摆差异，--commit 才写）", parents=[common]
+    )
+    p_rt.add_argument("--period", help="只重算某一期")
+    p_rt.add_argument("--limit", type=int, default=40)
+    p_rt.add_argument("--commit", action="store_true")
+    p_rt.set_defaults(func=cmd_retag)
+
+    p_sp = sub.add_parser(
+        "set-topics", help="人工改一条的主题并标为已核（retag 此后不再动它）", parents=[common]
+    )
+    p_sp.add_argument("--id", required=True, help="条目 id，或一段只匹配一条的标题片段")
+    p_sp.add_argument("--topics", nargs="+", required=True)
+    p_sp.add_argument("--commit", action="store_true")
+    p_sp.set_defaults(func=cmd_set_topics)
 
     p_rb = sub.add_parser("rebuild", help="从真源重建公司档案投影", parents=[common])
     p_rb.set_defaults(func=cmd_rebuild)

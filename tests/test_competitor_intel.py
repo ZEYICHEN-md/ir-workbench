@@ -170,6 +170,29 @@ class TestStore(unittest.TestCase):
                 store.load()
             self.assertIn("第 2 行", str(caught.exception))
 
+    def test_replace_keeps_ids_so_add_stays_idempotent(self):
+        """改标签走整份重写。重写后再追加同一条仍要被跳过，否则「事后可改」会带来重复。"""
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            store = Store(paths)
+            store.add([action()], commit=True)
+            first = store.load()[0]
+            store.replace([Entry.from_dict({**first.to_dict(), "topics": ["b2b"]})])
+            self.assertEqual(store.load()[0].topics, ["b2b"])
+            self.assertEqual(store.load()[0].id, first.id)
+            again = store.add([action()], commit=True)
+            self.assertEqual((len(again.added), len(again.skipped)), (0, 1))
+
+    def test_reviewed_flag_survives_a_roundtrip(self):
+        """人核过的标记必须能存下来——存不下来，retag 下一轮就把人的改动算回去了。"""
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            store = Store(paths)
+            store.add([action()], commit=True)
+            first = store.load()[0]
+            store.replace([Entry.from_dict({**first.to_dict(), "topics_reviewed": True})])
+            self.assertTrue(store.load()[0].topics_reviewed)
+
     def test_jsonl_is_written_with_lf(self):
         """这份文件进 git。CRLF 会让每周新增显示成全文改写。"""
         with TemporaryDirectory() as tmp:
@@ -310,6 +333,52 @@ class TestBackfill(unittest.TestCase):
             backfill.title_coverage("豆包对酒店订单收取约 12% 渠道费", "印度航空双雄换帅"),
             backfill.COVERAGE_FLOOR,
         )
+
+    def test_one_incidental_body_word_is_not_enough_for_a_topic(self):
+        """抽查 39 条时发现：只靠正文一个词命中的标签约一半是错的。
+
+        真例：「财报季：旅游企业盈利分化」因为正文提到「联名卡」被挂上忠诚度主题。
+        """
+        topics, _ = backfill._guess_topics(
+            "财报季：旅游企业盈利分化，票价与费用传导成主线",
+            "多家公司披露季度业绩；其中一家提到联名卡收入。",
+        )
+        self.assertNotIn("loyalty", topics)
+        self.assertIn("financials", topics, "标题命中的主题要保住")
+
+    def test_two_distinct_body_signals_are_enough(self):
+        """门槛定 2 而不是 3 的原因：设 3 会把正确的也砍掉。
+
+        真例：「Airbnb 接入 Tripadvisor 体验」标题里没有词表里的词，
+        但正文命中「分发」「入口」两个独立信号，判断站得住。
+        """
+        topics, _ = backfill._guess_topics(
+            "Airbnb 接入 Tripadvisor 体验，放弃纯自建路线",
+            "此次合作意味着转向主流第三方库存；分发合作比自建更快，体验要扩展成出行入口。",
+        )
+        self.assertIn("distribution", topics)
+
+    def test_ambiguous_keywords_do_not_fire(self):
+        """三个实测误命中的词：Skift 的「独家」报道标签、企业差旅「政策」、引用「CEO」。"""
+        cases = [
+            ("Accor 终止收购 Treebo，印度中端市场整合遇挫",
+             "Skift 独家：交易终止。", "distribution"),
+            ("商旅「合规手册」成 AI 预订竞争壁垒",
+             "企业差旅政策与交易闭环仍是护城河。", "policy-macro"),
+            ("Google 开始在 Search AI Mode 测试 agentic 酒店预订",
+             "公司 CEO 表示这是长期方向。", "org"),
+        ]
+        for title, body, forbidden in cases:
+            with self.subTest(title):
+                topics, _ = backfill._guess_topics(title, body)
+                self.assertNotIn(forbidden, topics)
+
+    def test_at_most_three_topics(self):
+        topics, _ = backfill._guess_topics(
+            "财报 收购 监管 会员 佣金 分发 AI 商旅 组织架构",
+            "财报 季度 收购 并购 监管 处罚 会员 积分 佣金 费率 分发 入口 AI 大模型 商旅 差旅",
+        )
+        self.assertLessEqual(len(topics), backfill.MAX_TOPICS)
 
     def test_english_alias_needs_word_boundary(self):
         """短别名不加词边界会在英文原标题里乱命中。"""

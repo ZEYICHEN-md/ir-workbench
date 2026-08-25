@@ -241,9 +241,9 @@ TOPIC_KEYWORDS: dict[str, tuple[str, ...]] = {
     "distribution": (
         "渠道费", "抽佣", "分发", "流量", "入口", "SEO", "AEO", "自然流量",
         "搜索", "比价", "广告", "获客", "分销", "AI Mode", "Overviews",
-        # 「独家」几乎总是在说独家分销/独家上架 —— 实测漏了「Expedia 与 Allegiant
-        # 签署 12 个月独家 OTA 合作」，那条只命中 financials，主题完全跑偏。
-        "独家", "上架",
+        # 「独家」必须带上下文。单独一个词会命中 Skift 的「独家/Scoop」报道标签，
+        # 实测误给「Accor 终止收购 Treebo」和「Airbnb 租车上线一月」挂上了分发主题。
+        "独家合作", "独家 OTA", "独家分销", "上架",
     ),
     "supply": (
         "体验", "租车", "库存", "供给", "品类", "短租", "票务", "机票", "景点",
@@ -260,23 +260,48 @@ TOPIC_KEYWORDS: dict[str, tuple[str, ...]] = {
         "工程团队", "生成式",
     ),
     "ma-capital": ("收购", "并购", "投资", "融资", "分拆", "回购", "交易终止", "终止收购"),
-    "org": ("任命", "兼任", "换帅", "CEO", "组织", "裁员", "人事", "架构"),
+    # 「CEO」单独一个词会命中任何引用了 CEO 说法的稿子（实测误标了 Google agentic 预订
+    # 与 IHG 业主服务包两条）。改成只认真正表示人事变动的词。
+    "org": ("任命", "兼任", "换帅", "出任", "新任", "组织架构", "裁员", "人事"),
+    # 「同比」几乎每条带数字的都有，太弱（实测误给「美国入境下滑」「出境飞机不够」
+    # 挂上财务主题）。财务主题要的是公司业绩本身。
     "financials": (
-        "财报", "季度", "EBIT", "利润", "收入", "指引", "同比", "盈利", "亏损",
+        "财报", "季度", "EBIT", "利润", "收入", "指引", "盈利", "亏损",
         "Q1", "Q2", "Q3", "Q4",
     ),
+    # 「政策」有歧义：商旅稿里的「政策」多指**企业差旅政策**，不是政府政策
+    # （实测误标了「商旅合规手册成 AI 预订壁垒」）。靠监管/签证/宏观这些明确的词就够。
     "policy-macro": (
-        "监管", "处罚", "反垄断", "签证", "政策", "宏观", "入境", "战争", "地缘",
-        "台风", "取消", "IATA", "商务部",
+        "监管", "处罚", "反垄断", "签证", "宏观", "入境", "战争", "地缘",
+        "台风", "航班取消", "IATA", "商务部", "关税",
     ),
 }
 
 #: 一条最多挂几个主题。不设限的话关键词法会给每条挂五六个，横切检索就被噪音填满。
 MAX_TOPICS = 3
 
+#: 标题命中记 3 分，正文命中记 1 分。
+TITLE_WEIGHT = 3
+BODY_WEIGHT = 1
+
+#: 采纳主题的最低分。等于「标题命中一次，或正文命中两个不同的词」。
+#:
+#: 这道门槛是抽查 39 条的结论：28 个标签只靠正文里**一个**词命中，约一半是错的
+#: （「财报季」靠「联名卡」挂上忠诚度、「美国入境下滑」靠「同比」挂上财务）。
+#: 光修关键词表治不了根——任何词表都会有边缘命中，问题在于**一次弱命中就被当成结论**。
+#:
+#: 定 2 而不是 3 是实测校准的：设 3 会连正确的也砍掉——「Airbnb 接入 Tripadvisor 体验」
+#: 的分发主题（正文命中「分发」「入口」）、「Google 在 Ask Maps 上线对话式酒店搜索」
+#: 的 AI 主题（正文命中「AI」「agentic」）都会丢。这两条的标题里没有词表里的词，
+#: 但正文有两个独立信号，判断是站得住的。
+#:
+#: 代价是有些条目一个主题都猜不出来，于是被 `normalize()` 拒收、进待处理清单。
+#: 这是想要的：让人补一个准的，比自动挂一个错的好——错标签会一直污染横切检索，没人会去查。
+MIN_TOPIC_SCORE = 2
+
 
 def _guess_topics(title: str, body: str) -> tuple[list[str], dict[str, list[str]]]:
-    """关键词猜主题。标题命中权重更高。"""
+    """关键词猜主题。标题命中权重更高，弱命中直接不采纳。"""
     scores: dict[str, int] = {}
     hits: dict[str, list[str]] = {}
     for topic, words in TOPIC_KEYWORDS.items():
@@ -284,12 +309,15 @@ def _guess_topics(title: str, body: str) -> tuple[list[str], dict[str, list[str]
             continue
         for word in words:
             in_title = _contains(title, word)
-            in_body = _contains(body, word)
-            if not (in_title or in_body):
+            if not in_title and not _contains(body, word):
                 continue
-            scores[topic] = scores.get(topic, 0) + (3 if in_title else 1)
+            scores[topic] = scores.get(topic, 0) + (TITLE_WEIGHT if in_title else BODY_WEIGHT)
             hits.setdefault(topic, []).append(word)
-    ranked = sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))[:MAX_TOPICS]
+    ranked = [
+        (topic, score) for topic, score in
+        sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))
+        if score >= MIN_TOPIC_SCORE
+    ][:MAX_TOPICS]
     chosen = [topic for topic, _ in ranked]
     return chosen, {t: hits[t] for t in chosen}
 

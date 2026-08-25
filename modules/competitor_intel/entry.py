@@ -112,6 +112,9 @@ class Entry:
     channel: Channel = "weekly"
     period: str | None = None       # 采集期次（周度 = month_week 键）
     note: str | None = None
+    #: 主题被人核过。`ir intel retag` 会跳过这些条目——否则人改完，下一次按关键词
+    #: 重算就把它算回去了，而且不会有任何提示。
+    topics_reviewed: bool = False
     id: str | None = None
     added: str | None = None
 
@@ -129,7 +132,7 @@ class Entry:
             "channel": self.channel,
         }
         for key in ("media", "url", "title_en", "quote", "quote_where",
-                    "speaker", "period", "note", "added"):
+                    "speaker", "period", "note", "topics_reviewed", "added"):
             value = getattr(self, key)
             if value:
                 out[key] = value

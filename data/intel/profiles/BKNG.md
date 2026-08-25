@@ -42,7 +42,7 @@ Booking Holdings Q2 净利大增 118% 至 20 亿美元，但增长明显放缓�
 
 ### 2026-08-11 · Airbnb 接入 Tripadvisor 体验，放弃纯自建路线
 
-> 类型 动作 · 主题 供给与品类扩张、分发与流量入口、费率佣金与业主商户经济 · 来源 Skift
+> 类型 动作 · 主题 供给与品类扩张、分发与流量入口 · 来源 Skift
 
 Tripadvisor 宣布，其旗下部分 tours、activities 与景点将于年内可在 Airbnb 预订。Airbnb 体验业务此前主要靠自建「本地向导」产品扩规模（5 月改版后覆盖约 100 城、约 3,000 条地标体验），此次合作意味着转向主流第三方库存。Tripadvisor 同时向 Booking.com、Expedia 供货；Airbnb 体验要从「住」扩展成出行入口，分发合作比自建更快，但品牌差异化和佣金结构仍待观察。
 
@@ -50,7 +50,7 @@ Tripadvisor 宣布，其旗下部分 tours、activities 与景点将于年内可
 
 ### 2026-08-07 · Google 开始在 Search AI Mode 测试 agentic 酒店预订
 
-> 类型 动作 · 主题 AI 产品与技术底座、分发与流量入口、组织与人事 · 来源 Skift
+> 类型 动作 · 主题 AI 产品与技术底座、分发与流量入口 · 来源 Skift
 
 Google 已开始在美国向有限用户测试 AI Mode 内的 agentic 酒店预订，Booking Holdings CEO 确认 Booking 是首批合作伙伴之一。借助新推出的 Universal Commerce Protocol（UCP），agent 有望在对话内直接完成交易而不再跳转第三方。Booking、Expedia、Marriott、Wyndham、IHG 及 Amadeus、Sabre 等均参与相关开发，Google 虽重申「无意成为 OTA」，但其支付与基础设施布局正把 AI 预订收口到自身搜索入口。
 

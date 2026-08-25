@@ -133,6 +133,20 @@ class Store:
 
         return AddOutcome(added, skipped, rejected, new_companies)
 
+    def replace(self, entries: list[Entry]) -> None:
+        """整份重写。
+
+        ADR 0002 说打标「自动，事后可改」，但一开始只有追加没有改——那条「可改」是空话。
+        改标签必须能重写，所以有这个方法。
+
+        原子重写而不是就地改行：真源写坏一半比没写更糟。id 不变，所以重写后
+        `add()` 的幂等仍然成立。
+        """
+        payload = "".join(
+            json.dumps(e.to_dict(), ensure_ascii=False, sort_keys=True) + "\n" for e in entries
+        )
+        write_text_atomic(self.entries_file, payload)
+
     def _append(self, entries: list[Entry]) -> None:
         if not entries:
             return

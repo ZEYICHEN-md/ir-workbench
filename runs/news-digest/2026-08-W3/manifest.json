@@ -1,0 +1,49 @@
+{
+  "domain": "news-digest",
+  "period": "2026-08-W3",
+  "created": "2026-08-25T20:03:48+08:00",
+  "updated": "2026-08-25T20:03:48+08:00",
+  "steps": {
+    "recall": {
+      "state": "done",
+      "at": "2026-08-25T20:03:48+08:00",
+      "note": "枚举 40 条"
+    },
+    "draft": {
+      "state": "pending"
+    },
+    "validate": {
+      "state": "pending"
+    },
+    "export": {
+      "state": "pending"
+    },
+    "log": {
+      "state": "pending"
+    },
+    "deposit": {
+      "state": "pending"
+    },
+    "publish": {
+      "state": "pending"
+    }
+  },
+  "inputs": {},
+  "outputs": {
+    "candidates": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\news-recall-2026-08-W3.json",
+      "sha256": "650d8dfed09d4dee6edf398c993391f1a82288fa1fe27593ed43a66ecfc3a4c2",
+      "at": "2026-08-25T20:03:48+08:00"
+    }
+  },
+  "notes": [],
+  "order": [
+    "recall",
+    "draft",
+    "validate",
+    "export",
+    "log",
+    "deposit",
+    "publish"
+  ]
+}

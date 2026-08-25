@@ -24,7 +24,7 @@ Expedia 宣布收购柏林 AI 行程规划与预订初创 Layla（2023 年成立
 
 ### 2026-07-20 · Expedia 扩充硅谷 AI 工程团队，披露九个月内部效率研究
 
-> 类型 动作 · 主题 AI 产品与技术底座、组织与人事 · 来源 Skift
+> 类型 动作 · 主题 AI 产品与技术底座 · 来源 Skift
 
 Expedia 在圣何塞新办公室已从 Amazon、Netflix、Google 和 Meta 等公司招募至少 10 名工程师，并在约 5,000 人的工程组织中开展了为期九个月的 AI 效率研究。公司 CTO 称，表现靠前的部分工程师使用 AI 工具后效率提升 2–10 倍；这是一项具体的人才与研发效率投入，而非新的 AI 产品发布。
 
@@ -32,7 +32,7 @@ Expedia 在圣何塞新办公室已从 Amazon、Netflix、Google 和 Meta 等公
 
 ### 2026-07-17 · Expedia 与 Allegiant 签署 12 个月独家 OTA 合作
 
-> 类型 动作 · 主题 分发与流量入口、财务表现与指引 · 来源 Skift
+> 类型 动作 · 主题 分发与流量入口 · 来源 Skift
 
 Expedia 成为 Allegiant 首个授权 OTA 合作方，双方签署 12 个月独家协议，覆盖 Allegiant 全美 566 条航线、124 个城市。Allegiant 此前约 92% 收入来自直销网站，此次试水 OTA 是为触达新休闲旅客，同时保留到期后续约、扩渠或回归直销的选项。
 
@@ -42,7 +42,7 @@ Expedia 成为 Allegiant 首个授权 OTA 合作方，双方签署 12 个月独�
 
 ### 2026-08-15 · Airbnb 租车上线一月：日均数百单，库存与数据走 CarTrawler
 
-> 类型 动作 · 主题 供给与品类扩张、分发与流量入口、并购投资与资本配置 · 来源 Skift
+> 类型 动作 · 主题 供给与品类扩张 · 来源 Skift
 
 Skift 独家称，Airbnb 与 CarTrawler 的租车合作在美、法、意、西、澳五个市场日均数百单，偏向 Budget 等经济型车；页面顶部 3–6 个选项由 CarTrawler 决定，Avis/Hertz/Budget/Enterprise 等优选供应商出现在中部。分成模式包括批发加价分成与零售佣金分成；双方还在开发订房后的租车交叉销售。Airbnb 把住宿位置、姓名、年龄、出行人数等数据交给中间商，而 Expedia 计划年内完成对 CarTrawler 的收购——短租竞对可能掌握 Airbnb 租车履约与部分用户数据。
 
@@ -50,7 +50,7 @@ Skift 独家称，Airbnb 与 CarTrawler 的租车合作在美、法、意、西�
 
 ### 2026-08-11 · Airbnb 接入 Tripadvisor 体验，放弃纯自建路线
 
-> 类型 动作 · 主题 供给与品类扩张、分发与流量入口、费率佣金与业主商户经济 · 来源 Skift
+> 类型 动作 · 主题 供给与品类扩张、分发与流量入口 · 来源 Skift
 
 Tripadvisor 宣布，其旗下部分 tours、activities 与景点将于年内可在 Airbnb 预订。Airbnb 体验业务此前主要靠自建「本地向导」产品扩规模（5 月改版后覆盖约 100 城、约 3,000 条地标体验），此次合作意味着转向主流第三方库存。Tripadvisor 同时向 Booking.com、Expedia 供货；Airbnb 体验要从「住」扩展成出行入口，分发合作比自建更快，但品牌差异化和佣金结构仍待观察。
 
@@ -66,7 +66,7 @@ Booking Holdings 内部确认，Agoda CEO Omri Morgenshtern 兼任新成立的 B
 
 ### 2026-08-07 · Google 开始在 Search AI Mode 测试 agentic 酒店预订
 
-> 类型 动作 · 主题 AI 产品与技术底座、分发与流量入口、组织与人事 · 来源 Skift
+> 类型 动作 · 主题 AI 产品与技术底座、分发与流量入口 · 来源 Skift
 
 Google 已开始在美国向有限用户测试 AI Mode 内的 agentic 酒店预订，Booking Holdings CEO 确认 Booking 是首批合作伙伴之一。借助新推出的 Universal Commerce Protocol（UCP），agent 有望在对话内直接完成交易而不再跳转第三方。Booking、Expedia、Marriott、Wyndham、IHG 及 Amadeus、Sabre 等均参与相关开发，Google 虽重申「无意成为 OTA」，但其支付与基础设施布局正把 AI 预订收口到自身搜索入口。
 
