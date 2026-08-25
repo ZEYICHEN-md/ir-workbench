@@ -224,3 +224,117 @@ class TestPlanTolerance(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestWriteRules(unittest.TestCase):
+    """写入规则：仅填空、不覆盖、写前归档、底稿被占用时拒写。
+
+    「人手填的数字最高权威」是这条规则的理由——周度聚合只是一种取数方式，
+    自动化没有资格改 IR 经理填过的值（那些值背后可能有券商口径、预测、临时判断）。
+    """
+
+    def setUp(self) -> None:
+        self._tmp = TemporaryDirectory()
+        root = Path(self._tmp.name)
+        (root / "workbench").mkdir()
+        (root / "docs").mkdir()
+        (root / "docs" / "GLOSSARY.md").write_text("x", encoding="utf-8")
+
+        from workbench.paths import Paths
+
+        from modules.industry_data.paths import DomainPaths
+
+        self.base = Paths(root)
+        self.paths = DomainPaths(self.base)
+        self.source = build_source(root / "cicc.xlsx")
+        self.workbook = self._build_workbook(root / "book.xlsx")
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    @staticmethod
+    def _build_workbook(path: Path, *, july=(None, None, -0.05)) -> Path:
+        """造一份最小底稿：2026 块 + 12 个月份行 + 右侧周轴。"""
+        from modules.industry_data import layout
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = layout.SHEET
+        year_row = 5
+        ws.cell(year_row, 2, "2026年")
+        ws.cell(year_row + layout.OFF_HEADER, 18, "周")
+        start = year_row + layout.OFF_MONTH_START
+        for index in range(12):
+            ws.cell(start + index, 2, "7月 (preliminary)" if index == 6 else f"{index + 1}月")
+        for col, value in zip((3, 4, 5), july):
+            if value is not None:
+                ws.cell(start + 6, col, value)
+        # 6 月填满，用于验证「已有值不被覆盖」
+        for col, value in zip((3, 4, 5), (-0.025, 0.022, -0.004)):
+            ws.cell(start + 5, col, value)
+        wb.save(path)
+        return path
+
+    def test_dry_run_lists_only_empty_cells(self):
+        from modules.industry_data import str_write
+
+        result = str_write.run(self.paths, self.workbook, self.source, 2026)
+        self.assertEqual(result.status, "partial")
+        self.assertEqual(result.data["additions"], 2)  # 7 月入住率与 ADR
+        self.assertIn("未写入", result.summary)
+        # 合成底稿：2026 块在 r5，月份行自 r8 起，7 月为第 7 个 → r14
+        details = " ".join(c["detail"] for c in result.checks if c["name"] == "待写入")
+        self.assertIn("C14", details)
+        self.assertIn("D14", details)
+        self.assertNotIn("E14", details, "E 列已有 -5%，不该出现在待写入里")
+
+    def test_dry_run_does_not_touch_workbook(self):
+        from modules.industry_data import str_write
+
+        before = self.workbook.read_bytes()
+        str_write.run(self.paths, self.workbook, self.source, 2026)
+        self.assertEqual(self.workbook.read_bytes(), before)
+
+    def test_nothing_to_fill_when_all_present(self):
+        from modules.industry_data import str_write
+
+        book = self._build_workbook(self.workbook.parent / "full.xlsx", july=(-0.03, -0.01, -0.04))
+        result = str_write.run(self.paths, book, self.source, 2026)
+        self.assertEqual(result.status, "success")
+        self.assertIn("没有空格", result.summary)
+
+    def test_locked_workbook_is_blocked(self):
+        """底稿在 Excel 里打开时必须拒写，否则会与人的编辑打架。"""
+        from modules.industry_data import str_write
+
+        before = self.workbook.read_bytes()
+        lock = self.workbook.parent / f"~${self.workbook.name}"
+        lock.write_bytes(b"lock")
+        result = str_write.run(self.paths, self.workbook, self.source, 2026, yes=True)
+        self.assertEqual(result.status, "blocked")
+        self.assertIn("Excel", result.summary)
+        self.assertEqual(self.workbook.read_bytes(), before, "被拒写时底稿不该有任何改动")
+        self.assertFalse(
+            list(self.paths.workbook_archive_dir.glob("*.xlsx")),
+            "拒写时不该留下归档文件",
+        )
+
+    def test_archive_keeps_original(self):
+        from modules.industry_data import str_write
+
+        original = self.workbook.read_bytes()
+        backup = str_write.archive(self.paths, self.workbook, "str")
+        self.assertTrue(backup.is_file())
+        self.assertEqual(backup.read_bytes(), original)
+        self.assertIn("pre-str-", backup.name)
+        self.assertEqual(backup.parent, self.paths.workbook_archive_dir)
+
+    def test_archive_does_not_overwrite_previous(self):
+        """归档只增不改——往期版本要能一直留着。"""
+        from modules.industry_data import str_write
+
+        first = str_write.archive(self.paths, self.workbook, "str")
+        second = str_write.archive(self.paths, self.workbook, "manual")
+        self.assertNotEqual(first.name, second.name)
+        self.assertTrue(first.is_file())
+        self.assertEqual(len(list(self.paths.workbook_archive_dir.glob("*.xlsx"))), 2)

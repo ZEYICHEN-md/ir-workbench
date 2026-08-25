@@ -20,6 +20,7 @@ from . import (
     snapshot,
     steps,
     str_plan,
+    str_write,
 )
 from .paths import DOMAIN, DomainPaths
 
@@ -350,6 +351,34 @@ def cmd_str_plan(args, base) -> Result:
     return result
 
 
+def cmd_str_apply(args, base) -> Result:
+    """把中金表算出的酒店数据填进底稿空格。默认 dry-run，`--yes` 才写。"""
+    workbook, blocked = _resolve_workbook(base)
+    if blocked:
+        return blocked
+    source = Path(args.source)
+    if not source.is_file():
+        return Result(
+            status="blocked",
+            summary=f"找不到中金表：{source}",
+            domain=DOMAIN,
+            next_steps=["把中金表放进 inputs/industry-data/<数据截至日>/ 再指定路径。"],
+        )
+
+    paths = DomainPaths(base)
+    result = str_write.run(paths, workbook, source, args.year, yes=args.yes)
+
+    # 原件不进 git，来源与哈希必须落在 manifest 里才能回溯
+    period = steps.current_period(paths)
+    if period:
+        manifest = steps.open_manifest(base, period)
+        manifest.record_input("str_source", source)
+        if result.status == "success" and result.data.get("written"):
+            manifest.record_input("workbook", workbook)
+        result.period = period
+    return result
+
+
 def register(subparsers, common) -> None:
     """挂载本域命令。`common` 提供 --json 等共享开关，使其在子命令前后都能写。"""
     parser = subparsers.add_parser("industry", help="国内行业数据与看板")
@@ -380,6 +409,12 @@ def register(subparsers, common) -> None:
     p_str.add_argument("source", help="中金旅游周度数据表路径")
     p_str.add_argument("--year", type=int, default=2026, help="底稿年度块，默认 2026")
     p_str.set_defaults(func=cmd_str_plan)
+
+    p_str_apply = add("str-apply", help="把中金表算出的酒店数据填进底稿空格（须明确确认）")
+    p_str_apply.add_argument("source", help="中金旅游周度数据表路径")
+    p_str_apply.add_argument("--year", type=int, default=2026)
+    p_str_apply.add_argument("--yes", action="store_true", help="确认写入底稿")
+    p_str_apply.set_defaults(func=cmd_str_apply)
 
     p_mark = add("mark", help="手动标记步骤（主要用于跳过可选步骤）")
     p_mark.add_argument("step", choices=steps.STEP_ORDER)
