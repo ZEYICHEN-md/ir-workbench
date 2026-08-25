@@ -36,6 +36,19 @@ class Paths:
         return self.data / "workbooks"
 
     @property
+    def workbook_archive(self) -> Path:
+        """往期与写入前的底稿版本，**只增不删**。
+
+        放在共享层而不是某个域里：**两个域都会写底稿**（`aviation-monthly` 写四个航空格、
+        `industry-data` 从中金表填酒店格），归档语义必须只有一份定义，否则两条写入路径
+        会各自往不同地方备份。
+
+        底稿是唯一指标真源（ADR 0001），也就是单点。git 里有版本，但 git 之外也要有
+        人能直接双击打开的副本——出事时不该要求接手人会用 git。
+        """
+        return self.workbooks / "archived"
+
+    @property
     def canonical(self) -> Path:
         return self.data / "canonical"
 

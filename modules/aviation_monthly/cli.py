@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from workbench.config import Config
@@ -60,6 +61,50 @@ def _summarise_checks(checks: list[dict]) -> list[dict]:
     return rows
 
 
+#: 四个写进指标底稿的目标值，对应公告里的哪个口径
+TARGET_LABELS = {
+    "caac_domestic": "国内航空客运量 · 民航局",
+    "big3_domestic": "国内航空客运量 · 三大航",
+    "caac_intl_regional": "国际航空客运量（含港澳台）· 民航局",
+    "big3_intl_regional": "国际航空客运量（含港澳台）· 三大航",
+}
+
+
+def _write_provenance(base, period: str, provenance: list[dict]) -> Path:
+    """把逐格溯源写进 scratch 供人核对。dry-run 不碰 runs/ 下的正式 manifest。"""
+    from workbench.fileio import write_text
+
+    target = base.scratch / f"aviation-{period}-provenance.json"
+    write_text(target, json.dumps(provenance, ensure_ascii=False, indent=2) + "\n")
+    return target
+
+
+def _provenance_rows(provenance: list[dict]) -> list[dict]:
+    """按来源把出处折成人能扫读的几行：每份公告一行，标明标题、日期、页码。"""
+    by_source: dict[tuple, list[str]] = {}
+    for entry in provenance:
+        key = (entry.get("title") or "?", entry.get("published") or entry.get("period") or "?",
+               entry.get("url") or "")
+        by_source.setdefault(key, []).append(
+            f"{entry.get('metric', '?')}={entry.get('value')}{entry.get('unit', '')}"
+            f"（第{entry.get('page', '?')}页·{entry.get('row', '?')}）"
+        )
+
+    rows = []
+    for (title, published, url), items in by_source.items():
+        rows.append(
+            {
+                "name": "取数来源",
+                "level": "ok",
+                "detail": f"{title}（{published}）· {len(items)} 个取值"
+                + (f" · {url}" if url else ""),
+            }
+        )
+        for item in items[:6]:
+            rows.append({"name": "　└", "level": "ok", "detail": item})
+    return rows
+
+
 def cmd_run(args, base) -> Result:
     airline, industry, blocked = _resolve_workbooks(base)
     if blocked:
@@ -79,6 +124,24 @@ def cmd_run(args, base) -> Result:
         industry_output=str(industry),
         manifest_output=str(base.runs(DOMAIN, period) / "pipeline.json"),
     )
+
+    # 写入前的两道共享保护（与 industry-data 的中金表写入同一套）：
+    # 底稿被 Excel 打开时拒写；以及先留一份编辑前的原版。
+    archived: list[Path] = []
+    if args.commit:
+        from workbench.archive import archive_workbook, lock_file
+
+        locked = [w for w in (airline, industry) if lock_file(w)]
+        if locked:
+            return Result(
+                status="blocked",
+                summary="工作簿正在 Excel 里打开，拒绝写入。",
+                domain=DOMAIN,
+                period=period,
+                missing=[f"锁文件：~${w.name}" for w in locked],
+                next_steps=["先在 Excel 里保存并关闭这些工作簿，再让我写入——否则会与你的编辑冲突。"],
+            )
+        archived = [archive_workbook(base, w, "aviation") for w in (airline, industry)]
 
     checks: list[dict] = []
     try:
@@ -121,6 +184,12 @@ def cmd_run(args, base) -> Result:
             "done",
             inputs={"airline": airline, "industry": industry},
         )
+        # dry-run 不写文件，所以 pipeline.json 还不存在。但**核对的时机就是现在**——
+        # 光给四个数字没法判断它们是不是取自 7 月那份公告。所以把溯源落到 scratch，
+        # 并把关键出处直接摆进 checks（见 conventions/data-provenance.md）。
+        provenance = outcome.get("official_values") or []
+        trace = _write_provenance(base, period, provenance)
+        rows.extend(_provenance_rows(provenance))
         return Result(
             status="partial",
             summary=f"{args.year}年{args.month}月：官方数据已抓齐并校验通过，**未写入**。",
@@ -128,11 +197,16 @@ def cmd_run(args, base) -> Result:
             period=period,
             checks=rows,
             next_steps=[
-                "核对上面四个同比数值与官方公告一致。",
+                "核对上面四个同比数值，以及它们各自的公告出处。",
+                f"逐格明细（{len(provenance)} 个官方输入）在 {trace}。",
                 "确认后回一句「写入」，Agent 才会带 --commit 执行。",
                 "写入会**就地更新**那两份被锁定的工作簿（带备份，可回退）。",
             ],
-            data={"values": values, "manifest": outcome.get("outputs", {}).get("manifest")},
+            data={
+                "values": values,
+                "provenance_file": str(trace),
+                "manifest": outcome.get("outputs", {}).get("manifest"),
+            },
         )
 
     steps.record(
@@ -151,6 +225,9 @@ def cmd_run(args, base) -> Result:
             "detail": "指标底稿目标格回读一致" if validation.get("industry_roundtrip") else "回读不一致",
         }
     )
+    rows.extend(
+        {"name": "写入前归档", "level": "ok", "detail": f"archived/{p.name}"} for p in archived
+    )
     return Result(
         status="success",
         summary=f"{args.year}年{args.month}月航空月度数据已写入。",
@@ -160,8 +237,9 @@ def cmd_run(args, base) -> Result:
         next_steps=[
             "底稿变了，接着重建指标快照：`ir industry merge` → `generate-dashboard`。",
             "溯源见 runs/aviation-monthly/" + period + "/pipeline.json（含每个输入格的公告出处）。",
+            "要回退就从 data/workbooks/archived/ 取写入前的那份覆盖回去。",
         ],
-        data={"values": values},
+        data={"values": values, "archived": [str(p) for p in archived]},
     )
 
 

@@ -63,17 +63,16 @@ class WriteOutcome:
 
 
 def _lock_file(workbook: Path) -> Path | None:
-    candidate = workbook.parent / f"~${workbook.name}"
-    return candidate if candidate.exists() else None
+    from workbench.archive import lock_file
+
+    return lock_file(workbook)
 
 
 def archive(paths: DomainPaths, workbook: Path, tag: str) -> Path:
-    """写入前把整份底稿复制进归档目录。返回归档路径。"""
-    paths.workbook_archive_dir.mkdir(parents=True, exist_ok=True)
-    stamp = dt.datetime.now().strftime("%Y%m%dT%H%M%S")
-    target = paths.workbook_archive_dir / f"{workbook.stem}.pre-{tag}-{stamp}{workbook.suffix}"
-    shutil.copy2(workbook, target)
-    return target
+    """写入前把整份底稿复制进归档目录。实现在共享层（两个域都写底稿）。"""
+    from workbench.archive import archive_workbook
+
+    return archive_workbook(paths.base, workbook, tag)
 
 
 def _block(sheet, row: int):

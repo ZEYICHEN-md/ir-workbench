@@ -45,19 +45,10 @@ class DomainPaths:
     def insights_archive_dir(self) -> Path:
         return self.insights_md_dir / "archive"
 
-    # --- 底稿归档 ---
+    # --- 底稿归档（定义在共享层，两个域都写底稿）---
     @property
     def workbook_archive_dir(self) -> Path:
-        """往期与写入前的底稿版本。
-
-        两种东西放这里，都**不删**：
-        1. 换新版底稿时的旧版（`国内行业数据_0817.xlsx`）——否则想回头核对上一版就没了；
-        2. 每次自动写入前的备份（`国内行业数据_0824.pre-<动作>-<时间戳>.xlsx`）。
-
-        底稿是唯一指标真源（ADR 0001），也就是单点。git 里有版本，但 git 之外也要有
-        人能直接双击打开的副本——出事时不该要求接手人会用 git。
-        """
-        return self.base.workbooks / "archived"
+        return self.base.workbook_archive
 
     # --- 其他 ---
     @property

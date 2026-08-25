@@ -1,0 +1,556 @@
+{
+  "status": "success",
+  "period": "2026年7月",
+  "inputs": {
+    "airline": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\Airline Data_0727.xlsx",
+    "industry": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\国内行业数据_0824.xlsx"
+  },
+  "input_sha256": {
+    "airline": "170584e5c17a32ca7620196ef1be41cf00ad9a97d030fa4c9803215a5175c5cf",
+    "industry": "5eb8cb8da750ba7d1373072d7ad9d2db4a86c4c822afd71335d741e253defcf7"
+  },
+  "outputs": {
+    "airline": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\Airline Data_0727.xlsx",
+    "industry": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\国内行业数据_0824.xlsx",
+    "manifest": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\runs\\aviation-monthly\\202607\\pipeline.json"
+  },
+  "official_values": [
+    {
+      "metric": "民航局合计",
+      "value": 74629.0,
+      "unit": "千人",
+      "sheet": "CAAC Data",
+      "cell": "H3",
+      "title": "中国民航2026年7月份主要生产指标统计",
+      "period": "2026年7月",
+      "published": null,
+      "url": "https://www.caac.gov.cn/XXGK/XXGK/TJSJ/202608/P020260821408095459831.pdf",
+      "page": 1,
+      "row": "旅客运输量·合计",
+      "extracted_row": "旅客运输量 万人 7462.9 3.9 45015.3 1.5"
+    },
+    {
+      "metric": "民航局国内含地区",
+      "value": 67369.0,
+      "unit": "千人",
+      "sheet": "CAAC Data",
+      "cell": "H11",
+      "title": "中国民航2026年7月份主要生产指标统计",
+      "period": "2026年7月",
+      "published": null,
+      "url": "https://www.caac.gov.cn/XXGK/XXGK/TJSJ/202608/P020260821408095459831.pdf",
+      "page": 1,
+      "row": "国内航线",
+      "extracted_row": "国内航线 万人 6736.9 4.1 40257.8 1.1"
+    },
+    {
+      "metric": "民航局纯国际",
+      "value": 7260.0,
+      "unit": "千人",
+      "sheet": "CAAC Data",
+      "cell": "H19",
+      "title": "中国民航2026年7月份主要生产指标统计",
+      "period": "2026年7月",
+      "published": null,
+      "url": "https://www.caac.gov.cn/XXGK/XXGK/TJSJ/202608/P020260821408095459831.pdf",
+      "page": 1,
+      "row": "国际航线",
+      "extracted_row": "国际航线 万人 726.0 2.3 4757.5 5.2"
+    },
+    {
+      "metric": "民航局地区",
+      "value": 867.0,
+      "unit": "千人",
+      "sheet": "CAAC Data",
+      "cell": "H23",
+      "title": "中国民航2026年7月份主要生产指标统计",
+      "period": "2026年7月",
+      "published": null,
+      "url": "https://www.caac.gov.cn/XXGK/XXGK/TJSJ/202608/P020260821408095459831.pdf",
+      "page": 1,
+      "row": "其中：港澳台航线",
+      "extracted_row": "其中：港澳台航线 万人 86.7 3.4 584.6 5.4"
+    },
+    {
+      "metric": "南航合计",
+      "value": 16731.9,
+      "unit": "千人次",
+      "sheet": "Top 4 Total",
+      "cell": "H2",
+      "title": "南方航空：南方航空2026年7月主要运营数据公告",
+      "period": "2026年7月",
+      "published": "2026-08-15",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225474242.PDF",
+      "page": 3,
+      "row": "载客人数（千人次）—合计",
+      "extracted_row": "合计 16,731.90 29.91 3.83 99,898.62 0.46"
+    },
+    {
+      "metric": "南航国内",
+      "value": 14573.41,
+      "unit": "千人次",
+      "sheet": "Top4 Domestic",
+      "cell": "H2",
+      "title": "南方航空：南方航空2026年7月主要运营数据公告",
+      "period": "2026年7月",
+      "published": "2026-08-15",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225474242.PDF",
+      "page": 3,
+      "row": "载客人数（千人次）—国内航线",
+      "extracted_row": "国内 14,573.41 32.66 3.35 85,556.88 -1.06"
+    },
+    {
+      "metric": "南航纯国际",
+      "value": 1994.46,
+      "unit": "千人次",
+      "sheet": "Top4 Intl.+Reg",
+      "cell": "H21",
+      "title": "南方航空：南方航空2026年7月主要运营数据公告",
+      "period": "2026年7月",
+      "published": "2026-08-15",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225474242.PDF",
+      "page": 3,
+      "row": "载客人数（千人次）—国际航线",
+      "extracted_row": "国际 1,994.46 14.58 7.87 13,236.12 11.14"
+    },
+    {
+      "metric": "南航地区",
+      "value": 164.03,
+      "unit": "千人次",
+      "sheet": "Top4 Intl.+Reg",
+      "cell": "H40",
+      "title": "南方航空：南方航空2026年7月主要运营数据公告",
+      "period": "2026年7月",
+      "published": "2026-08-15",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225474242.PDF",
+      "page": 3,
+      "row": "载客人数（千人次）—地区航线",
+      "extracted_row": "地区 164.03 7.17 -0.15 1,105.62 4.33"
+    },
+    {
+      "metric": "东航合计",
+      "value": 14267.34,
+      "unit": "千人次",
+      "sheet": "Top 4 Total",
+      "cell": "H3",
+      "title": "中国东航：中国东方航空股份有限公司2026年7月运营数据公告",
+      "period": "2026年7月",
+      "published": "2026-08-15",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225474384.PDF",
+      "page": 2,
+      "row": "载运旅客人次（千）—指标名行（总量）",
+      "extracted_row": "载运旅客人次（千） 14,267.34 3.98% 87,030.22 0.17%"
+    },
+    {
+      "metric": "东航国内",
+      "value": 12003.81,
+      "unit": "千人次",
+      "sheet": "Top4 Domestic",
+      "cell": "H3",
+      "title": "中国东航：中国东方航空股份有限公司2026年7月运营数据公告",
+      "period": "2026年7月",
+      "published": "2026-08-15",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225474384.PDF",
+      "page": 2,
+      "row": "载运旅客人次（千）—国内航线",
+      "extracted_row": "－国内航线 12,003.81 3.85% 72,401.29 -0.60%"
+    },
+    {
+      "metric": "东航纯国际",
+      "value": 1912.45,
+      "unit": "千人次",
+      "sheet": "Top4 Intl.+Reg",
+      "cell": "H22",
+      "title": "中国东航：中国东方航空股份有限公司2026年7月运营数据公告",
+      "period": "2026年7月",
+      "published": "2026-08-15",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225474384.PDF",
+      "page": 2,
+      "row": "载运旅客人次（千）—国际航线",
+      "extracted_row": "－国际航线 1,912.45 3.75% 12,355.57 4.22%"
+    },
+    {
+      "metric": "东航地区",
+      "value": 351.08,
+      "unit": "千人次",
+      "sheet": "Top4 Intl.+Reg",
+      "cell": "H41",
+      "title": "中国东航：中国东方航空股份有限公司2026年7月运营数据公告",
+      "period": "2026年7月",
+      "published": "2026-08-15",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225474384.PDF",
+      "page": 2,
+      "row": "载运旅客人次（千）—地区航线",
+      "extracted_row": "－地区航线 351.08 10.22% 2,273.36 3.76%"
+    },
+    {
+      "metric": "国航合计",
+      "value": 15690.8,
+      "unit": "千人次",
+      "sheet": "Top 4 Total",
+      "cell": "H4",
+      "title": "中国国航：中国国际航空股份有限公司2026年7月主要运营数据公告",
+      "period": "2026年7月",
+      "published": "2026-08-15",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225473882.PDF",
+      "page": 3,
+      "row": "乘客人数（千）—指标名行（总量）",
+      "extracted_row": "4、乘客人数(千) 15,690.8 8.5 31.5 95,389.3 8.0"
+    },
+    {
+      "metric": "国航国内",
+      "value": 13471.8,
+      "unit": "千人次",
+      "sheet": "Top4 Domestic",
+      "cell": "H4",
+      "title": "中国国航：中国国际航空股份有限公司2026年7月主要运营数据公告",
+      "period": "2026年7月",
+      "published": "2026-08-15",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225473882.PDF",
+      "page": 3,
+      "row": "乘客人数（千）—国内航线",
+      "extracted_row": "其中: 国内航线 13,471.8 8.9 34.0 81,071.7 8.0"
+    },
+    {
+      "metric": "国航纯国际",
+      "value": 1814.2,
+      "unit": "千人次",
+      "sheet": "Top4 Intl.+Reg",
+      "cell": "H23",
+      "title": "中国国航：中国国际航空股份有限公司2026年7月主要运营数据公告",
+      "period": "2026年7月",
+      "published": "2026-08-15",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225473882.PDF",
+      "page": 3,
+      "row": "乘客人数（千）—国际航线",
+      "extracted_row": "国际航线 1,814.2 10.2 19.4 11,395.9 8.2"
+    },
+    {
+      "metric": "国航地区",
+      "value": 404.8,
+      "unit": "千人次",
+      "sheet": "Top4 Intl.+Reg",
+      "cell": "H42",
+      "title": "中国国航：中国国际航空股份有限公司2026年7月主要运营数据公告",
+      "period": "2026年7月",
+      "published": "2026-08-15",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225473882.PDF",
+      "page": 3,
+      "row": "乘客人数（千）—地区航线",
+      "extracted_row": "地区航线 404.8 -8.1 10.5 2,921.7 5.1"
+    }
+  ],
+  "independent_results": {
+    "caac_domestic": 0.04089905930598392,
+    "caac_intl_regional": 0.02458396369137672,
+    "big3_domestic": 0.05300684852447923,
+    "big3_intl_regional": 0.06046602239411336
+  },
+  "checks": [
+    {
+      "name": "output-available-Airline Data_0727.xlsx",
+      "passed": true,
+      "detail": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\Airline Data_0727.xlsx"
+    },
+    {
+      "name": "output-available-国内行业数据_0824.xlsx",
+      "passed": true,
+      "detail": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\国内行业数据_0824.xlsx"
+    },
+    {
+      "name": "output-available-pipeline.json",
+      "passed": true,
+      "detail": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\runs\\aviation-monthly\\202607\\pipeline.json"
+    },
+    {
+      "name": "supported-contract-year",
+      "passed": true,
+      "detail": "requested=2026, supported=2026"
+    },
+    {
+      "name": "airline-sheets",
+      "passed": true,
+      "detail": "['Sheet1', 'Summary', 'CAAC Air Industry + domestic', 'CAAC Data', 'Top 4 Total', 'Top4 Domestic', 'Top4 Intl.+Reg', '年度数据', 'Sheet2', 'Travelsky Data', '出入境管理局数据']"
+    },
+    {
+      "name": "CAAC Data-period-header",
+      "passed": true,
+      "detail": "year=2026, month=Jul, matches=[2]"
+    },
+    {
+      "name": "Top4 Domestic-period-header",
+      "passed": true,
+      "detail": "year=2026, month=Jul, matches=[1]"
+    },
+    {
+      "name": "Top4 Intl.+Reg-period-header",
+      "passed": true,
+      "detail": "year=2026, month=Jul, matches=[1]"
+    },
+    {
+      "name": "Top 4 Total-period-header",
+      "passed": true,
+      "detail": "year=2026, month=Jul, matches=[1]"
+    },
+    {
+      "name": "CAAC Data-fixed-row-labels",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "name": "Top4 Domestic-fixed-row-labels",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "name": "Top 4 Total-fixed-row-labels",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "name": "Top4 Intl.+Reg-fixed-row-labels",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "name": "Summary-fixed-row-labels",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "name": "summary-period-header",
+      "passed": true,
+      "detail": "year=2026, month=Jul"
+    },
+    {
+      "name": "industry-targets-unique",
+      "passed": true,
+      "detail": "{'caac_domestic': 'G174', 'big3_domestic': 'H174', 'caac_intl_regional': 'K174', 'big3_intl_regional': 'L174'}"
+    },
+    {
+      "name": "caac-positive",
+      "passed": true,
+      "detail": "{'total': 74629.0, 'domestic_regional': 67369.0, 'regional': 867.0, 'international': 7260.0}"
+    },
+    {
+      "name": "caac-total-tie",
+      "passed": true,
+      "detail": "difference=0.000 thousand"
+    },
+    {
+      "name": "南航-positive",
+      "passed": true,
+      "detail": "{'domestic': 14573.41, 'regional': 164.03, 'international': 1994.46, 'total': 16731.9}"
+    },
+    {
+      "name": "南航-total-tie",
+      "passed": true,
+      "detail": "total-parts=0.000 thousand"
+    },
+    {
+      "name": "南航-official-domain",
+      "passed": true,
+      "detail": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225474242.PDF"
+    },
+    {
+      "name": "东航-positive",
+      "passed": true,
+      "detail": "{'domestic': 12003.81, 'international': 1912.45, 'regional': 351.08, 'total': 14267.34}"
+    },
+    {
+      "name": "东航-total-tie",
+      "passed": true,
+      "detail": "total-parts=0.000 thousand"
+    },
+    {
+      "name": "东航-official-domain",
+      "passed": true,
+      "detail": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225474384.PDF"
+    },
+    {
+      "name": "国航-positive",
+      "passed": true,
+      "detail": "{'domestic': 13471.8, 'international': 1814.2, 'regional': 404.8, 'total': 15690.8}"
+    },
+    {
+      "name": "国航-total-tie",
+      "passed": true,
+      "detail": "total-parts=0.000 thousand"
+    },
+    {
+      "name": "国航-official-domain",
+      "passed": true,
+      "detail": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225473882.PDF"
+    },
+    {
+      "name": "caac-official-domain",
+      "passed": true,
+      "detail": "https://www.caac.gov.cn/XXGK/XXGK/TJSJ/202608/P020260821408095459831.pdf"
+    },
+    {
+      "name": "official-input-count",
+      "passed": true,
+      "detail": "count=16"
+    },
+    {
+      "name": "airline-CAAC Data-existing-values",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "name": "airline-Top 4 Total-existing-values",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "name": "airline-Top4 Domestic-existing-values",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "name": "airline-Top4 Intl.+Reg-existing-values",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "name": "industry-existing-values",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "name": "airline-input-roundtrip",
+      "passed": true,
+      "detail": "16 official inputs"
+    },
+    {
+      "name": "airline-source-comments",
+      "passed": true,
+      "detail": "16 comments"
+    },
+    {
+      "name": "airline-formulas-preserved",
+      "passed": true,
+      "detail": "46 formulas"
+    },
+    {
+      "name": "formula-vs-independent",
+      "passed": true,
+      "detail": "{\"caac_domestic\": {\"formula\": 0.04089905930598392, \"independent\": 0.04089905930598392, \"difference\": 0.0}, \"caac_intl_regional\": {\"formula\": 0.02458396369137672, \"independent\": 0.02458396369137672, \"difference\": 0.0}, \"big3_domestic\": {\"formula\": 0.053006848524479455, \"independent\": 0.05300684852447923, \"difference\": 2.220446049250313e-16}, \"big3_intl_regional\": {\"formula\": 0.06046602239411336, \"independent\": 0.06046602239411336, \"difference\": 0.0}}"
+    },
+    {
+      "name": "summary-month-ok",
+      "passed": true,
+      "detail": "{\"Summary!DJ4\": 0.03911166805903643, \"Summary!DJ5\": 0.04089905930598392, \"Summary!DJ6\": 0.02458396369137672, \"Summary!DJ7\": 0.033373063170440975, \"Summary!DJ8\": 0.023544339489637744, \"Summary!DJ14\": 0.054061406417871716, \"Summary!DJ15\": 0.053006848524479455, \"Summary!DJ16\": 0.06046602239411336, \"Summary!DJ17\": -0.0038010872625674486, \"Summary!DJ18\": 0.07158162481691122}"
+    },
+    {
+      "name": "airline-error-count-not-increased",
+      "passed": true,
+      "detail": "{\"before\": {\"#REF!\": 66, \"#DIV/0!\": 383, \"#VALUE!\": 22, \"#N/A\": 0, \"#NAME?\": 0}, \"after\": {\"#REF!\": 60, \"#DIV/0!\": 382, \"#VALUE!\": 22, \"#N/A\": 0, \"#NAME?\": 0}}"
+    },
+    {
+      "name": "industry-roundtrip",
+      "passed": true,
+      "detail": "{\"caac_domestic\": 0.04089905930598392, \"big3_domestic\": 0.05300684852447923, \"caac_intl_regional\": 0.02458396369137672, \"big3_intl_regional\": 0.06046602239411336}"
+    },
+    {
+      "name": "industry-no-source-comments",
+      "passed": true,
+      "detail": "{'caac_domestic': 'G174', 'big3_domestic': 'H174', 'caac_intl_regional': 'K174', 'big3_intl_regional': 'L174'}"
+    },
+    {
+      "name": "industry-comment-count-unchanged",
+      "passed": true,
+      "detail": "before=12, after=12"
+    },
+    {
+      "name": "industry-error-count-not-increased",
+      "passed": true,
+      "detail": "{\"before\": {\"#REF!\": 36, \"#DIV/0!\": 8, \"#VALUE!\": 0, \"#N/A\": 0, \"#NAME?\": 0}, \"after\": {\"#REF!\": 36, \"#DIV/0!\": 8, \"#VALUE!\": 0, \"#N/A\": 0, \"#NAME?\": 0}}"
+    },
+    {
+      "name": "source-workbooks-unchanged",
+      "passed": true,
+      "detail": "{\"airline\": \"170584e5c17a32ca7620196ef1be41cf00ad9a97d030fa4c9803215a5175c5cf\", \"industry\": \"5eb8cb8da750ba7d1373072d7ad9d2db4a86c4c822afd71335d741e253defcf7\"}"
+    }
+  ],
+  "validation": {
+    "formula_vs_independent": true,
+    "summary_month_ok": true,
+    "industry_roundtrip": true,
+    "error_count_not_increased": true,
+    "airline": {
+      "formula_results": {
+        "caac_domestic": 0.04089905930598392,
+        "caac_intl_regional": 0.02458396369137672,
+        "big3_domestic": 0.053006848524479455,
+        "big3_intl_regional": 0.06046602239411336
+      },
+      "summary": {
+        "Summary!DJ4": 0.03911166805903643,
+        "Summary!DJ5": 0.04089905930598392,
+        "Summary!DJ6": 0.02458396369137672,
+        "Summary!DJ7": 0.033373063170440975,
+        "Summary!DJ8": 0.023544339489637744,
+        "Summary!DJ14": 0.054061406417871716,
+        "Summary!DJ15": 0.053006848524479455,
+        "Summary!DJ16": 0.06046602239411336,
+        "Summary!DJ17": -0.0038010872625674486,
+        "Summary!DJ18": 0.07158162481691122
+      },
+      "errors_before": {
+        "#REF!": 66,
+        "#DIV/0!": 383,
+        "#VALUE!": 22,
+        "#N/A": 0,
+        "#NAME?": 0
+      },
+      "errors_after": {
+        "#REF!": 60,
+        "#DIV/0!": 382,
+        "#VALUE!": 22,
+        "#N/A": 0,
+        "#NAME?": 0
+      },
+      "formula_vs_independent": true,
+      "summary_month_ok": true,
+      "error_count_not_increased": true
+    },
+    "industry": {
+      "values": {
+        "caac_domestic": 0.04089905930598392,
+        "big3_domestic": 0.05300684852447923,
+        "caac_intl_regional": 0.02458396369137672,
+        "big3_intl_regional": 0.06046602239411336
+      },
+      "targets": {
+        "caac_domestic": "G174",
+        "big3_domestic": "H174",
+        "caac_intl_regional": "K174",
+        "big3_intl_regional": "L174"
+      },
+      "industry_roundtrip": true,
+      "no_source_comments": true,
+      "comment_count_before": 12,
+      "comment_count_after": 12,
+      "errors_before": {
+        "#REF!": 36,
+        "#DIV/0!": 8,
+        "#VALUE!": 0,
+        "#N/A": 0,
+        "#NAME?": 0
+      },
+      "errors_after": {
+        "#REF!": 36,
+        "#DIV/0!": 8,
+        "#VALUE!": 0,
+        "#N/A": 0,
+        "#NAME?": 0
+      },
+      "error_count_not_increased": true
+    }
+  },
+  "sha256": {
+    "airline": "9631967c1ad6debf79eaa9561eaf7b20415132732629b454957ad76bcdb0e891",
+    "industry": "c2b2f0fd8e7f8722444698fab103a4f51a71579e8a165fdeca36e28be61f9a5a"
+  }
+}
