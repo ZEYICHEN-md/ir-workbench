@@ -2,9 +2,17 @@
 
 > ⚠️ **本文件是投影，不要手改。**内容由 `data/intel/entries.jsonl` 生成，手改会在下次 `ir intel rebuild` 时被覆盖。要改内容就去改 JSONL 那条记录。
 
-> 条目 10 条（主角 4 · 被提及 6）；最近 2026-08-05
+> 条目 12 条（主角 5 · 被提及 7）；最近 2026-08-20
 
 ## 动作与表述（本公司为主角）
+
+### 2026-08-20 · Expedia 裁 8 名高管，把 8000 人的技术组织改成小队制
+
+> 类型 动作 · 主题 组织与人事、AI 产品与技术底座 · 来源 Skift
+
+Expedia 围绕 AI 重组其约 8000 人的产品与技术组织，裁掉 8 名高管——包括负责 book-to-trip 技术的 SVP Sachin Singh，以及支付、反欺诈与风控、自助服务等方向的 7 名 VP，职责被拆散重分。首席产品官 Shilpa Ranganathan 与 CTO Ramana Thumu 给的理由是 AI 大幅压缩了工作时间线，因此改成小型、自治、跨职能的「端到端小队」，直接挂在各品牌的产品负责人之下，减少交接与协调成本；同时把核心 AI、数据与 agentic 平台集中到首席 AI 与数据官 Xavier Amatriain 手上，产品构建权反而下放。按 Expedia 年报口径，1.6 万名员工里约一半是技术岗，其中约 5000 是工程师。这是把 AI 从一批项目变成组织形态，迭代速度的竞争会先在组织结构上分出高下。
+
+[原文](https://skift.com/2026/08/20/expedia-cuts-eight-executives-as-it-reorganizes-around-ai)
 
 ### 2026-08-05 · Expedia 加码 B2B：一站式平台对抗 Booking 整合
 
@@ -39,6 +47,14 @@ Expedia 成为 Allegiant 首个授权 OTA 合作方，双方签署 12 个月独�
 [原文](https://skift.com/2026/07/17/allegiant-long-an-ota-holdout-signs-an-exclusive-deal-with-expedia)
 
 ## 被提及（主角是别家，但对本公司有实质信息）
+
+### 2026-08-21 · 延续上期：Viator 改协议，把体验零售定价权交给渠道伙伴
+
+> 类型 动作 · 主题 供给与品类扩张、分发与流量入口 · 来源 Skift
+
+Viator 本月更新了面向全球运营商的供应商协议，把体验的零售定价权给了「渠道伙伴」——包括 Booking.com、Expedia、Costco，以及刚成为 Tripadvisor 体验伙伴的 Airbnb。协议摘要的措辞是 Viator 与其伙伴对最终展示给消费者的零售价拥有自主权；5 月的上一版里这个权利只属于 Viator，尽管实际操作中分销伙伴也在定价。运营商结算依据的是净价，零售价与净价的差额由 Viator 与伙伴分成——文章举的例子是潜水教练报净价 78 美元、平台零售 100 美元、双方分那 22 美元。协议没有公开宣布，只贴在运营商资源站上；一位同时接近 Tripadvisor 与 Airbnb 的人士判断这是在为大伙伴打折或把体验当引流品做准备。GetYourGuide 的「供应商定价」模式可能因此成为招商优势。体验品类的定价权正从供给方移向分发方，走的是住宿当年那条路。
+
+[原文](https://skift.com/2026/08/21/viators-updated-operator-agreement-formalizes-a-power-shift-in-experiences-pricing-scoop)
 
 ### 2026-08-15 · Airbnb 租车上线一月：日均数百单，库存与数据走 CarTrawler
 

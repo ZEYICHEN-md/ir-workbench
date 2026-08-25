@@ -64,8 +64,11 @@ def cmd_recall(args, base) -> Result:
 
     rows, problems = recall.gather(
         since=args.since or monday.isoformat(),
+        # 上限也要给：不给的话补做过去的期次会混进下一期的稿子
+        until=args.until or sunday.isoformat(),
         sources=args.source or None,
         scoped_only=args.scoped_only,
+        max_pages=args.max_pages,
     )
     scoped = sum(1 for r in rows if r["in_scope"])
     target = base.scratch / f"news-recall-{period}.json"
@@ -75,12 +78,18 @@ def cmd_recall(args, base) -> Result:
         {"name": "枚举", "level": "ok" if rows else "fail",
          "detail": f"{len(rows)} 条，其中类目相关 {scoped} 条"},
     ]
-    for source, (label, _url) in recall.FEEDS.items():
-        got = sum(1 for r in rows if r["source"] == label)
-        broken = any(label in p for p in problems)
+    for feed in recall.FEEDS_LIST:
+        got = [r for r in rows if r["source"] == feed.label]
+        broken = any(feed.label in p for p in problems)
+        span = ""
+        if got:
+            dates = sorted(r["date"] for r in got if r["date"])
+            if dates:
+                span = f"，覆盖 {dates[0]} 至 {dates[-1]}"
         checks.append(
-            {"name": label, "level": "fail" if broken else "ok",
-             "detail": "抓取失败" if broken else f"{got} 条"}
+            {"name": feed.label, "level": "fail" if broken else "ok",
+             "detail": "抓取失败" if broken else f"{len(got)} 条{span}"
+             + ("" if feed.paged else "（该源不支持翻页，只能拿到最近一页）")}
         )
     checks.extend(
         {"name": f"补充检索 {index}", "level": "ok",
@@ -125,6 +134,26 @@ def _read_items(path: str) -> list[dict]:
     return data
 
 
+def _items_from_digest(path: Path) -> list[dict]:
+    """从成稿的来源表直接取台账条目。
+
+    来源表里已经有标题、媒体、日期、URL 四样，正是台账要的。让人再手拼一份 JSON
+    是多余摩擦，而且抄错了不会有人发现——两份东西本来就该是同一份。
+    """
+    from modules.competitor_intel import backfill
+
+    rows = backfill.source_rows(path.read_text(encoding="utf-8"))
+    return [
+        {
+            "title": row["title_cn"],
+            "url": row["url"],
+            "date": row["date"],
+            "source": row["media"],
+        }
+        for row in rows
+    ]
+
+
 def cmd_check(args, base) -> Result:
     items = _read_items(args.file)
     results = ledger.check(base, items, weeks=args.weeks, sim=args.sim)
@@ -153,7 +182,20 @@ def cmd_check(args, base) -> Result:
 
 def cmd_log(args, base) -> Result:
     period = _resolve_period(args)
-    items = _read_items(args.file)
+    if args.file:
+        items = _read_items(args.file)
+    else:
+        digest_path = deliverable(base, period)
+        if not digest_path.is_file():
+            return Result(
+                status="blocked",
+                summary="没有 --file，也找不到成稿。",
+                domain=DOMAIN,
+                period=period,
+                missing=[str(digest_path)],
+                next_steps=["要么给 --file，要么先把成稿放到上面那个路径（默认从来源表取条目）。"],
+            )
+        items = _items_from_digest(digest_path)
     try:
         outcome = ledger.add(
             base, period, items, weeks=args.weeks, sim=args.sim,
@@ -379,9 +421,14 @@ def register(subparsers, common) -> None:
 
     p = sub.add_parser("recall", help="RSS 枚举候选 + 打印补充检索清单", parents=[common])
     p.add_argument("--period")
-    p.add_argument("--since", help="覆盖起始日 YYYY-MM-DD")
+    p.add_argument("--since", help="覆盖窗口起始日 YYYY-MM-DD")
+    p.add_argument("--until", help="覆盖窗口结束日 YYYY-MM-DD")
     p.add_argument("--source", nargs="*", choices=sorted(recall.FEEDS), help="只抓这些源")
     p.add_argument("--scoped-only", action="store_true", help="只留类目相关条目")
+    p.add_argument(
+        "--max-pages", type=int, default=recall.DEFAULT_MAX_PAGES,
+        help="翻几页（一页约 10 条 ≈ 2 天，7 天的情报主周必须翻页）",
+    )
     p.set_defaults(func=cmd_recall)
 
     p = sub.add_parser("check", help="选稿前跨期查重", parents=[common])
@@ -392,7 +439,7 @@ def register(subparsers, common) -> None:
 
     p = sub.add_parser("log", help="定稿后登记进去重台账", parents=[common])
     p.add_argument("--period")
-    p.add_argument("--file", required=True, help="已收录条目 JSON")
+    p.add_argument("--file", help="已收录条目 JSON；不给则从成稿的来源表取")
     p.add_argument("--weeks", type=int, default=ledger.DEFAULT_WEEKS)
     p.add_argument("--sim", type=float, default=ledger.DEFAULT_SIM)
     p.add_argument("--commit", action="store_true", help="实际写入（默认预演）")

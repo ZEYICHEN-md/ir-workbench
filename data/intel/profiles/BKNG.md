@@ -2,9 +2,25 @@
 
 > ⚠️ **本文件是投影，不要手改。**内容由 `data/intel/entries.jsonl` 生成，手改会在下次 `ir intel rebuild` 时被覆盖。要改内容就去改 JSONL 那条记录。
 
-> 条目 7 条（主角 4 · 被提及 3）；最近 2026-08-10
+> 条目 10 条（主角 6 · 被提及 4）；最近 2026-08-22
 
 ## 动作与表述（本公司为主角）
+
+### 2026-08-22 · Booking 对 Kayak 计提 4.57 亿美元减值，比价这一层被 AI 答案挤了通道
+
+> 类型 动作 · 主题 分发与流量入口、AI 产品与技术底座、财务表现与指引 · 来源 Skift
+
+Booking Holdings 对 Kayak 计提 4.57 亿美元减值，主要落在商号与商誉上。Skift 的分析认为这是渠道成本问题而不是元搜索的死亡：Kayak 收入停在约 5 亿美元（疫情前约 6 亿），本身仍然盈利，属于停滞而非崩塌。它 2004 年由 Steve Hafner 与 Paul English 创立，「先广搜再实时筛」的界面成了行业标准，早期强项是直接流量（2012 年占查询 75%），但在 Booking 体内 13 年后又变回依赖 Google——而 Google 的 AI 生成答案把自然链接往下压，获客成本随之上升。同期 Trivago 与 Skyscanner 仍在增长，只是广告投入更高；Booking 则把对话式 AI 的大注押给一个由 Kayak 创始人打造的新品牌 Lola，而不是用 Kayak 攒了 21 年的品牌与用户基础。
+
+[原文](https://skift.com/2026/08/22/in-praise-of-kayak-21-years-later)
+
+### 2026-08-21 · Booking 自己说 AI 带来的房晚不到 1%，旅游业开始为 AI 算账
+
+> 类型 动作 · 主题 AI 产品与技术底座、财务表现与指引 · 来源 Skift
+
+Skift 的播客把本周几条线索并到一起看：Booking 表示 AI 目前贡献的房晚仍不足 1%，Airbnb 拿出了可量化的 AI 降本成果，Google 则花 1000 万美元去买数据。三者指向同一件事——行业对 AI 的评价标准正从「有没有在做」换成「回报在哪里」，决定性的变量成了数据归属、消费者信任和可证明的投入产出比。对 IR 这是一个有用的锚：在同业公开口径下，AI 对成交的直接贡献目前仍在个位数以下，叙事和数字之间还有很大距离。
+
+[原文](https://skift.com/2026/08/21/travels-ai-reckoning-has-arrived)
 
 ### 2026-08-10 · 延续上期：Booking B2B 由 Agoda CEO 兼任，技术底座落在 Agoda API
 
@@ -39,6 +55,14 @@ Booking Holdings Q2 净利大增 118% 至 20 亿美元，但增长明显放缓�
 [原文](https://skift.com/2026/08/04/booking-holdings-saw-pressure-from-googles-ai-overviews)
 
 ## 被提及（主角是别家，但对本公司有实质信息）
+
+### 2026-08-21 · 延续上期：Viator 改协议，把体验零售定价权交给渠道伙伴
+
+> 类型 动作 · 主题 供给与品类扩张、分发与流量入口 · 来源 Skift
+
+Viator 本月更新了面向全球运营商的供应商协议，把体验的零售定价权给了「渠道伙伴」——包括 Booking.com、Expedia、Costco，以及刚成为 Tripadvisor 体验伙伴的 Airbnb。协议摘要的措辞是 Viator 与其伙伴对最终展示给消费者的零售价拥有自主权；5 月的上一版里这个权利只属于 Viator，尽管实际操作中分销伙伴也在定价。运营商结算依据的是净价，零售价与净价的差额由 Viator 与伙伴分成——文章举的例子是潜水教练报净价 78 美元、平台零售 100 美元、双方分那 22 美元。协议没有公开宣布，只贴在运营商资源站上；一位同时接近 Tripadvisor 与 Airbnb 的人士判断这是在为大伙伴打折或把体验当引流品做准备。GetYourGuide 的「供应商定价」模式可能因此成为招商优势。体验品类的定价权正从供给方移向分发方，走的是住宿当年那条路。
+
+[原文](https://skift.com/2026/08/21/viators-updated-operator-agreement-formalizes-a-power-shift-in-experiences-pricing-scoop)
 
 ### 2026-08-11 · Airbnb 接入 Tripadvisor 体验，放弃纯自建路线
 

@@ -1,0 +1,41 @@
+{
+  "domain": "competitor-intel",
+  "period": "2026-08-W3",
+  "created": "2026-08-25T21:47:49+08:00",
+  "updated": "2026-08-25T21:53:33+08:00",
+  "steps": {
+    "deposit": {
+      "state": "done",
+      "at": "2026-08-25T21:53:33+08:00",
+      "note": "入库 0 条"
+    },
+    "rebuild": {
+      "state": "done",
+      "at": "2026-08-25T21:53:33+08:00"
+    }
+  },
+  "inputs": {
+    "draft": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\intel-deposit-2026-08-W3.json",
+      "sha256": "4d8c6ff021557e88526f554124a3245e9dbc0028530becf64beca769bbbb06f4",
+      "at": "2026-08-25T21:53:33+08:00"
+    }
+  },
+  "outputs": {
+    "entries": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\intel\\entries.jsonl",
+      "sha256": "4812925379d7756512a5b9ed80d4be101622cba3f656df862105511335c8542f",
+      "at": "2026-08-25T21:53:33+08:00"
+    },
+    "profiles": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\intel\\profiles",
+      "sha256": null,
+      "at": "2026-08-25T21:53:33+08:00"
+    }
+  },
+  "notes": [],
+  "order": [
+    "deposit",
+    "rebuild"
+  ]
+}

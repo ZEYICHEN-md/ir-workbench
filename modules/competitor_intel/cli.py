@@ -205,6 +205,8 @@ def _deposit_commit(args, base, store: Store) -> Result:
             outputs={"entries": store.entries_file},
         )
         steps.record(base, period, "rebuild", "done", outputs={"profiles": profiles.profiles_dir(base)})
+        if not outcome.rejected:
+            _close_news_digest_step(base, period, len(outcome.added))
 
     status = "partial" if outcome.rejected else "success"
     return Result(
@@ -221,6 +223,31 @@ def _deposit_commit(args, base, store: Store) -> Result:
         ),
         data={"counts": outcome.counts, "profiles": [str(p) for p in written]},
     )
+
+
+def _close_news_digest_step(base, period: str, count: int) -> None:
+    """沉淀完成后，把 news-digest 那一侧的同一步也记完。
+
+    「写完自动沉淀进情报库」在 ADR 0002 里是**一个动作**，但它跨两个域，于是状态各记一份。
+    不联动的后果实测到了：情报库这边 2/2 完成、49 条在库，news-digest 那边的
+    「沉淀进竞对情报库」仍停在待办，跨域汇总因此报「需要你说『沉淀这期新闻』」——
+    而那件事刚刚做完。汇总里出现假待办，整栏就不可信了。
+
+    方向刻意是**由这里去写对方**，而不是让 news-digest 去猜情报库的状态：
+    做完这件事的是这条命令，它最清楚。失败不抛——联动不该让主流程挂掉。
+    """
+    try:
+        from modules.news_digest import steps as news_steps
+
+        news_steps.record(
+            base, period, "deposit", "done",
+            note=f"由 ir intel deposit 完成，入库 {count} 条",
+        )
+    # 必须连 SystemExit 一起抓：`Manifest.__init__` 用 SystemExit 报「周期键格式不对」，
+    # 而 SystemExit 不是 Exception 的子类。只写 `except Exception` 兜不住它——
+    # 季度通道的条目（周期键是 `26Q2`）走到这里会把整条入库命令弄崩。测试钉住了这一点。
+    except (Exception, SystemExit):  # noqa: BLE001
+        pass
 
 
 def _tagging_rows(trace: list[dict]) -> list[dict]:
@@ -527,6 +554,11 @@ def cmd_rebuild(args, base) -> Result:
     )
 
 
+def _unexpected_gaps(info: dict) -> list[str]:
+    """建档层里**没被裁定为预期稀疏**的空档。只有这些才算问题。"""
+    return [k for k in info["profiled_missing"] if k not in vocab.SPARSE_EXPECTED]
+
+
 def cmd_status(args, base) -> Result:
     store = Store(base)
     entries = store.load()
@@ -543,9 +575,12 @@ def cmd_status(args, base) -> Result:
         {"name": "已覆盖期次", "level": "ok", "detail": "、".join(info["periods"]) or "无"},
         {
             "name": "建档层覆盖",
-            "level": "warn" if info["profiled_missing"] else "ok",
+            # 已裁定条目稀疏属正常的那几家不算缺口（vocab.SPARSE_EXPECTED）。
+            # 与 health.py 用同一份判据——两处不一致会让人不知道该信哪个。
+            "level": "warn" if _unexpected_gaps(info) else "ok",
             "detail": f"{len(info['profiled_covered'])}/{len(vocab.PROFILED_KEYS)}"
-            + ("；缺 " + "、".join(info["profiled_missing"]) if info["profiled_missing"] else ""),
+            + ("；缺 " + "、".join(info["profiled_missing"]) if info["profiled_missing"] else "")
+            + ("（均已裁定属预期稀疏）" if info["profiled_missing"] and not _unexpected_gaps(info) else ""),
         },
         {
             "name": "主题未用到",

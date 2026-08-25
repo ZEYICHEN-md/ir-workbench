@@ -30,15 +30,37 @@ from __future__ import annotations
 
 import re
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ir-workbench/news-digest)"}
 
-FEEDS: dict[str, tuple[str, str]] = {
-    "skift": ("Skift", "https://skift.com/feed/"),
-    "36kr": ("36氪", "https://www.36kr.com/feed"),
-}
+
+@dataclass(frozen=True)
+class Feed:
+    key: str
+    label: str
+    url: str
+    #: 支持 `?paged=N` 翻页。**这个属性是召回层能不能成立的关键**：
+    #: 一页只有 10 条（Skift）或 30 条（36氪），按每天 5 篇算就是 2 天和 1 天。
+    #: 情报主周是 7 天，不翻页就只能看到最后一两天——「当周全量枚举」名不副实。
+    paged: bool = False
+
+
+FEEDS_LIST: tuple[Feed, ...] = (
+    Feed("skift", "Skift", "https://skift.com/feed/", paged=True),
+    Feed("36kr", "36氪", "https://www.36kr.com/feed", paged=False),
+)
+
+FEEDS: dict[str, Feed] = {f.key: f for f in FEEDS_LIST}
+
+#: 默认最多翻几页。8 页 × 10 条 ≈ 80 篇，够覆盖 7 天。
+#: 整页都早于窗口下限就提前停，所以正常情况翻不到 8 页。
+DEFAULT_MAX_PAGES = 8
+
+#: Skift 这类 WordPress 站的链接里带 `/YYYY/MM/DD/`，可作日期兜底。
+_DATE_IN_URL = re.compile(r"/(20\d{2})/(\d{2})/(\d{2})/")
 
 #: 行业类目词（发现层）。覆盖 OTA / 酒店 / 航司 / 分发 / 渠道商业化，**不写死单家公司**。
 IN_SCOPE_TERMS: tuple[str, ...] = (
@@ -65,14 +87,41 @@ SUPPLEMENT_QUERIES: tuple[dict[str, str], ...] = (
 )
 
 
-def _parse_date(raw: str | None) -> datetime | None:
-    if not raw:
-        return None
-    try:
-        parsed = parsedate_to_datetime(raw.strip())
-    except (TypeError, ValueError):
-        return None
-    return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed
+def _parse_date(raw: str | None, link: str = "") -> datetime | None:
+    """解析条目日期。三层：RFC 2822 → ISO 变体 → 链接里的 `/YYYY/MM/DD/`。
+
+    为什么要三层：
+
+    - **RFC 2822** 是 RSS 规范里的 `pubDate` 格式，Skift 用的是这个。
+    - **ISO 变体**是 36氪 实际发的格式：`2026-08-24 15:07:48  +0800`（注意时区前有**两个**空格）。
+      `parsedate_to_datetime` 认不了它，于是 36氪 的每一条日期都是空的——**窗口过滤对中文侧
+      整个失效**（`if when and when < cutoff` 里 `when` 为 None 就直接放过）。这个缺陷是从
+      旧仓继承的，实测四期精选里 36氪 来源只出现过一条，大概率与此有关。
+      更麻烦的是：无日期的条目沉淀时会被 `normalize()` 拒收（date 必填），也就是采到了也进不了库。
+    - **链接兜底**：WordPress 站的 URL 里带日期。旧仓 `news_recall.py` 有这层，我移植时漏了。
+    """
+    text = (raw or "").strip()
+    if text:
+        try:
+            parsed = parsedate_to_datetime(text)
+            return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed
+        except (TypeError, ValueError):
+            pass
+        # `2026-08-24 15:07:48  +0800` / `2026-08-24 15:07:48` / `2026-08-24T15:07:48+08:00`
+        squeezed = re.sub(r"\s+", " ", text).replace("T", " ")
+        for pattern in ("%Y-%m-%d %H:%M:%S %z", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d"):
+            try:
+                parsed = datetime.strptime(squeezed, pattern)
+            except ValueError:
+                continue
+            return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed
+    match = _DATE_IN_URL.search(link or "")
+    if match:
+        try:
+            return datetime(int(match[1]), int(match[2]), int(match[3]), tzinfo=timezone.utc)
+        except ValueError:
+            pass
+    return None
 
 
 def in_scope(text: str) -> tuple[bool, list[str]]:
@@ -83,70 +132,115 @@ def in_scope(text: str) -> tuple[bool, list[str]]:
     return bool(hits), hits
 
 
-def fetch_feed(source: str, cutoff: datetime, *, timeout: int = 30) -> tuple[list[dict], str | None]:
-    """抓一个源。返回 (条目, 出错说明)。**单源失败不抛**——一个源挂了不该让整期召回失败。"""
+def fetch_feed(
+    source: str,
+    cutoff: datetime,
+    *,
+    until: datetime | None = None,
+    max_pages: int = DEFAULT_MAX_PAGES,
+    timeout: int = 30,
+) -> tuple[list[dict], str | None]:
+    """抓一个源，必要时翻页。返回 (条目, 出错说明)。
+
+    **单源失败不抛**——一个源挂了不该让整期召回失败。
+    整页都早于 `cutoff` 就停止翻页，正常一周翻两三页就够。
+    """
     import requests
 
-    label, url = FEEDS[source]
-    try:
-        response = requests.get(url, headers=UA, timeout=timeout)
-    except requests.RequestException as error:
-        return [], f"{label} 请求失败：{error}"
-    if response.status_code != 200:
-        return [], f"{label} 抓取失败 HTTP {response.status_code}"
-    try:
-        root = ET.fromstring(response.content)
-    except ET.ParseError as error:
-        return [], f"{label} 解析失败：{error}"
-
+    feed = FEEDS[source]
     out: list[dict] = []
     seen: set[str] = set()
-    for item in root.findall(".//item"):
-        title = (item.findtext("title") or "").strip()
-        link = (item.findtext("link") or "").strip()
-        description = (item.findtext("description") or "").strip()
-        when = _parse_date(item.findtext("pubDate"))
-        if not title or not link or link in seen:
-            continue
-        if when and when < cutoff:
-            continue
-        seen.add(link)
-        scoped, terms = in_scope(f"{title} {description}")
-        out.append(
-            {
-                "title": title,
-                "url": link.split("?")[0],
-                "date": when.strftime("%Y-%m-%d") if when else "",
-                "source": label,
-                "in_scope": scoped,
-                "match_terms": terms,
-            }
+    pages = max_pages if feed.paged else 1
+
+    for page in range(1, pages + 1):
+        url = feed.url if page == 1 else (
+            f"{feed.url}{'&' if '?' in feed.url else '?'}paged={page}"
         )
+        try:
+            response = requests.get(url, headers=UA, timeout=timeout)
+        except requests.RequestException as error:
+            return out, f"{feed.label} 第 {page} 页请求失败：{error}"
+        if response.status_code != 200:
+            if page == 1:
+                return out, f"{feed.label} 抓取失败 HTTP {response.status_code}"
+            break                      # 翻到没有更多页是正常结束
+        try:
+            items = ET.fromstring(response.content).findall(".//item")
+        except ET.ParseError as error:
+            return out, f"{feed.label} 第 {page} 页解析失败：{error}"
+        if not items:
+            break
+
+        page_oldest: datetime | None = None
+        for item in items:
+            title = (item.findtext("title") or "").strip()
+            link = (item.findtext("link") or "").strip()
+            description = (item.findtext("description") or "").strip()
+            when = _parse_date(item.findtext("pubDate"), link)
+            if when and (page_oldest is None or when < page_oldest):
+                page_oldest = when
+            if not title or not link or link in seen:
+                continue
+            if when and (when < cutoff or (until and when > until)):
+                continue
+            seen.add(link)
+            scoped, terms = in_scope(f"{title} {description}")
+            out.append(
+                {
+                    "title": title,
+                    "url": link.split("?")[0],
+                    "date": when.strftime("%Y-%m-%d") if when else "",
+                    "source": feed.label,
+                    "in_scope": scoped,
+                    "match_terms": terms,
+                }
+            )
+        if page_oldest and page_oldest < cutoff:
+            break
     return out, None
 
 
 def gather(
     *,
     since: str | None = None,
+    until: str | None = None,
     days: int = 10,
     sources: list[str] | None = None,
     scoped_only: bool = False,
+    max_pages: int = DEFAULT_MAX_PAGES,
 ) -> tuple[list[dict], list[str]]:
-    """枚举全部源。返回 (条目, 告警)。"""
+    """枚举全部源。返回 (条目, 告警)。
+
+    `until` 是上限。旧仓只有下限，因为旧流程总是做刚结束的当周，窗口右端就是「现在」。
+    补做过去的期次时会露馅：实测给 08-W3（8/17–8/23）跑召回，拿回来的是 8/24–8/25
+    的稿子——那些属于下一期。
+    """
     if since:
         cutoff = datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=timezone.utc)
     else:
         cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    ceiling = None
+    if until:
+        # 上限含当天：给的是日期，意思是那一整天都要
+        ceiling = datetime.strptime(until, "%Y-%m-%d").replace(
+            tzinfo=timezone.utc, hour=23, minute=59, second=59
+        )
 
     rows: list[dict] = []
     problems: list[str] = []
     for source in sources or list(FEEDS):
-        got, error = fetch_feed(source, cutoff)
+        got, error = fetch_feed(source, cutoff, until=ceiling, max_pages=max_pages)
         rows.extend(got)
         if error:
             problems.append(error)
     if scoped_only:
         rows = [r for r in rows if r["in_scope"]]
+    undated = [r for r in rows if not r["date"]]
+    if undated:
+        problems.append(
+            f"{len(undated)} 条没能解析出日期，窗口过滤对它们无效，且沉淀时会被拒收"
+            "（date 必填）。若集中在某一个源，多半是那个源的日期格式变了。"
+        )
     rows.sort(key=lambda r: (r["date"], r["title"]), reverse=True)
     return rows, problems
 

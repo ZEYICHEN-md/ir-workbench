@@ -183,6 +183,32 @@ class TestStore(unittest.TestCase):
             again = store.add([action()], commit=True)
             self.assertEqual((len(again.added), len(again.skipped)), (0, 1))
 
+    def test_deposit_closes_the_news_digest_step_too(self):
+        """「写完自动沉淀」是一个动作，跨两个域。不联动就会在汇总里留一条假待办。
+
+        实测过：情报库这边 2/2 完成、条目在库，news-digest 那边的「沉淀进竞对情报库」
+        仍停在待办，于是汇总报「需要你说『沉淀这期新闻』」——而那件事刚做完。
+        """
+        from modules.competitor_intel import cli as intel_cli
+        from modules.news_digest import steps as news_steps
+
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            (paths.root / "modules" / "news_digest").mkdir(parents=True, exist_ok=True)
+            intel_cli._close_news_digest_step(paths, "2026-08-W3", 10)
+            states = news_steps.progress(paths, "2026-08-W3")["states"]
+            self.assertEqual(states["deposit"], "done")
+            note = news_steps.open_manifest(paths, "2026-08-W3").load()["steps"]["deposit"]["note"]
+            self.assertIn("intel deposit", note, "要写清是谁替它记完的")
+
+    def test_closing_news_digest_step_never_breaks_the_main_flow(self):
+        """周期键不合规（比如季度通道的条目）时，联动要静默跳过而不是把入库弄失败。"""
+        from modules.competitor_intel import cli as intel_cli
+
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            intel_cli._close_news_digest_step(paths, "26Q2", 3)   # 不是 month_week 键
+
     def test_reviewed_flag_survives_a_roundtrip(self):
         """人核过的标记必须能存下来——存不下来，retag 下一轮就把人的改动算回去了。"""
         with TemporaryDirectory() as tmp:
