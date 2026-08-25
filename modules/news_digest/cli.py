@@ -300,6 +300,56 @@ def cmd_export(args, base) -> Result:
     )
 
 
+def cmd_skip(args, base) -> Result:
+    """记下某一期**故意不出**，把剩余步骤标为跳过。
+
+    为什么要有这个：不记的话那一期会永远挂在「等你说话 · 写稿」上。跨域汇总的意义
+    正是把停住的动作摆出来，所以它里面绝不能有假的——一条假的会让人开始忽略整栏。
+
+    另一种做法是删掉 `runs/news-digest/<期次>/`，但那会连「我们当时决定不出」这个
+    事实一起删掉。半年后看 outputs 里缺一期，没人知道是漏了还是有意的。
+
+    必须给理由，且理由写进 manifest。"""
+    period = _resolve_period(args)
+    if not (args.reason or "").strip():
+        return Result(
+            status="blocked",
+            summary="跳过一期必须说明理由。",
+            domain=DOMAIN,
+            period=period,
+            next_steps=["加 --reason，理由会写进 manifest，以后能查为什么这期没出。"],
+        )
+    info = steps.progress(base, period)
+    states = info.get("states") or {}
+    remaining = [
+        key for key in steps.STEP_ORDER
+        if states.get(key, "pending") not in {"done", "skipped"}
+    ]
+    if not remaining:
+        return Result(status="success", summary=f"{calendar_.label_from_key(period)} 没有待跳过的步骤。",
+                      domain=DOMAIN, period=period)
+    if not args.commit:
+        return Result(
+            status="partial",
+            summary=f"会把 {len(remaining)} 步标为跳过，**未写入**。",
+            domain=DOMAIN,
+            period=period,
+            checks=[{"name": steps.STEP_BY_KEY[k].zh, "level": "ok", "detail": "→ 跳过"}
+                    for k in remaining],
+            next_steps=["确认后加 --commit。"],
+        )
+    for key in remaining:
+        steps.record(base, period, key, "skipped", note=f"本期不出：{args.reason.strip()}")
+    return Result(
+        status="success",
+        summary=f"{calendar_.label_from_key(period)} 已记为本期不出。",
+        domain=DOMAIN,
+        period=period,
+        checks=[{"name": "理由", "level": "ok", "detail": args.reason.strip()},
+                {"name": "标为跳过", "level": "ok", "detail": "、".join(remaining)}],
+    )
+
+
 def cmd_status(args, base) -> Result:
     period = args.period
     if not period:
@@ -360,6 +410,12 @@ def register(subparsers, common) -> None:
     p.add_argument("--file")
     p.add_argument("--pdf", action="store_true")
     p.set_defaults(func=cmd_export)
+
+    p = sub.add_parser("skip", help="记下某一期故意不出（须给理由）", parents=[common])
+    p.add_argument("--period")
+    p.add_argument("--reason", default="", help="为什么这期不出，写进 manifest")
+    p.add_argument("--commit", action="store_true")
+    p.set_defaults(func=cmd_skip)
 
     p = sub.add_parser("status", help="本域状态", parents=[common])
     p.add_argument("--period")

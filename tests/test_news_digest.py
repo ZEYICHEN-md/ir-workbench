@@ -282,6 +282,32 @@ class TestRecall(unittest.TestCase):
         rows = [{"title": "a", "date": "2026-08-12"}, {"title": "b", "date": "2026/08/12"}]
         self.assertEqual(len(recall.filter_by_window(rows, "2026-08-10", "2026-08-16")), 2)
 
+    def test_skip_requires_a_reason(self):
+        """跳过一期不给理由，等于半年后没人知道那期是漏了还是有意的。"""
+        from types import SimpleNamespace
+
+        from modules.news_digest import cli
+
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            args = SimpleNamespace(period="2026-08-W3", reason="  ", commit=True)
+            self.assertEqual(cli.cmd_skip(args, paths).status, "blocked")
+
+    def test_skip_marks_remaining_steps_and_records_why(self):
+        from types import SimpleNamespace
+
+        from modules.news_digest import cli, steps
+
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            steps.record(paths, "2026-08-W3", "recall", "done")
+            args = SimpleNamespace(period="2026-08-W3", reason="发布日已过，本期不出", commit=True)
+            self.assertEqual(cli.cmd_skip(args, paths).status, "success")
+            info = steps.progress(paths, "2026-08-W3")
+            self.assertIsNone(info["next"], "跳过后不该还有下一步挂着")
+            manifest = steps.open_manifest(paths, "2026-08-W3").load()
+            self.assertIn("本期不出", manifest["steps"]["draft"]["note"])
+
     def test_supplement_queries_are_not_executed_here(self):
         """exa / tavily 是 Agent 侧工具。这个模块一行都不该调用它们。"""
         source = Path(recall.__file__).read_text(encoding="utf-8")
