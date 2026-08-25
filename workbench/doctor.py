@@ -49,13 +49,21 @@ def _domain_checks(paths: Paths) -> dict[str, list[dict]]:
             collected[key] = rows
     return collected
 
-#: 可选依赖：缺了只影响部分能力，不阻塞工作台
-OPTIONAL_DEPS: dict[str, str] = {
+#: 已迁入域必需的依赖。缺了对应能力就跑不了，所以报 fail 而不是 warn。
+#: 与 `pyproject.toml` 的 `dependencies` 一一对应——那边是安装清单，这边是运行时自检。
+REQUIRED_DEPS: dict[str, str] = {
     "openpyxl": "读写 Excel（行业数据、航空月度）",
-    "docx": "读写 Word（Peers 业绩总结、Appendix）",
-    "pdfplumber": "读 PDF（卖方研报、财报原件）",
-    "requests": "抓取官方数据与新闻",
-    "playwright": "导出 PDF（新闻精选交付件）",
+    "pdfplumber": "读 PDF（民航局月报）",
+    "requests": "抓取官方数据",
+    "bs4": "解析公告页面",
+}
+
+#: 未迁入域会用到的依赖。现在缺是正常的（那些域还没搬进来），所以只提示。
+#: 对应域迁入时，把它移到 REQUIRED_DEPS，并把包移进 pyproject 的 dependencies。
+PENDING_DEPS: dict[str, str] = {
+    "docx": "读写 Word（Peers Appendix，尚未迁入）",
+    "playwright": "导出 PDF（新闻精选，尚未迁入）",
+    "pandas": "港股数据（尚未迁入）",
 }
 
 
@@ -173,21 +181,31 @@ def run(paths: Paths, *, verbose: bool = False) -> Result:
             if advice and row["level"] in {"fail", "warn"}:
                 next_steps.append(advice)
 
-    # 7. 可选依赖
-    absent_deps = [name for name in OPTIONAL_DEPS if importlib.util.find_spec(name) is None]
-    if absent_deps:
+    # 7. 依赖：已迁入域缺了就是 fail，未迁入域缺了只提示
+    absent_required = [name for name in REQUIRED_DEPS if importlib.util.find_spec(name) is None]
+    if absent_required:
         checks.append(
             {
-                "name": "可选依赖",
-                "level": "warn",
-                "detail": f"缺 {len(absent_deps)} 个：" + "、".join(absent_deps),
+                "name": "必需依赖",
+                "level": "fail",
+                "detail": f"缺 {len(absent_required)} 个：" + "、".join(absent_required),
             }
         )
-        for name in absent_deps:
-            warnings.append(f"缺 {name}，影响：{OPTIONAL_DEPS[name]}")
+        for name in absent_required:
+            missing.append(f"{name}（{REQUIRED_DEPS[name]}）")
         next_steps.append("对 Agent 说「安装工作台依赖」。")
     else:
-        checks.append({"name": "可选依赖", "level": "ok", "detail": f"{len(OPTIONAL_DEPS)} 个全部可用"})
+        checks.append({"name": "必需依赖", "level": "ok", "detail": f"{len(REQUIRED_DEPS)} 个齐全"})
+
+    absent_pending = [name for name in PENDING_DEPS if importlib.util.find_spec(name) is None]
+    if absent_pending:
+        checks.append(
+            {
+                "name": "待迁域依赖",
+                "level": "ok",
+                "detail": f"缺 {len(absent_pending)} 个（对应域尚未迁入，属正常）",
+            }
+        )
 
     # 汇总
     if any(c["level"] == "fail" for c in checks):

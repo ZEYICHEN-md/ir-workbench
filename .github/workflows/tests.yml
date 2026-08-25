@@ -19,11 +19,13 @@ jobs:
         with:
           python-version: "3.14"
 
-      - name: 安装工作台（不拉重依赖）
+      # 装完整依赖，不用 --no-deps 也不手动列包。
+      # 曾经为了省时间用 `--no-deps` 再手动补几个，结果依赖清单有了两份：
+      # 手动那份漏了 pdfplumber，CI 连续 6 次全红。单一真源是 pyproject.toml。
+      - name: 安装工作台
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e . --no-deps
-          python -m pip install "openpyxl==3.1.5"
+          python -m pip install -e .
 
       - name: 回归测试
         run: python -m unittest discover -s tests -v
@@ -38,3 +40,6 @@ jobs:
 
       - name: 域注册表冒烟
         run: python -m workbench domains --json
+
+      - name: 换行符卫生
+        run: python -m workbench hygiene
