@@ -69,20 +69,60 @@ IN_SCOPE_TERMS: tuple[str, ...] = (
     "佣金", "抽佣", "渠道费", "分发", "入境", "出境", "签证", "GDS", "Amadeus", "Sabre",
     "华住", "锦江", "万豪", "希尔顿", "洲际", "IHG", "雅高", "民航", "铁路", "暑运",
     "AI", "大模型", "智能体",
+    # B 类「旅行中断 / 外部冲击」的类目词。第一次迁移漏了整类——只有「签证」，
+    # 没有罢工/中断/天气/机场关闭。这类事件直接影响出行需求与运力，
+    # 却常不在行业媒体覆盖内（反例：2026/06 末欧洲热浪致铁路胀轨停运）。
+    "罢工", "停运", "取消", "机场关闭", "台风", "地震", "暴雨", "热浪",
+    "边境", "口岸", "免签", "地缘", "冲突", "宕机", "限流",
 )
 _IN_SCOPE = re.compile("|".join(re.escape(t) for t in IN_SCOPE_TERMS), re.I)
 
-#: 类目补充检索清单（每期必跑，与枚举对账）。**只打印，不执行**。
+#: 每期必跑的补充检索清单（与枚举对账）。**只打印，不执行**。
+#:
+#: 分 A / B 两类。**B 类必须放开域名**——这类事件直接影响出行需求与运力，却常不在行业
+#: 媒体覆盖内，只锁 Skift/PhocusWire 会整条漏掉（反例：2026/06 末欧洲热浪致多国铁路
+#: 胀轨停运）。第一次迁移漏了整个 B 类，而情报库里已有「台风红霞致香港机场约 350 航班取消」
+#: 一条，证明它确实该收。
+#:
+#: 参数级禁令见 `references/retrieval.md`：描述式 query 只喂 exa 不喂 tavily；
+#: tavily 只用短词且不锁域名。本次会话现场重犯过后者。
 SUPPLEMENT_QUERIES: tuple[dict[str, str], ...] = (
-    {"engine": "exa", "label": "36氪·酒旅OTA", "query": "site:36kr.com 在线旅游 酒店 OTA 渠道 佣金"},
-    {"engine": "exa", "label": "36氪·AI分发", "query": "site:36kr.com AI 旅游 分发 渠道 商业化"},
-    {"engine": "exa", "label": "虎嗅·酒旅", "query": "site:huxiu.com 旅游 酒店 OTA 佣金 渠道"},
-    {"engine": "exa", "label": "界面·酒旅", "query": "site:jiemian.com 旅游 酒店 OTA 平台"},
+    {"engine": "exa", "kind": "A", "label": "36氪·酒旅OTA",
+     "query": "site:36kr.com 在线旅游 酒店 OTA 渠道 佣金"},
+    {"engine": "exa", "kind": "A", "label": "36氪·AI分发",
+     "query": "site:36kr.com AI 旅游 分发 渠道 商业化"},
+    {"engine": "exa", "kind": "A", "label": "虎嗅·酒旅",
+     "query": "site:huxiu.com 旅游 酒店 OTA 佣金 渠道"},
+    {"engine": "exa", "kind": "A", "label": "界面·酒旅",
+     "query": "site:jiemian.com 旅游 酒店 OTA 平台"},
+    {"engine": "exa", "kind": "A", "label": "环球旅讯·OTA",
+     "query": "site:traveldaily.cn OTA 酒店 分销 渠道",
+     "note": "环球旅讯 RSS 拿不到，但它是携程主场必扫的检索目标源"},
     {
-        "engine": "tavily",
-        "label": "中文短词补充",
+        "engine": "tavily", "kind": "A", "label": "中文短词补充",
         "query": "在线旅游 酒店 佣金 渠道",
-        "note": "country=China；勿用 time_range=week（实测 0 条），用 month 再本地按日期筛",
+        "note": "country=China；**短词、不锁域名**；勿用 time_range=week（实测 0 条），"
+                "用 month 再本地按日期筛；描述式 query 不要喂 tavily",
+    },
+    {
+        "engine": "exa", "kind": "B", "label": "中断·航班与机场",
+        "query": "airport closure flights cancelled travel disruption this week",
+        "note": "**放开域名**（reuters/apnews/bbc/theguardian/cnn），别锁行业站",
+    },
+    {
+        "engine": "exa", "kind": "B", "label": "中断·罢工与铁路",
+        "query": "airline airport rail strike travel disruption",
+        "note": "**放开域名**",
+    },
+    {
+        "engine": "exa", "kind": "B", "label": "中断·签证与边境",
+        "query": "visa policy border entry change outbound travel China",
+        "note": "**放开域名**",
+    },
+    {
+        "engine": "exa", "kind": "B", "label": "中断·极端天气与地缘",
+        "query": "extreme weather geopolitical conflict impact on air travel demand",
+        "note": "**放开域名**；没命中重量级事件属正常，但要记「B 类扫过、无事」",
     },
 )
 

@@ -2,11 +2,11 @@
   "domain": "news-digest",
   "period": "2026-08-W3",
   "created": "2026-08-25T20:03:48+08:00",
-  "updated": "2026-08-25T21:53:33+08:00",
+  "updated": "2026-08-25T22:52:44+08:00",
   "steps": {
     "recall": {
       "state": "done",
-      "at": "2026-08-25T21:35:32+08:00",
+      "at": "2026-08-25T22:52:44+08:00",
       "note": "枚举 30 条"
     },
     "draft": {
@@ -47,7 +47,7 @@
     "candidates": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\news-recall-2026-08-W3.json",
       "sha256": "07a71a5754fed2ad2c4e2618c902e9c9c7eab146843a77c8cd455da6aac00c19",
-      "at": "2026-08-25T21:35:32+08:00"
+      "at": "2026-08-25T22:52:44+08:00"
     },
     "ledger": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\modules\\news_digest\\news-log.jsonl",

@@ -87,6 +87,18 @@ ir intel deposit --commit --period <期次>       # 核对打标后
 **目录名用 ASCII 键，文件名用中文标签**：目录会被当参数传、被 glob，中文在那两处不安全
 （ADR 0007）；文件名是交付给人的，中文才对。
 
+## 四份 references，写稿前该读哪份
+
+| 文件 | 什么时候读 |
+|---|---|
+| [retrieval.md](references/retrieval.md) | **第 2 步之前必读。**引擎 × 问法的参数级禁令（描述式只喂 exa）、B 类放开域名、覆盖矩阵 |
+| [source-quality.md](references/source-quality.md) | **搜索捞回稿要落地时必读。**可信源清单与判定原则、排除特征、摘要防脑补 |
+| [editorial-standards.md](references/editorial-standards.md) | **第 4 步写稿时必读。**选稿三步、定稿自检、图标语义、概览写法、语气 |
+| [feishu-publish.md](references/feishu-publish.md) | 第 8 步发布时读 |
+
+这四份是**判据**，上面那份剧本是**顺序**。只按剧本跑不读判据，会跑出「流程都对、
+选稿和写法都飘」的结果——第一次迁移就只搬来了顺序。
+
 ## 召回：枚举是主干，检索是补充
 
 | 源 | 状态 |

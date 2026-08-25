@@ -269,6 +269,35 @@
 > 脚本都搬了、命令都能跑，但把它们串起来的那份编排知识留在旧仓。
 > 逐字节比对证明不了这个，跑一遍单个命令也证明不了，只有真按「使用者说一句话」演一遍才暴露。
 
+### 第 3 步的对抗性复审（2026-08-25，使用者要求）
+
+上面两处补完后又做了一轮对抗性审查，对照旧仓 28 份知识层文件。**又查出 5 处严重漏迁**，
+形态比前两处更隐蔽：**新仓有一句概括，旧仓有一整套判据**——读新仓不会觉得缺什么。
+
+| 漏项 | 原在哪 | 已补到 | 漏了会怎样 |
+|---|---|---|---|
+| **源质量门槛**（可信源清单 + 判定原则 + 4 条排除特征；非旗舰源命中必须落到可信源） | 旧 `ADR-004` + `data-sources.md` | `modules/news_digest/references/source-quality.md` | SKILL 要求每期跑补充检索，必然捞回内容农场与「TOP10」榜单稿，无门槛就直接落进**唯一对外交付物** |
+| **B 类「旅行中断/外部冲击」整类采集** | `data-sources.md`（反例：2026/06 欧洲热浪致铁路胀轨停运） | `references/retrieval.md` + `recall.py` 新增 4 条 B 类查询与中断类目词 | 整类静默漏掉且无提示。情报库里已有「台风红霞致香港机场 350 航班取消」，证明该收，而召回层根本不去找 |
+| **中文侧检索参数级禁令**（描述式只喂 exa；tavily 必须短词且不锁域名；`topic` 只接受 `general`） | 旧 `ADR-002` 对照实验表 | `references/retrieval.md`（含整张实验表） | **本次会话现场重犯**：我用中文描述式喂 tavily 查 8/17–8/23，返回 2023–2025 的稿子 |
+| **飞常准 / 航班管家 周度手动取数** | `manual-acquisition.md` | `modules/industry_data/references/manual-sources.md` | 底稿右侧 W/X/Y 与国际运力列每周靠人从微信抄，SKILL 只说列在哪不说数从哪来 → 每周固定动作断掉 |
+| **lark-cli Windows 编码与传参坑**（`@file` 必须 UTF-8 **无 BOM**；`--content` 不支持 @file；`--params` 不能写进 URL query；审批与授权两层且先后有序） | 旧 `.kiro/steering/feishu-cli-usage.md` | `conventions/lark-cli-windows.md` | news-digest 最后一步就是写飞书，这些坑一个不避就卡在 invalid JSON 与中文乱码 |
+
+另补了中等项：选稿三步与定稿自检清单、图标语义、概览写法与禁用大帽子、语气要求、
+「延续上期」立成规则 → `modules/news_digest/references/editorial-standards.md`。
+
+并裁定了一处**规则冲突**：旧仓「非发布周用第三方测算值顶上、不留空窗」与工作台
+「抓不到就 blocked、不推算」直接相反，而两边都没写对方已废。裁定旧规则停用
+（理由见 `modules/industry_data/references/manual-sources.md`）——那条服务的是五部分周报
+§二「每周必须有个数」的需求，那一节已经没了；往底稿塞测算值会让所有下游当实测值用。
+
+> **教训升级**：验收标准从「能力在不在」再往前推一格——**每条能力都要能指出支撑它的
+> 判断规范落在哪个文件的哪一节**。
+>
+> 还有一条元教训：`conventions/README.md` 的待迁表里曾写「lark-cli 约定属全局规范，
+> 工作台不再抄一份」——**这个判断是没核对就下的**，全局那份只有策略、零踩坑。
+> 「已被 X 覆盖」这种记法本身会变成新的漏迁来源，因为它让后来的人不再去查。
+> 该表已加硬要求：写「已覆盖」必须指出是哪份文件的哪一节，并真的看过。
+
 **不迁的旧脚本**：`extract_news_digest.py`（依赖五章周报，且近三期精选本就是直接写的）、
 `fetch_airline_inputs.py`（写入早已停用）、`read_industry_data.py` / `read_airline_data.py`
 （归 `industry-data`）、`ccass_southbound.py` / `hk_market_pulse.py`（归 `hk-market`，第 4 步）。

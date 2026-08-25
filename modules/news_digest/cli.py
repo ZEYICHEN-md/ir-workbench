@@ -92,7 +92,7 @@ def cmd_recall(args, base) -> Result:
              + ("" if feed.paged else "（该源不支持翻页，只能拿到最近一页）")}
         )
     checks.extend(
-        {"name": f"补充检索 {index}", "level": "ok",
+        {"name": f"补充检索 {q.get('kind', 'A')}{index}", "level": "ok",
          "detail": f"[{q['engine']}] {q['label']}：{q['query']}"
          + (f"　⚠️ {q['note']}" if q.get("note") else "")}
         for index, q in enumerate(recall.SUPPLEMENT_QUERIES, 1)
@@ -111,8 +111,14 @@ def cmd_recall(args, base) -> Result:
         period=period,
         checks=checks,
         warnings=problems + [
-            "枚举只是候选主干。上面那 5 条补充检索**要我用 exa / tavily 各跑一遍**"
-            "再与枚举对账——单靠检索会被当周最大声量话题挤占，实测稳定漏报。"
+            f"枚举只是候选主干。上面 {len(recall.SUPPLEMENT_QUERIES)} 条补充检索**要我逐条跑**"
+            "再与枚举对账——单靠检索会被当周最大声量话题挤占，实测稳定漏报。",
+            "**A 类锁行业域名，B 类（中断/罢工/签证/天气/地缘）必须放开域名**，"
+            "否则整类漏掉；没命中重量级事件属正常，但要记「B 类扫过、无事」。",
+            "**描述式 query 只喂 exa，不喂 tavily**；tavily 只用短词、不锁域名、"
+            "禁用 time_range=week。见 references/retrieval.md 的对照实验表。",
+            "搜索捞回的稿**一律要过源质量门槛**（见 references/source-quality.md）："
+            "正文数字链接必须落到可信源；农场与 SEO 稿只当线索。",
         ],
         next_steps=[
             f"候选清单在 {target}。",
