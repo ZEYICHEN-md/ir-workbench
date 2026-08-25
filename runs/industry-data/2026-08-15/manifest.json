@@ -2,15 +2,15 @@
   "domain": "industry-data",
   "period": "2026-08-15",
   "created": "2026-08-24T20:10:36+08:00",
-  "updated": "2026-08-25T17:13:21+08:00",
+  "updated": "2026-08-25T17:25:58+08:00",
   "steps": {
     "merge": {
       "state": "done",
-      "at": "2026-08-25T17:08:46+08:00"
+      "at": "2026-08-25T17:25:57+08:00"
     },
     "dashboard": {
       "state": "done",
-      "at": "2026-08-25T17:09:12+08:00"
+      "at": "2026-08-25T17:25:58+08:00"
     },
     "insights": {
       "state": "pending"
@@ -20,14 +20,14 @@
     },
     "publish": {
       "state": "done",
-      "at": "2026-08-25T17:13:21+08:00"
+      "at": "2026-08-25T17:24:05+08:00"
     }
   },
   "inputs": {
     "workbook": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\国内行业数据_0824.xlsx",
       "sha256": "c2b2f0fd8e7f8722444698fab103a4f51a71579e8a165fdeca36e28be61f9a5a",
-      "at": "2026-08-25T17:08:46+08:00"
+      "at": "2026-08-25T17:25:57+08:00"
     },
     "str_source": {
       "path": "inputs\\industry-data\\2026-08-15\\【中金互联网】旅游周度数据20260824.xlsx",
@@ -38,13 +38,13 @@
   "outputs": {
     "data_js": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\dashboard\\travel\\data.js",
-      "sha256": "f0e8ea361043b09cf5b3801e1c899ebb2aca705de1bcc7b393ec8ecb73f899fc",
-      "at": "2026-08-25T17:09:12+08:00"
+      "sha256": "6623d27380418993573897bc0884cb5e7697dd2a82f627e95f8fde7d32bafc27",
+      "at": "2026-08-25T17:25:58+08:00"
     },
     "insights_js": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\dashboard\\travel\\insights.js",
       "sha256": "2ee7faad79c0d14e73b411fb4f30b82f508209d5a37f928d2f755c57fe6ceb5b",
-      "at": "2026-08-25T17:09:12+08:00"
+      "at": "2026-08-25T17:25:58+08:00"
     }
   },
   "notes": [],

@@ -16,6 +16,7 @@ from workbench.result import Result
 
 from . import excel
 from .jsonio import dumps_canonical
+from .normalize import normalize
 from .paths import DOMAIN, DomainPaths
 
 #: 底稿里没有、但快照需要的固定口径说明。
@@ -214,6 +215,12 @@ def rebuild(paths: DomainPaths, workbook: Path, *, confirm_clears: bool = False)
                 "结构确实变了的话，先更新读表契约再重跑，不要绕过。",
             ],
         )
+
+    # 归一到有效精度，消除浮点尾数噪音。
+    # 同一个数在「人手动保存 Excel」与「COM 全量重算后保存」下表示不同
+    # （`-0.104` 对 `-0.10400000000000009`），会让每次上线的 diff 掺进十几行
+    # 无意义变化，把真正的数据变化埋掉。见 normalize.py。
+    fresh = normalize(fresh)
 
     diff = compute_diff(previous or {}, fresh)
     data_update = fresh["meta"].get("dataUpdate", "")
