@@ -89,6 +89,19 @@ def run(paths: Paths, *, verbose: bool = False) -> Result:
         next_steps.append("请维护人协助升级 Python 到 3.14+，然后重新做一次环境检查。")
 
     # 2. 目录骨架
+    #    先补齐纯容器目录——它们缺了不影响运行，让人处理是白费一趟。
+    #    `scratch/` 被 .gitignore 忽略，所以新 clone / 新解压必然缺它。
+    created = paths.ensure_containers()
+    if created:
+        checks.append(
+            {
+                "name": "容器目录",
+                "level": "ok",
+                "detail": f"已补建 {len(created)} 个："
+                + "、".join(str(p.relative_to(paths.root)) for p in created),
+            }
+        )
+
     absent = [p for p in paths.required_dirs if not p.is_dir()]
     if absent:
         checks.append(
@@ -99,7 +112,10 @@ def run(paths: Paths, *, verbose: bool = False) -> Result:
             }
         )
         missing.extend(str(p.relative_to(paths.root)) for p in absent)
-        next_steps.append("对 Agent 说「修复工作台目录结构」。")
+        next_steps.append(
+            "这些目录本该带内容，缺了说明安装不完整（zip 没解压全 / clone 出错）。"
+            "请维护人重新安装一次。"
+        )
     else:
         checks.append({"name": "目录骨架", "level": "ok", "detail": f"{len(paths.required_dirs)} 个目录齐全"})
 

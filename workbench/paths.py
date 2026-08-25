@@ -85,7 +85,7 @@ class Paths:
     def dashboard(self) -> Path:
         return self.root / "dashboard"
 
-    #: doctor 检查这些目录必须存在
+    #: **有内容**的目录。缺了说明安装不完整（zip 解压不全、clone 出错），必须人处理。
     @property
     def required_dirs(self) -> list[Path]:
         return [
@@ -94,6 +94,16 @@ class Paths:
             self.root / "modules",
             self.root / "router",
             self.root / "conventions",
+        ]
+
+    #: **纯容器**目录。缺了不影响运行——用到时各处都会 `mkdir(parents=True)`。
+    #:
+    #: 之所以单独列出来：`scratch/` 被 .gitignore 整体忽略，所以任何新 clone 或新解压的
+    #: 工作台都不会有它。早先把它算进「必需目录」，导致 doctor 报 fail —— CI 因此红，
+    #: 接手人首次安装也会撞上同一件事。这类目录该由 doctor 顺手补齐，不该让人处理。
+    @property
+    def container_dirs(self) -> list[Path]:
+        return [
             self.data,
             self.workbooks,
             self.canonical,
@@ -103,3 +113,12 @@ class Paths:
             self.root / "runs",
             self.scratch,
         ]
+
+    def ensure_containers(self) -> list[Path]:
+        """补齐缺失的容器目录。返回**本次新建**的那些。"""
+        created = []
+        for path in self.container_dirs:
+            if not path.is_dir():
+                path.mkdir(parents=True, exist_ok=True)
+                created.append(path)
+        return created
