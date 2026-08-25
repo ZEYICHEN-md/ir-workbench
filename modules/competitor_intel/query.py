@@ -111,6 +111,34 @@ def _order_companies(grouped: dict[str, list[Entry]]) -> dict[str, list[Entry]]:
     return dict(sorted(grouped.items(), key=sort_key))
 
 
+def by_tag(entries: list[Entry], tag: str, *, since: str | None = None,
+           until: str | None = None) -> list[Entry]:
+    """按自由标签检索，时间倒序。
+
+    与 `by_topic` 的分工：主题是受控的、用来**跨公司比较**；标签是自由的、用来
+    **找回某件具体的事**（「AEO 那条谁说的」「减值那几条」）。标签不承诺完整性——
+    没打上标签的条目不会出现在结果里，这是自由词表的固有代价，换来的是不牺牲具体性。
+    """
+    probe = (tag or "").strip().lower()
+    out = [
+        e for e in entries
+        if any(probe == t.strip().lower() for t in (e.tags or []))
+        and _in_window(e, since, until)
+    ]
+    return sorted(out, key=lambda e: (e.date, e.title), reverse=True)
+
+
+def tag_counts(entries: list[Entry]) -> dict[str, int]:
+    """标签词频。自由词表靠这个体检——同义词飘了能看出来（`AEO` 与 `aeo`、`减值` 与 `计提减值`）。"""
+    counts: dict[str, int] = {}
+    for entry in entries:
+        for tag in entry.tags or []:
+            key = tag.strip()
+            if key:
+                counts[key] = counts.get(key, 0) + 1
+    return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
+
+
 def for_digest_supply(entries: list[Entry]) -> list[Entry]:
     """给新闻精选反向供料时用这个入口——**TCOM 条目一律排除**（ADR 0002 §9）。
 

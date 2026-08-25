@@ -101,7 +101,16 @@ class Entry:
     body: str
     companies: list[str] = field(default_factory=list)   # 主角
     mentions: list[str] = field(default_factory=list)    # 仅被提及
+    #: **受控**主题，10 个固定值。只为跨公司横切比较存在，不许自由造词。
     topics: list[str] = field(default_factory=list)
+    #: **自由**事件标签，不限词表。捕捉受控主题装不下的具体性：
+    #: `AEO`、`交换费`、`减值`、`agentic预订`、`GEO`、`独家分销`……
+    #:
+    #: 为什么要分两层：固定 10 个主题确实装不下事件本身的具体性，但把主题也放开会让
+    #: 横切失效——同一件事在 Booking 下记「分发」、在 Expedia 下记「流量入口」，
+    #: 「peers 在这个主题上都做了什么」就查不全了。所以**主题受控用于比较，标签自由用于检索**。
+    #: 标签只做归一化（去空白、小写化保留原形），不做词表校验。
+    tags: list[str] = field(default_factory=list)
     media: str | None = None
     url: str | None = None
     title_en: str | None = None
@@ -131,6 +140,8 @@ class Entry:
             "sensitivity": self.sensitivity,
             "channel": self.channel,
         }
+        if self.tags:
+            out["tags"] = self.tags
         for key in ("media", "url", "title_en", "quote", "quote_where",
                     "speaker", "period", "note", "topics_reviewed", "added"):
             value = getattr(self, key)
@@ -193,6 +204,9 @@ def normalize(
     entry.mentions = [k for k in entry.mentions if k not in entry.companies]
 
     entry.topics = _dedupe([vocab.resolve_topic(t) for t in entry.topics])
+    # 自由标签只归一化不校验：它存在的意义就是装受控词表装不下的东西，
+    # 一旦也要过词表就退化成第二套主题了。
+    entry.tags = _dedupe([t.strip() for t in (entry.tags or []) if t and t.strip()])
     if not entry.topics:
         raise EntryError(
             "至少要有一个主题——没有主题的条目查不到，也就等于没入库。可选：\n  "

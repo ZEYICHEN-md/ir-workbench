@@ -248,6 +248,27 @@
 - [x] 反过来**主动拦**：`ir news validate` 见到 `## 三、` 及以后即报硬错误
 - [x] 保留情报主周核对（旧 `validate_intelligence_week`）——它与骨架无关，仍有价值
 
+### 第 3 步的两处漏迁（使用者指出后补上，2026-08-25）
+
+使用者反馈「旧仓说一句『更新新一周的新闻精选』就全流程跑完，包括编辑飞书云文档」。核对后确认两处真漏了：
+
+**1. 飞书发布 runbook 整份没迁。**
+`0703_Travel_Pulse/conventions/news-digest-feishu-archive.md`（157 行）没搬，而 SKILL 里
+「发布到飞书」那一步写的是「见 SKILL.md 的发布一节」——**那一节不存在**。
+状态机留了一步，既没实现也没流程。这类悬空引用比缺功能更坏：它看起来是有的。
+已整份搬入 `modules/news_digest/references/feishu-publish.md`，只改路径，
+两份文档相反的写语义与「附件定位」那段踩坑记录一字未动。
+
+**2. 端到端剧本没迁，只搬了命令清单。**
+旧仓 `travel-pulse-weekly/SKILL.md` 是一份**编排剧本**：使用者说一句话，Agent 一路跑完到飞书。
+迁移后变成 7 个独立的 `ir news` 子命令，能力齐全但没有那份「按这个顺序一路做完」的指令，
+体验从「说一句」退回「逐条下指令」。已在 `modules/news_digest/SKILL.md` 补回，
+明确只在两处停下（入库前核对打标、发布前等授权）。
+
+> **教训**：迁移的验收标准过去只看「能力在不在」。这两处都属于**能力在、流程不在**——
+> 脚本都搬了、命令都能跑，但把它们串起来的那份编排知识留在旧仓。
+> 逐字节比对证明不了这个，跑一遍单个命令也证明不了，只有真按「使用者说一句话」演一遍才暴露。
+
 **不迁的旧脚本**：`extract_news_digest.py`（依赖五章周报，且近三期精选本就是直接写的）、
 `fetch_airline_inputs.py`（写入早已停用）、`read_industry_data.py` / `read_airline_data.py`
 （归 `industry-data`）、`ccass_southbound.py` / `hk_market_pulse.py`（归 `hk-market`，第 4 步）。

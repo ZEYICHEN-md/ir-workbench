@@ -37,18 +37,51 @@
 现在：行业数据看看板（datamax.fun）、港股走 `hk-market` 内部查询、卖方走
 `sellside-research`。`ir news validate` 会**主动拦**含 `## 三、` 及以后的稿子。
 
-## 流程
+## 听到「更新新一周的新闻精选」时，按这个顺序一路做完
+
+**这是一句话触发的完整剧本，不是给用户挑的菜单。**使用者说一句就该拿到成品，
+不需要逐步下指令；你在中间只在两个地方停下来（见下方门禁）。
 
 ```powershell
-ir news plan                       # 本期日历、召回窗口、交付文件放哪
-ir news recall --period 2026-08-W2 # RSS 枚举候选 + 打印补充检索清单
-ir news check --file <候选.json>    # 选稿前跨期查重
-#   ↓ 人写稿（工具不代写）
-ir news validate --period 2026-08-W2
-ir news export --period 2026-08-W2 --pdf
-ir news log --period 2026-08-W2 --file <已收录.json> --commit   # 登记台账
-ir intel deposit --dir outputs/news-digest   # 沉淀进情报库，再 --commit
+# 1 定期次与窗口
+ir news plan                                   # 不给 --period 取本周
+
+# 2 召回候选
+ir news recall --period <期次>                  # RSS 枚举，覆盖整个情报主周
+#   ↑ 命令会打印 5 条补充检索清单 —— **你必须用 exa / tavily 各跑一遍**，与枚举对账。
+#     单靠枚举中文侧会薄，单靠检索会被当周最大声量话题挤占。
+
+# 3 选稿前查重
+ir news check --file scratch/news-recall-<期次>.json
+
+# 4 读原文、成文（你写）
+#   逐条读原文取具体数字，按下面的骨架写两节，放 outputs/news-digest/<期次键>/
+
+# 5 校验 → 导出
+ir news validate --period <期次>
+ir news export --period <期次> --pdf
+
+# 6 登台账（默认从成稿的来源表取条目，不用手拼 JSON）
+ir news log --period <期次> --commit
+
+# 7 沉淀情报库
+ir intel deposit --dir outputs/news-digest/<期次键> --period <期次>
+ir intel deposit --commit --period <期次>       # 核对打标后
+
+# 8 发布飞书（**只有用户明确要求才做**）
+#   照 references/feishu-publish.md 走，两份文档写语义相反，别搞混
 ```
+
+两处门禁，其余不要停下来问：
+
+| 停在哪 | 需要听到什么 |
+|---|---|
+| 第 7 步入库前 | 打标草稿核对过（主题是猜的，公司标签可信） |
+| 第 8 步发布前 | 用户明确说要发飞书 |
+
+> 迁移欠账（已补）：旧仓 `travel-pulse-weekly/SKILL.md` 就是这样一份端到端剧本，
+> 使用者说一句话、Agent 一路跑完包括飞书。第一次迁移只搬来了命令清单，没搬这份剧本，
+> 结果体验从「说一句」退回「逐条下指令」。**能力齐全不等于流程齐全。**
 
 交付物放 `outputs/news-digest/<期次键>/旅行行业新闻精选-<中文标签>.md`。
 **目录名用 ASCII 键，文件名用中文标签**：目录会被当参数传、被 glob，中文在那两处不安全
@@ -118,6 +151,16 @@ URL 规范化、事件指纹（`主体|事件核心`）、标题相似度（默�
 `export.py` 是从旧仓**照搬**的，刻意没重写：排版细节是一期一期调出来的，
 重写的收益是代码整齐，代价是排版悄悄变样而没人立刻发现。迁移时用逐字节比对证明了
 新旧对同一份精选产出完全一致。
+
+## 飞书发布
+
+完整 runbook：**[references/feishu-publish.md](references/feishu-publish.md)**。要点：
+
+- 两份文档，**写语义相反**：旅业资讯库「撤旧换新、只挂最新一期」；历史周报汇总「末尾追加、不覆盖」。
+- 一律 `lark-cli --as user`，不用浏览器自动化。
+- 附件定位是最容易错的地方：`+media-insert --selection-with-ellipsis` 命中的是**文档里第一处**匹配，
+  而历史汇总每期都有「要点新闻」，只用这个词会把附件插到第 1 期下面。
+- 写完两份都要 `docs +fetch` 回读确认。
 
 ## 硬纪律
 

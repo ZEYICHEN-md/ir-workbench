@@ -144,10 +144,11 @@ def cmd_deposit(args, base) -> Result:
         warnings=problems,
         next_steps=[
             f"核对草稿：{draft}",
-            "公司标签是规则匹配（标题里出现＝主角，只在正文出现＝提及），一般可信；"
-            "**主题是关键词猜的，务必看一眼**，可直接改草稿里的 topics。",
-            "确认后回一句「沉淀这期新闻」，Agent 才会入库。入库读的就是这份草稿，"
-            "不会重新解析——你改过的标签不会被冲掉。",
+            "公司标签是规则匹配（标题里出现＝主角，只在正文出现＝提及），实测可信。",
+            "**主题的关键词结果只是起点，Agent 要读完条目在草稿里定稿**，"
+            "顺手补上自由标签（tags，不限词表）；人只需扫一眼有没有明显不对。",
+            "确认后回一句「沉淀这期新闻」才入库。入库读的就是这份草稿，"
+            "不会重新解析——改过的标签不会被冲掉。",
         ],
         data={"draft": str(draft), "period": period, "counts": outcome.counts},
     )
@@ -390,6 +391,34 @@ def cmd_topic(args, base) -> Result:
                 k: [e.to_dict() for e in v] for k, v in sliced.by_company.items()
             },
         },
+    )
+
+
+def cmd_tag(args, base) -> Result:
+    store = Store(base)
+    entries = store.load()
+    if not args.tag:
+        counts = query.tag_counts(entries)
+        return Result(
+            status="success",
+            summary=f"共 {len(counts)} 个自由标签。",
+            domain=DOMAIN,
+            checks=[{"name": k, "level": "ok", "detail": f"{v} 条"} for k, v in list(counts.items())[:60]]
+            or [{"name": "标签", "level": "warn", "detail": "还没有条目打过自由标签"}],
+            next_steps=["同义词飘了就在这张表上看得出来（如 AEO 与 aeo、减值与计提减值）。"],
+            data={"counts": counts},
+        )
+    rows = query.by_tag(entries, args.tag, since=args.since, until=args.until)
+    return Result(
+        status="success",
+        summary=f"标签「{args.tag}」共 {len(rows)} 条。",
+        domain=DOMAIN,
+        checks=[
+            {"name": e.date, "level": "ok",
+             "detail": f"{e.title}（{'、'.join(e.all_companies) or '无公司归属'}）"}
+            for e in rows[: args.limit]
+        ] or [{"name": "结果", "level": "warn", "detail": "没有匹配条目"}],
+        data={"entries": [e.to_dict() for e in rows]},
     )
 
 
@@ -640,6 +669,15 @@ def register(subparsers, common) -> None:
     p_tp.add_argument("--profiled-only", action="store_true", help="只看建档层 8 家")
     p_tp.add_argument("--per-company", type=int, default=5)
     p_tp.set_defaults(func=cmd_topic)
+
+    p_tg = sub.add_parser(
+        "tag", help="自由标签：不给标签名则列全部词频", parents=[common]
+    )
+    p_tg.add_argument("tag", nargs="?")
+    p_tg.add_argument("--since")
+    p_tg.add_argument("--until")
+    p_tg.add_argument("--limit", type=int, default=30)
+    p_tg.set_defaults(func=cmd_tag)
 
     p_vc = sub.add_parser("vocab", help="列出受控词表", parents=[common])
     p_vc.set_defaults(func=cmd_vocab)

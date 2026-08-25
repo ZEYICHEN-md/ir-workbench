@@ -263,6 +263,42 @@ class TestQuery(unittest.TestCase):
         self.assertNotIn("携程商旅", titles)
         self.assertIn("Booking B2B", titles)
 
+    def test_free_tags_cut_across_controlled_topics(self):
+        """自由标签存在的理由：受控主题装不下事件本身的具体性。
+
+        真例：Kayak 减值（distribution+financials）、Airbnb 营销回摆（distribution+financials）、
+        GetYourGuide 扭亏（distribution+financials）—— 受控主题看不出它们说的是同一件事，
+        标签「获客成本」一查就串起来了。
+        """
+        rows = [
+            normalize(action(title="Kayak 减值", topics=["distribution"],
+                             tags=["减值", "获客成本"], url="https://x.com/1"))[0],
+            normalize(action(title="Airbnb 营销回摆", topics=["distribution"],
+                             tags=["SEM", "获客成本"], url="https://x.com/2"))[0],
+            normalize(action(title="别的事", topics=["b2b"], tags=["协议价"],
+                             url="https://x.com/3"))[0],
+        ]
+        found = [e.title for e in query.by_tag(rows, "获客成本")]
+        self.assertEqual(sorted(found), ["Airbnb 营销回摆", "Kayak 减值"])
+
+    def test_tag_lookup_ignores_case_and_padding(self):
+        rows = [normalize(action(tags=[" AEO "], url="https://x.com/1"))[0]]
+        self.assertEqual(len(query.by_tag(rows, "aeo")), 1)
+
+    def test_tag_counts_expose_synonym_drift(self):
+        """自由词表的代价是同义词会飘。词频表就是用来看出这件事的。"""
+        rows = [
+            normalize(action(tags=["减值"], url="https://x.com/1"))[0],
+            normalize(action(tags=["计提减值"], url="https://x.com/2"))[0],
+        ]
+        counts = query.tag_counts(rows)
+        self.assertEqual(set(counts), {"减值", "计提减值"})
+
+    def test_tags_are_not_validated_against_a_vocabulary(self):
+        """标签一旦也要过词表，就退化成第二套主题了。"""
+        item, _ = normalize(action(tags=["随便造的一个词", "AEO"]))
+        self.assertEqual(item.tags, ["随便造的一个词", "AEO"])
+
     def test_shareable_excludes_internal(self):
         self.assertNotIn("携程商旅", [e.title for e in query.shareable(self._entries())])
 
