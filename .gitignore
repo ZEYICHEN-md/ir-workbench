@@ -17,6 +17,11 @@ _tmp/
 inputs/**
 !inputs/**/.gitkeep
 
+# 交付物的 HTML/PDF：由 .md 一键重放，且内嵌三份 woff2 字体后单份约 4.6 MB。
+# Markdown 才是交付物真源，进 git；渲染结果不进（旧仓 reports/INDEX.md 已是同一约定）。
+outputs/**/*.html
+outputs/**/*.pdf
+
 # Python
 __pycache__/
 *.py[cod]

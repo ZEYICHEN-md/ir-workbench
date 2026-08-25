@@ -300,20 +300,20 @@ class TestBackfill(unittest.TestCase):
         for body_title, row_title in pairs:
             with self.subTest(body_title):
                 self.assertGreaterEqual(
-                    backfill._title_coverage(body_title, row_title),
+                    backfill.title_coverage(body_title, row_title),
                     backfill.COVERAGE_FLOOR,
                 )
 
     def test_coverage_metric_still_catches_real_mismatch(self):
         """放宽不能放到失去检出能力。"""
         self.assertLess(
-            backfill._title_coverage("豆包对酒店订单收取约 12% 渠道费", "印度航空双雄换帅"),
+            backfill.title_coverage("豆包对酒店订单收取约 12% 渠道费", "印度航空双雄换帅"),
             backfill.COVERAGE_FLOOR,
         )
 
     def test_english_alias_needs_word_boundary(self):
         """短别名不加词边界会在英文原标题里乱命中。"""
-        lead, mentioned = backfill._detect_companies("MARGIN 与 TRIPLE 无关", "正文")
+        lead, mentioned = backfill.detect_companies("MARGIN 与 TRIPLE 无关", "正文")
         self.assertEqual((lead, mentioned), ([], []))
 
 

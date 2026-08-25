@@ -50,7 +50,7 @@ _SOURCE = re.compile(r"^(.*?),\s*(20\d{2})/(\d{2})/(\d{2}),\s*(https?://\S+)\s*$
 COVERAGE_FLOOR = 0.5
 
 
-def _title_coverage(body_title: str, row_title: str) -> float:
+def title_coverage(body_title: str, row_title: str) -> float:
     """来源表标题被正文标题覆盖了多少。
 
     **不能用 `SequenceMatcher.ratio()`**：它按两串总长归一，而来源表标题是正文标题的
@@ -78,6 +78,11 @@ class Parsed:
     trace: list[dict] = field(default_factory=list)
 
 
+#: `body_items` / `source_rows` / `title_coverage` 三个函数是**新闻精选结构契约的唯一实现**，
+#: 刻意公开：`modules/news_digest/digest.py` 的交付物校验必须用同一份解析。
+#: 两边各写一份的后果是校验通过而沉淀配对失败——那种不一致最难查。
+
+
 def period_key(year: str, month: str, week: str) -> str:
     """`2026年8月第2周` → `2026-08-W2`。
 
@@ -94,30 +99,30 @@ def parse_digest(path: Path) -> Parsed:
         return Parsed("", [], [f"{path.name}：抬头里找不到「新闻精选 | ...年...月第...周」"])
     period = period_key(*head.groups())
 
-    body_items = _body_items(text)
-    rows = _source_rows(text)
+    items = body_items(text)
+    rows = source_rows(text)
     problems: list[str] = []
 
-    if not body_items:
+    if not items:
         problems.append(f"{path.name}：§一 里没解析到任何条目")
         return Parsed(period, [], problems)
-    if len(body_items) != len(rows):
+    if len(items) != len(rows):
         problems.append(
-            f"{path.name}：正文 {len(body_items)} 条与来源表 {len(rows)} 行不等，"
+            f"{path.name}：正文 {len(items)} 条与来源表 {len(rows)} 行不等，"
             "无法可靠配对。请核对后再回填（不做部分配对，避免张冠李戴）。"
         )
         return Parsed(period, [], problems)
 
     entries: list[Entry] = []
     trace: list[dict] = []
-    for (title, body), row in zip(body_items, rows):
-        sim = _title_coverage(title, row["title_cn"])
+    for (title, body), row in zip(items, rows):
+        sim = title_coverage(title, row["title_cn"])
         if sim < COVERAGE_FLOOR:
             problems.append(
                 f"{path.name}：正文「{title}」与来源行「{row['title_cn']}」重合度 "
                 f"{sim:.2f}，低于 {COVERAGE_FLOOR}，按序配对可能错位，请人工核对。"
             )
-        lead, mentioned = _detect_companies(title, body)
+        lead, mentioned = detect_companies(title, body)
         topics, hits = _guess_topics(title, body)
         entries.append(
             Entry(
@@ -148,7 +153,7 @@ def parse_digest(path: Path) -> Parsed:
     return Parsed(period, entries, problems, trace)
 
 
-def _body_items(text: str) -> list[tuple[str, str]]:
+def body_items(text: str) -> list[tuple[str, str]]:
     """§一 里的 `**标题**` + 紧跟的一段正文。"""
     start = _SECTION_ONE.search(text)
     if not start:
@@ -176,7 +181,7 @@ def _body_items(text: str) -> list[tuple[str, str]]:
     return out
 
 
-def _source_rows(text: str) -> list[dict]:
+def source_rows(text: str) -> list[dict]:
     rows: list[dict] = []
     for match in _TABLE_ROW.finditer(text):
         title_cn, title_en, source = (g.strip() for g in match.groups())
@@ -198,7 +203,7 @@ def _source_rows(text: str) -> list[dict]:
     return rows
 
 
-def _detect_companies(title: str, body: str) -> tuple[list[str], list[str]]:
+def detect_companies(title: str, body: str) -> tuple[list[str], list[str]]:
     """标题里出现的算主角，只在正文出现的算提及。
 
     认前两层 + 其他桶种子（`vocab.OTHERS_SEED`）。不认的公司不自动登记——自动登记一堆

@@ -144,6 +144,7 @@ def _register_domain_commands(sub) -> None:
     for module_name in (
         "modules.industry_data.cli",
         "modules.aviation_monthly.cli",
+        "modules.news_digest.cli",
         "modules.competitor_intel.cli",
     ):
         try:

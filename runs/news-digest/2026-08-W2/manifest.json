@@ -1,0 +1,50 @@
+{
+  "domain": "news-digest",
+  "period": "2026-08-W2",
+  "created": "2026-08-25T19:02:48+08:00",
+  "updated": "2026-08-25T19:02:48+08:00",
+  "steps": {
+    "recall": {
+      "state": "pending"
+    },
+    "draft": {
+      "state": "done",
+      "at": "2026-08-25T19:02:48+08:00"
+    },
+    "validate": {
+      "state": "done",
+      "at": "2026-08-25T19:02:48+08:00",
+      "note": "0 处硬错误"
+    },
+    "export": {
+      "state": "pending"
+    },
+    "log": {
+      "state": "pending"
+    },
+    "deposit": {
+      "state": "pending"
+    },
+    "publish": {
+      "state": "pending"
+    }
+  },
+  "inputs": {
+    "digest": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\news-digest\\2026-08-W2\\旅行行业新闻精选-2026年8月第2周.md",
+      "sha256": "b357777a176c97b20315df6a27dce5b7ef00cc9ba13771526ce0abf9a62149e6",
+      "at": "2026-08-25T19:02:48+08:00"
+    }
+  },
+  "outputs": {},
+  "notes": [],
+  "order": [
+    "recall",
+    "draft",
+    "validate",
+    "export",
+    "log",
+    "deposit",
+    "publish"
+  ]
+}

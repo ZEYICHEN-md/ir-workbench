@@ -1,0 +1,556 @@
+/* Travel Pulse weekly report — institutional research note (中文研报风) */
+
+:root {
+  --ink: #141414;
+  --ink-secondary: #3d3d3d;
+  --ink-tertiary: #5c5c5c;
+  --muted: #6b7280;
+  --muted-light: #9ca3af;
+  --line: #e2e8f0;
+  --brand: #003268;
+  --brand-mid: #005eb8;
+  --panel: #f4f7fb;
+  --panel-border: #d7e2ef;
+  --page-bg: #eceff3;
+  --card-bg: #ffffff;
+
+  /* 更拉开梯度的字号 */
+  --text-display: 1.48rem;
+  --text-h2: 1.1rem;
+  --text-subsection: 0.94rem;
+  --text-news-title: 1rem;
+  --text-body: 0.96rem;
+  --text-secondary: 0.9rem;
+  --text-meta: 0.78rem;
+
+  --font-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-heading: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 11pt;
+}
+
+body {
+  margin: 0;
+  color: var(--ink-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: 1.66;
+  background: var(--page-bg);
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}
+
+.page {
+  max-width: 210mm;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+@media screen {
+  .page {
+    margin: 20px auto;
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .page {
+    box-shadow: none;
+    max-width: none;
+    margin: 0;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  h2.section-appendix {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  table,
+  blockquote,
+  .news-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* ── Masthead（对齐行业数据看板：居中标题 + 短色条 + 小字分行） ── */
+.masthead {
+  text-align: center;
+  padding: 28px 32px 20px;
+  background: linear-gradient(180deg, #f8fafc 0%, #fff 55%);
+  border-bottom: 1px solid var(--line);
+}
+
+.masthead-kicker {
+  font-family: var(--font-heading);
+  font-size: var(--text-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-light);
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.masthead h1 {
+  font-family: var(--font-heading);
+  font-size: calc(var(--text-display) + 0.12rem);
+  font-weight: 700;
+  line-height: 1.28;
+  margin: 0;
+  color: var(--brand);
+}
+
+.masthead-accent {
+  width: 52px;
+  height: 3px;
+  margin: 10px auto 12px;
+  background: var(--brand);
+  border-radius: 2px;
+}
+
+.masthead-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.masthead-meta-line {
+  display: block;
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: var(--text-meta);
+  color: var(--muted);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.masthead--news .masthead-meta-line:last-child {
+  color: var(--muted-light);
+}
+
+.toolbar {
+  padding: 8px 28px;
+  background: #fafbfc;
+  border-bottom: 1px solid var(--line);
+}
+
+.toolbar button {
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: var(--text-meta);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 2px;
+}
+
+.toolbar button:hover {
+  background: var(--brand-mid);
+}
+
+/* ── 文首目录 ── */
+.report-toc {
+  margin: 0;
+  padding: 14px 28px 18px;
+  border-bottom: 1px solid var(--line);
+  background: #fafbfc;
+}
+
+.report-toc .toc-title {
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: var(--text-subsection);
+  font-weight: 700;
+  color: var(--brand);
+  margin: 0 0 8px;
+}
+
+.report-toc ul {
+  margin: 0;
+  padding-left: 1.1em;
+  list-style: none;
+}
+
+.report-toc li {
+  margin: 0 0 5px;
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: var(--text-secondary);
+  color: var(--ink-secondary);
+  line-height: 1.45;
+}
+
+.report-toc a {
+  color: var(--brand-mid);
+  text-decoration: none;
+}
+
+.report-toc a:hover {
+  text-decoration: underline;
+}
+
+.content {
+  padding: 8px 28px 32px;
+}
+
+.content-panel-inner {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 18px 18px;
+  background: #fff;
+}
+
+/* ── 章节标题（最重） ── */
+h2 {
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: var(--text-h2);
+  font-weight: 700;
+  color: var(--brand);
+  border: none;
+  border-bottom: 1.5px solid rgba(0, 50, 104, 0.22);
+  padding-bottom: 7px;
+  margin: 26px 0 16px;
+  line-height: 1.35;
+}
+
+.content > h2:first-of-type {
+  margin-top: 18px;
+}
+
+/* 二、三章：留白 + 短色条，不画通栏横线 */
+h2.section-break {
+  margin-top: 2.85rem;
+  padding-top: 0;
+}
+
+h2.section-break::before {
+  content: "";
+  display: block;
+  width: 1.75rem;
+  height: 2px;
+  background: var(--brand-mid);
+  opacity: 0.55;
+  margin-bottom: 11px;
+  border-radius: 1px;
+}
+
+/* 第四章：屏幕用留白；PDF 新页即区隔 */
+h2.section-appendix {
+  margin-top: 3.1rem;
+  padding-top: 0;
+  border-bottom-color: rgba(0, 50, 104, 0.35);
+}
+
+@media print {
+  h2.section-appendix {
+    margin-top: 0;
+  }
+
+  h2.section-appendix::before {
+    display: none;
+  }
+}
+
+@media screen {
+  h2.section-appendix::before {
+    content: "";
+    display: block;
+    width: 1.75rem;
+    height: 2px;
+    background: var(--brand);
+    opacity: 0.7;
+    margin-bottom: 11px;
+    border-radius: 1px;
+  }
+}
+
+h3 {
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: var(--text-subsection);
+  font-weight: 600;
+  margin: 22px 0 8px;
+  color: var(--ink);
+}
+
+/* ── 概览色块（重点摘要） ── */
+blockquote.callout-overview {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-left: 4px solid var(--brand);
+  border-radius: 8px;
+}
+
+blockquote.callout-overview p {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: 1.62;
+  color: var(--ink-secondary);
+}
+
+blockquote.callout-overview strong {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--brand);
+  display: inline;
+}
+
+blockquote.callout-overview .overview-label {
+  margin: 0 0 6px;
+}
+
+blockquote.callout-overview ul.overview-bullets {
+  margin: 0;
+  padding-left: 1.1em;
+}
+
+blockquote.callout-overview ul.overview-bullets li {
+  margin-bottom: 5px;
+  font-size: var(--text-body);
+  font-weight: 400;
+  color: var(--ink-secondary);
+  line-height: 1.58;
+}
+
+/* ── 脚注型引用（次要） ── */
+blockquote.callout-footnote {
+  margin: 14px 0 18px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-left: 3px solid var(--line);
+  border-radius: 0;
+}
+
+blockquote.callout-footnote p {
+  margin: 0;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+blockquote.callout-footnote strong {
+  font-weight: 600;
+  color: var(--ink-tertiary);
+}
+
+/* ── 子节小标题（Q2 回顾 / 暑运 / 📊 块） ── */
+p.subsection-title {
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: var(--text-subsection);
+  font-weight: 700;
+  color: var(--ink);
+  margin: 22px 0 10px;
+  padding-top: 4px;
+}
+
+h2 + p.subsection-title {
+  margin-top: 6px;
+  padding-top: 0;
+}
+
+p.subsection-title strong {
+  font-weight: inherit;
+  color: inherit;
+}
+
+/* ── 新闻条目（看板卡片风） ── */
+p.news-item {
+  margin: 0 0 12px;
+  padding: 14px 16px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: 1.62;
+  color: var(--ink-secondary);
+}
+
+p.news-item .news-title {
+  display: block;
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: var(--text-news-title);
+  font-weight: 700;
+  color: var(--brand);
+  margin: 0 0 6px;
+  line-height: 1.35;
+}
+
+p.news-item:first-of-type .news-title,
+h2 + blockquote.callout-overview + p.news-item .news-title {
+  margin-top: 4px;
+}
+
+/* ── 普通段落（兜底） ── */
+.content > p:not(.news-item):not(.subsection-title) {
+  margin: 0 0 12px;
+  font-size: var(--text-body);
+  font-weight: 400;
+  color: var(--ink-secondary);
+}
+
+/* 重点数据 / 趋势：深蓝 + 700（与 h2 同色，非亮蓝） */
+strong.text-emphasis {
+  font-family: inherit;
+  font-weight: 700;
+  color: var(--brand);
+}
+
+/* 写作时在 MD 手写的 ** 强调（非标题、非板块标签） */
+.content p.news-item strong:not(.news-title) {
+  font-weight: 700;
+  color: var(--brand);
+}
+
+/* ── 列表：标签重点 / 正文次要 ── */
+ul {
+  margin: 0 0 18px;
+  padding-left: 1.15em;
+}
+
+li {
+  margin-bottom: 9px;
+  font-size: var(--text-body);
+  font-weight: 400;
+  color: var(--ink-secondary);
+  line-height: 1.6;
+}
+
+li > strong {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--ink);
+  font-size: var(--text-body);
+}
+
+li.meta-note {
+  font-size: var(--text-meta);
+  color: var(--muted);
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--line);
+  list-style: none;
+  margin-left: -1.15em;
+  padding-left: 1.15em;
+}
+
+li.meta-note > strong {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: var(--text-meta);
+}
+
+/* ── 表格（统一深蓝表头） ── */
+table.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0 20px;
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: var(--text-secondary);
+}
+
+table.report-table thead th {
+  background: var(--brand);
+  color: #fff;
+  font-weight: 600;
+  text-align: left;
+  padding: 7px 8px;
+  border: 1px solid var(--brand);
+  font-size: var(--text-meta);
+  letter-spacing: 0.02em;
+}
+
+table.report-table tbody td {
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  vertical-align: top;
+  color: var(--ink-secondary);
+  font-size: var(--text-secondary);
+  font-weight: 400;
+}
+
+table.report-table tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+table.report-table.data-table thead th:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+}
+
+table.report-table.data-table tbody td:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  color: var(--ink-secondary);
+}
+
+/* 成交占比表：数值列常规字重，仅「相对 55%」列深蓝加粗 */
+table.report-table.ratio-status-table tbody td:not(:last-child) {
+  font-weight: 400;
+  color: var(--ink-secondary);
+}
+
+table.report-table.ratio-status-table tbody td:last-child {
+  font-weight: 700;
+  color: var(--brand);
+}
+
+table.report-table.data-table tbody td:first-child {
+  color: var(--ink-secondary);
+  font-weight: 400;
+}
+
+/* 来源表：同表头样式，仅正文更小 */
+table.report-table.sources-table {
+  font-size: 0.72rem;
+}
+
+table.report-table.sources-table tbody td {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+table.report-table.sources-table a {
+  color: var(--brand-mid);
+  text-decoration: none;
+}
+
+/* legacy: 无 class 的 table 兜底 */
+table:not(.report-table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0 20px;
+}
+
+/* ── 页脚 ── */
+.disclaimer {
+  margin: 0;
+  padding: 12px 28px 20px;
+  border-top: 1px solid var(--line);
+  font-size: var(--text-meta);
+  color: var(--muted-light);
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.45;
+}

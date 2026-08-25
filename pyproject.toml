@@ -17,6 +17,7 @@ requires-python = ">=3.14"
 dependencies = [
   "requests==2.34.2",
   "beautifulsoup4==4.15.0",
+  "markdown==3.10.2",
   "pdfplumber==0.11.10",
   "openpyxl==3.1.5",
   "pywin32==312; platform_system == 'Windows'",
@@ -29,8 +30,10 @@ pending = [
   "pandas==3.0.4",        # hk-market
   "akshare==1.18.64",     # hk-market：南向持股
   "yfinance==1.5.1",      # hk-market：行情
-  "markdown==3.10.2",     # news-digest：导出 HTML
-  "playwright==1.58.0",   # news-digest：导出 PDF
+  # news-digest 已迁入，但 PDF 导出留在这里：playwright 装完还要另跑
+  # `playwright install chromium` 下载浏览器，把它放主依赖会让首次安装变得很重，
+  # 而缺它只影响 PDF（HTML 照常出）。news_digest/health.py 会明确提示这一点。
+  "playwright==1.58.0",   # news-digest：导出 PDF（可选）
 ]
 
 [project.scripts]
