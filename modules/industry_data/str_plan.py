@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import datetime as dt
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -102,8 +103,18 @@ def _week_rows(sheet, year_row: int) -> dict[str, int]:
     return out
 
 
-def build(workbook: Path, source: Path, year: int) -> tuple[list[Cell], list[str]]:
-    """算出待写入清单。返回 (cells, notes)。"""
+@dataclass
+class NewWeek:
+    """底稿周轴里还没有、需要新建的一周。"""
+
+    label: str
+    values: dict[str, float | None]
+    #: 中金表里的排序依据，保证多周时按时间先后加行
+    end_date: dt.date
+
+
+def build(workbook: Path, source: Path, year: int) -> tuple[list[Cell], list[str], list[NewWeek]]:
+    """算出待写入清单。返回 (已有行的格, 说明, 需新建的周)。"""
     weeks = str_source.load(source)
     notes = [
         f"中金表：{source.name} · tab「{str_source.SHEET}」",
@@ -142,10 +153,28 @@ def build(workbook: Path, source: Path, year: int) -> tuple[list[Cell], list[str
             )
 
     # --- 周度：直接取表里的 K/L/M ---
+    by_label = {w.short_label: w for w in weeks}
+
+    # 加行只能加在末尾，所以只有**晚于底稿当前末周**的周次才可新建。
+    # 更早的缺口（如跨年周 12/28-1/3，底稿周轴有意从 1/4-1/10 起）位置在中间，
+    # 追加到末尾会让表格顺序错乱——只提醒，不动手。
+    latest_end: dt.date | None = None
+    if week_rows:
+        existing = [by_label[label].end for label in week_rows if label in by_label]
+        latest_end = max(existing) if existing else None
+
+    new_weeks: list[NewWeek] = []
     for label, values in str_source.weekly_yoy(weeks, year):
         row = week_rows.get(label)
         if row is None:
-            notes.append(f"⚠ 底稿周轴里没有「{label}」——新周次需先在底稿加行，本工具不加行")
+            end = by_label[label].end
+            if latest_end is not None and end <= latest_end:
+                notes.append(
+                    f"⚠ 底稿周轴里没有「{label}」，但它早于当前末周，**不自动插入**"
+                    "（加行只能加在末尾，插到中间会打乱顺序）。要补就手工插行。"
+                )
+                continue
+            new_weeks.append(NewWeek(label=label, values=values, end_date=end))
             continue
         for field, name in str_source.METRICS:
             new = values[field]
@@ -162,7 +191,8 @@ def build(workbook: Path, source: Path, year: int) -> tuple[list[Cell], list[str
                 )
             )
 
-    return cells, notes
+    new_weeks.sort(key=lambda w: w.end_date)
+    return cells, notes, new_weeks
 
 
 _cache: dict[Path, openpyxl.Workbook] = {}
@@ -182,7 +212,7 @@ def run(workbook: Path, source: Path, year: int = 2026) -> Result:
     """只读：算出并摆出待写入清单。不动任何文件。"""
     _cache.clear()
     try:
-        cells, notes = build(workbook, source, year)
+        cells, notes, new_weeks = build(workbook, source, year)
     except str_source.StrSourceError as error:
         return Result(
             status="blocked",
@@ -204,6 +234,12 @@ def run(workbook: Path, source: Path, year: int = 2026) -> Result:
             "detail": f"新增 {len(additions)} · 冲突 {len(conflicts)} · 已一致 {len(same)}",
         },
     ]
+    if new_weeks:
+        checks.append({
+            "name": "需新建周次",
+            "level": "ok",
+            "detail": "、".join(w.label for w in new_weeks),
+        })
     checks += [
         {"name": "待填空格", "level": "ok", "detail": c.describe()} for c in additions[:20]
     ]
@@ -220,11 +256,13 @@ def run(workbook: Path, source: Path, year: int = 2026) -> Result:
             "会改动看板上的历史曲线，须另行决定。"
         )
 
+    pending = additions or conflicts or new_weeks
     return Result(
-        status="partial" if (additions or conflicts) else "success",
+        status="partial" if pending else "success",
         summary=(
-            f"已算出中金表对底稿的差异（可填空格 {len(additions)} · 值不一致 {len(conflicts)}），**未写入**。"
-            if additions or conflicts
+            f"已算出中金表对底稿的差异（新建周次 {len(new_weeks)} · 可填空格 {len(additions)}"
+            f" · 值不一致 {len(conflicts)}），**未写入**。"
+            if pending
             else "底稿与中金表一致，无需写入。"
         ),
         domain=DOMAIN,
@@ -239,5 +277,6 @@ def run(workbook: Path, source: Path, year: int = 2026) -> Result:
             "additions": len(additions),
             "conflicts": len(conflicts),
             "same": len(same),
+            "new_weeks": [w.label for w in new_weeks],
         },
     )

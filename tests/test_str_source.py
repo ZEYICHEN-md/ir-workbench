@@ -253,8 +253,8 @@ class TestWriteRules(unittest.TestCase):
         self._tmp.cleanup()
 
     @staticmethod
-    def _build_workbook(path: Path, *, july=(None, None, -0.05)) -> Path:
-        """造一份最小底稿：2026 块 + 12 个月份行 + 右侧周轴。"""
+    def _build_workbook(path: Path, *, july=(None, None, -0.05), weeks=()) -> Path:
+        """造一份最小底稿：2026 块 + 12 个月份行 + 右侧周轴（可预置周次行）。"""
         from modules.industry_data import layout
 
         wb = openpyxl.Workbook()
@@ -262,7 +262,8 @@ class TestWriteRules(unittest.TestCase):
         ws.title = layout.SHEET
         year_row = 5
         ws.cell(year_row, 2, "2026年")
-        ws.cell(year_row + layout.OFF_HEADER, 18, "周")
+        header = year_row + layout.OFF_HEADER
+        ws.cell(header, 18, "周")
         start = year_row + layout.OFF_MONTH_START
         for index in range(12):
             ws.cell(start + index, 2, "7月 (preliminary)" if index == 6 else f"{index + 1}月")
@@ -272,8 +273,25 @@ class TestWriteRules(unittest.TestCase):
         # 6 月填满，用于验证「已有值不被覆盖」
         for col, value in zip((3, 4, 5), (-0.025, 0.022, -0.004)):
             ws.cell(start + 5, col, value)
+        # 预置周次行：R 列周标签 + S/T/U 值
+        for offset, (label, values) in enumerate(weeks):
+            row = header + 1 + offset
+            ws.cell(row, 18, label)
+            for col, value in zip((19, 20, 21), values):
+                if value is not None:
+                    ws.cell(row, col, value)
         wb.save(path)
         return path
+
+    @property
+    def _all_week_rows(self):
+        """REAL_WEEKS 里归属 2026 年的周次及其 K/L/M 值。"""
+        from modules.industry_data import str_source
+
+        return [
+            (label, (v["hotelOccupancy"], v["hotelADR"], v["hotelRevPAR"]))
+            for label, v in str_source.weekly_yoy(str_source.load(self.source), 2026)
+        ]
 
     def test_dry_run_lists_only_empty_cells(self):
         from modules.industry_data import str_write
@@ -295,13 +313,55 @@ class TestWriteRules(unittest.TestCase):
         str_write.run(self.paths, self.workbook, self.source, 2026)
         self.assertEqual(self.workbook.read_bytes(), before)
 
-    def test_nothing_to_fill_when_all_present(self):
+    def test_nothing_to_do_when_all_present(self):
+        """月度填满、周次齐全时应当无事可做。"""
         from modules.industry_data import str_write
 
-        book = self._build_workbook(self.workbook.parent / "full.xlsx", july=(-0.03, -0.01, -0.04))
+        book = self._build_workbook(
+            self.workbook.parent / "full.xlsx",
+            july=(-0.03, -0.01, -0.04),
+            weeks=self._all_week_rows,
+        )
         result = str_write.run(self.paths, book, self.source, 2026)
         self.assertEqual(result.status, "success")
-        self.assertIn("没有空格", result.summary)
+        self.assertIn("没有要加的周次", result.summary)
+
+    def test_missing_weeks_are_detected_in_order(self):
+        """底稿缺后面几周时，须按时间先后列出——加行顺序错了表就乱了。"""
+        from modules.industry_data import str_plan
+
+        rows = self._all_week_rows
+        book = self._build_workbook(
+            self.workbook.parent / "partial.xlsx", weeks=rows[:-3]
+        )
+        _cells, _notes, new_weeks = str_plan.build(book, self.source, 2026)
+        self.assertEqual([w.label for w in new_weeks], [label for label, _ in rows[-3:]])
+
+    def test_new_week_carries_its_values(self):
+        from modules.industry_data import str_plan
+
+        rows = self._all_week_rows
+        book = self._build_workbook(self.workbook.parent / "p2.xlsx", weeks=rows[:-1])
+        _cells, _notes, new_weeks = str_plan.build(book, self.source, 2026)
+        self.assertEqual(len(new_weeks), 1)
+        week = new_weeks[0]
+        self.assertEqual(week.label, "8/9-8/15")
+        self.assertAlmostEqual(week.values["hotelOccupancy"], -0.033643, places=6)
+        self.assertAlmostEqual(week.values["hotelRevPAR"], -0.040781, places=6)
+
+    def test_dry_run_reports_new_weeks_without_touching_file(self):
+        from modules.industry_data import str_write
+
+        rows = self._all_week_rows
+        book = self._build_workbook(self.workbook.parent / "p3.xlsx", weeks=rows[:-2])
+        before = book.read_bytes()
+        result = str_write.run(self.paths, book, self.source, 2026)
+        self.assertEqual(result.status, "partial")
+        self.assertEqual(result.data["new_weeks"], [label for label, _ in rows[-2:]])
+        self.assertIn("新建 2 个周次", result.summary)
+        self.assertEqual(book.read_bytes(), before)
+        detail = " ".join(c["detail"] for c in result.checks if c["name"] == "将新建周次")
+        self.assertIn("粗底框下移", detail)
 
     def test_locked_workbook_is_blocked(self):
         """底稿在 Excel 里打开时必须拒写，否则会与人的编辑打架。"""
@@ -338,3 +398,55 @@ class TestWriteRules(unittest.TestCase):
         self.assertNotEqual(first.name, second.name)
         self.assertTrue(first.is_file())
         self.assertEqual(len(list(self.paths.workbook_archive_dir.glob("*.xlsx"))), 2)
+
+
+class TestNewWeekOrdering(unittest.TestCase):
+    """加行只能加在末尾，所以只有晚于当前末周的周次才可新建。
+
+    真实案例：跨年周 `12/28-1/3` 在中金表里归 2026 年，但底稿周轴有意从 `1/4-1/10` 起。
+    把它追加到末尾会让整张表的时间顺序错乱——只提醒，不动手。
+    """
+
+    def setUp(self) -> None:
+        self._tmp = TemporaryDirectory()
+        root = Path(self._tmp.name)
+        self.source = build_source(root / "cicc.xlsx", rows=[
+            ("2025/12/28-2026/01/03", 50.0, 52.0, 300.0, 310.0, 150.0, 161.2, -0.038, -0.032, -0.069),
+            ("2026/01/04-2026/01/10", 51.0, 53.0, 305.0, 312.0, 155.6, 165.4, -0.037, -0.022, -0.059),
+            ("2026/01/11-2026/01/17", 52.0, 54.0, 308.0, 314.0, 160.2, 169.6, -0.037, -0.019, -0.055),
+        ])
+        self.root = root
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def _book(self, weeks) -> Path:
+        return TestWriteRules._build_workbook(self.root / "book.xlsx", weeks=weeks)
+
+    def test_earlier_gap_is_reported_not_added(self):
+        from modules.industry_data import str_plan
+
+        # 底稿只有 1/4-1/10 与 1/11-1/17，缺的是更早的 12/28-1/3
+        book = self._book([("1/4-1/10", (-0.037, -0.022, -0.059)),
+                           ("1/11-1/17", (-0.037, -0.019, -0.055))])
+        _cells, notes, new_weeks = str_plan.build(book, self.source, 2026)
+        self.assertEqual(new_weeks, [], "早于末周的缺口不该被自动加行")
+        self.assertTrue(any("12/28-1/3" in n and "不自动插入" in n for n in notes))
+
+    def test_later_week_is_added(self):
+        from modules.industry_data import str_plan
+
+        book = self._book([("12/28-1/3", (-0.038, -0.032, -0.069)),
+                           ("1/4-1/10", (-0.037, -0.022, -0.059))])
+        _cells, _notes, new_weeks = str_plan.build(book, self.source, 2026)
+        self.assertEqual([w.label for w in new_weeks], ["1/11-1/17"])
+
+    def test_empty_axis_adds_everything_in_order(self):
+        """周轴完全空时（新年度块）按时间顺序全部新建。"""
+        from modules.industry_data import str_plan
+
+        book = self._book([])
+        _cells, _notes, new_weeks = str_plan.build(book, self.source, 2026)
+        self.assertEqual(
+            [w.label for w in new_weeks], ["12/28-1/3", "1/4-1/10", "1/11-1/17"]
+        )
