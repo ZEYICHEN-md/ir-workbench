@@ -141,7 +141,11 @@ def _register_domain_commands(sub) -> None:
 
     # 已迁入的域各自注册；未迁入的自然不出现，不留空壳入口。
     # 导入失败（缺可选依赖等）只跳过该域，不影响其余命令可用。
-    for module_name in ("modules.industry_data.cli", "modules.aviation_monthly.cli"):
+    for module_name in (
+        "modules.industry_data.cli",
+        "modules.aviation_monthly.cli",
+        "modules.competitor_intel.cli",
+    ):
         try:
             module = importlib.import_module(module_name)
         except ImportError:
