@@ -26,14 +26,43 @@ class Step:
     optional: bool
     gate: str | None
     hint: str
+    #: 让这一步**往前走**所需的一句话。见 aviation_monthly/steps.py 里的同名字段说明：
+    #: 只写「须明确确认」不够，人看完仍不知道该说什么，动作就会沉在待办里。
+    #:
+    #: 注意它是**从当前状态往前走**的措辞，不是「确认某个已生成产物」的措辞。
+    #: `insights` 曾写成「确认这些洞察」——可草稿还没生成，人看到只会莫名其妙。
+    #: 两段式的步骤（draft→confirm、plan→apply）这里填第一段：汇总看到它们时
+    #: 基本都停在没开始的状态，第二段的确认在那一段自己的输出里再提。
+    phrase: str | None = None
 
 
 STEPS: tuple[Step, ...] = (
-    Step("merge", "重建指标快照", False, "出现清空时须确认", "ir industry merge"),
+    Step("merge", "重建指标快照", False, "出现清空时须确认", "ir industry merge", phrase="确认清空"),
     Step("dashboard", "生成看板投影", False, None, "ir industry generate-dashboard"),
-    Step("insights", "刷新洞察", True, "须用户确认中文后入库", "ir industry insights draft → confirm"),
-    Step("feishu", "飞书多维表投影", True, "须用户明确说「写入」", "ir industry feishu plan → apply --yes"),
-    Step("publish", "上线 datamax.fun", True, "对外发布，须用户明确要求", "见 docs/specs/…-cutover-runbook.md"),
+    Step(
+        "insights",
+        "刷新洞察",
+        True,
+        "须用户确认中文后入库",
+        "ir industry insights draft → confirm",
+        phrase="刷新洞察",
+    ),
+    Step(
+        "feishu",
+        "飞书多维表投影",
+        True,
+        "须用户明确说「写入」",
+        "ir industry feishu plan → apply --yes",
+        phrase="同步飞书",
+    ),
+    Step(
+        "publish",
+        "上线 datamax.fun",
+        True,
+        "对外发布，须用户明确要求",
+        "见 docs/specs/…-cutover-runbook.md",
+        phrase="上线",
+    ),
 )
 
 STEP_ORDER = [step.key for step in STEPS]

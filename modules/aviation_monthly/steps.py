@@ -17,11 +17,22 @@ class Step:
     zh: str
     gate: str | None
     hint: str
+    #: 门禁需要使用者说的**具体措辞**。
+    #: 光写「须明确确认」不够——人看到之后仍不知道该说什么，动作就会沉在待办里。
+    #: 实际发生过：dry-run 跑完后使用者回「OK」，门禁（正确地）没放行，
+    #: 之后十几轮没人再提起，使用者以为已经写入了。
+    phrase: str | None = None
 
 
 STEPS: tuple[Step, ...] = (
     Step("dry-run", "抓官方数据并校验（不写入）", None, "ir aviation run --year 2026 --month 7"),
-    Step("commit", "写入 Airline Data 与指标底稿", "须用户明确确认", "ir aviation run … --commit"),
+    Step(
+        "commit",
+        "写入 Airline Data 与指标底稿",
+        "须用户明确确认",
+        "ir aviation run … --commit",
+        phrase="写入",
+    ),
     Step("resync", "重建指标快照并生成看板", None, "ir industry merge → generate-dashboard"),
 )
 
