@@ -11,6 +11,12 @@ peers_rs_update/
 scratch/
 _tmp/
 
+# 每期原件（券商周报、研报 PDF、STR 表等）：只服务当期，体积大且多为第三方材料。
+# 不进 git —— 中金周报单份 6.5 MB，每周一份一年就是几百 MB。
+# 可核对性由 manifest 里记录的文件名与 SHA-256 保证，不靠存原件。
+inputs/**
+!inputs/**/.gitkeep
+
 # Python
 __pycache__/
 *.py[cod]

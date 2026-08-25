@@ -19,6 +19,7 @@ from . import (
     publish,
     snapshot,
     steps,
+    str_plan,
 )
 from .paths import DOMAIN, DomainPaths
 
@@ -324,6 +325,31 @@ def cmd_status(args, base) -> Result:
     )
 
 
+def cmd_str_plan(args, base) -> Result:
+    """只读：中金表 → 酒店周度与月度 → 与底稿对照。不写任何文件。"""
+    workbook, blocked = _resolve_workbook(base)
+    if blocked:
+        return blocked
+    source = Path(args.source)
+    if not source.is_file():
+        return Result(
+            status="blocked",
+            summary=f"找不到中金表：{source}",
+            domain=DOMAIN,
+            next_steps=["把中金旅游周度数据表放进 inputs/industry-data/<数据截至日>/ 再指定路径。"],
+        )
+    result = str_plan.run(workbook, source, args.year)
+
+    # 原件不进 git（体积大、第三方材料），所以来源信息必须落在 manifest 里，
+    # 否则「这个月的数是从哪份表算的」将无从回溯。
+    # 只登记输入，**不动步骤状态**——str-plan 是只读的，不代表哪一步做完了。
+    period = steps.current_period(DomainPaths(base))
+    if period:
+        steps.open_manifest(base, period).record_input("str_source", source)
+        result.period = period
+    return result
+
+
 def register(subparsers, common) -> None:
     """挂载本域命令。`common` 提供 --json 等共享开关，使其在子命令前后都能写。"""
     parser = subparsers.add_parser("industry", help="国内行业数据与看板")
@@ -349,6 +375,11 @@ def register(subparsers, common) -> None:
 
     p_status = add("status", help="本域状态与本期进度")
     p_status.set_defaults(func=cmd_status)
+
+    p_str = add("str-plan", help="从中金周报算酒店周度与月度，对照底稿出清单（只读）")
+    p_str.add_argument("source", help="中金旅游周度数据表路径")
+    p_str.add_argument("--year", type=int, default=2026, help="底稿年度块，默认 2026")
+    p_str.set_defaults(func=cmd_str_plan)
 
     p_mark = add("mark", help="手动标记步骤（主要用于跳过可选步骤）")
     p_mark.add_argument("step", choices=steps.STEP_ORDER)
