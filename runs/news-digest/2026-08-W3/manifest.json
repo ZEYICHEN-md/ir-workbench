@@ -2,7 +2,7 @@
   "domain": "news-digest",
   "period": "2026-08-W3",
   "created": "2026-08-25T20:03:48+08:00",
-  "updated": "2026-08-26T11:25:06+08:00",
+  "updated": "2026-08-26T14:24:44+08:00",
   "steps": {
     "recall": {
       "state": "done",
@@ -33,7 +33,9 @@
       "note": "由 ir intel deposit 完成，入库 1 条"
     },
     "publish": {
-      "state": "pending"
+      "state": "done",
+      "at": "2026-08-26T14:24:44+08:00",
+      "note": "旅业资讯库撤旧换新 + 历史周报汇总追加第5期，两份均回读确认"
     }
   },
   "inputs": {

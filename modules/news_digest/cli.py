@@ -404,6 +404,34 @@ def cmd_skip(args, base) -> Result:
     )
 
 
+def cmd_mark(args, base) -> Result:
+    """手工标记某一步的状态。
+
+    为什么需要：有些步骤**不由工作台执行**——飞书发布走 lark-cli 一串命令，
+    照 `references/feishu-publish.md` 做，没有一条 `ir` 命令能代表它。
+    做完了却没法记上，那一步就永远停在待办，跨域汇总里留一条假待办。
+    `industry-data` 早就有 `ir industry mark`，这里之前漏了。
+    """
+    period = _resolve_period(args)
+    if args.step not in steps.STEP_BY_KEY:
+        return Result(
+            status="blocked",
+            summary=f"没有这一步：{args.step}",
+            domain=DOMAIN,
+            next_steps=["可选：" + "、".join(steps.STEP_ORDER)],
+        )
+    steps.record(base, period, args.step, args.state, note=args.note or None)
+    info = steps.progress(base, period)
+    return Result(
+        status="success",
+        summary=f"{calendar_.label_from_key(period)} 的「{steps.STEP_BY_KEY[args.step].zh}」"
+        f"记为 {args.state}（{info['done']}/{info['total']} 步）。",
+        domain=DOMAIN,
+        period=period,
+        checks=steps.render_progress(base, period),
+    )
+
+
 def cmd_status(args, base) -> Result:
     period = args.period
     if not period:
@@ -469,6 +497,16 @@ def register(subparsers, common) -> None:
     p.add_argument("--file")
     p.add_argument("--pdf", action="store_true")
     p.set_defaults(func=cmd_export)
+
+    p = sub.add_parser(
+        "mark", help="手工标记某一步的状态（如飞书发布这类不由工作台执行的步骤）",
+        parents=[common],
+    )
+    p.add_argument("step", choices=steps.STEP_ORDER)
+    p.add_argument("state", choices=["pending", "running", "done", "skipped", "blocked", "failed"])
+    p.add_argument("--period")
+    p.add_argument("--note", default="")
+    p.set_defaults(func=cmd_mark)
 
     p = sub.add_parser("skip", help="记下某一期故意不出（须给理由）", parents=[common])
     p.add_argument("--period")

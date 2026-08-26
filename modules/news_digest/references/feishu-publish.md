@@ -39,11 +39,29 @@ grid「Peers 季度业绩更新」
 
 ### 步骤
 
-1. `docs +fetch --scope range`：从「行业新闻周报」标题 grid 到下一节「Peers 季度业绩更新」标题 grid，`--detail with-ids`
+> **2026-08-25 实跑修正**：`--scope section --start-block-id <h2 的 id>` 在这里**不管用**——
+> 那个 h2 嵌在三栏 grid 的中间一列里，section 只会回到该 column 内部，看不到 grid 之后的
+> figure 与 callout。直接 `--scope full --detail with-ids` 最省事（这份文档只有约 15 KB）。
+>
+> 另：**`docs +fetch` 的文档参数是 `--doc`，不是 `--document-id`。**
+
+1. `docs +fetch --scope full --detail with-ids`，在返回的 XML 里定位
+   `<grid>`（含「行业新闻周报」h2）→ `<figure>` → `📇 往期 callout` → 下一个 `<grid>`（Peers 节）
 2. 读现有 `<figure><source name="…">`：文件名里的周期 **等于** 刚交付的周期 → 已是最新，**不要动**
-3. 过时则：
-   - `docs +update --command block_delete` 删掉旧 `<figure>`（只删附件块，不要动标题 grid、往期 callout、Peers 节）
-   - `docs +media-insert --type file --file-view preview`，锚在「行业新闻周报」标题之后、往期 callout 之前
+3. 过时则 —— **先插新、再删旧**（与本文件早前的写法相反，实跑后改的）：
+   - `docs +media-insert --type file --file-view preview --selection-with-ellipsis "行业新闻周报"`
+     （selection 命中的是 h2，附件落在其**顶层祖先**即那个 grid 之后，正好在往期 callout 之前）
+   - 回读确认新附件在位后，再 `docs +update --command block_delete --block-id <旧 figure id>`
+     （只删附件块，不要动标题 grid、往期 callout、Peers 节）
+
+   **为什么把顺序反过来**：先删后插的话，中间态是「主文档这一节没有附件」；
+   插入失败（实跑遇到过 `mcp.feishu.cn` TLS 超时）就会留下一个空节。
+   先插后删则任何一步失败都不会让文档比原来更差。
+
+   ⚠️ **主文档的附件用中文标准名** `旅行行业新闻精选-<中文标签>.html`——
+   它对读者可见，而且第 2 步的判据就是「读附件名里的周期」。
+   为避开中文**路径**问题只需把文件复制到 `scratch/` 下，**不必改文件名**（实测中文文件名可以上传）。
+   曾经图省事传成 `news-digest-2026-08-W3.html`，与历史命名不一致，又重做了一遍。
    - `--selection-with-ellipsis` 必须用**当期独有**文本（如新 HTML 文件名片段或该节内不会与历史文档撞车的词），不要只用「要点新闻」（主文档没有这个词；历史汇总里每期都有，会插错位置）
 4. `docs +fetch` 回读：确认该节只有 **一个** Preview HTML，且 `name` 对应当期
 
@@ -97,6 +115,17 @@ hr
 - 新期归档后：`docs +fetch --detail with-ids` 取新 `h2` 的 id，在目录 `<ul>` **按时间顺序**插入一行（补历史空档插在相邻两期之间；最新一期加在目录末尾）
 - 目录顺序与正文一致（先归档的在上）
 
+> **实跑做法**：用 `docs +update --command block_replace --block-id <目录 callout id>`
+> **整块重写**这个 callout，而不是往里插一个 `<li>`。callout 是容器块，整块替换更可控，
+> 也能一次保证顺序。重写时要**原样带上它的属性**
+> （`background-color="rgb(245,246,247)" emoji="📇" text-color="rgb(143,149,158)"`），
+> 漏了颜色属性会让目录块的观感变掉。
+>
+> **含中文的 XML 一律走 `--content "@file"`，且文件必须 UTF-8 无 BOM。**
+> 用 Python 的 `Path.write_bytes(s.encode("utf-8"))` 写，**不要用 `Out-File -Encoding utf8`**
+> （PS 5.1 会写 BOM）。本次实跑连这份 fetch 输出都被 BOM 绊过一次。
+> 见 `conventions/lark-cli-windows.md`。
+
 ### 每期结构
 
 1. `<hr/>`
@@ -143,6 +172,16 @@ hr
 3. `+media-insert` 用当期**独有**片段作 selection（如该期第二条要点标题），或插完后用 `block_move_after --block-id {当期 callout id}` 把 figure 挪到当期 callout 之后
 4. 回读确认：该期 h2 → callout → **对应文件名**的 figure，且没有插到别的期下面
 
+> **2026-08-25 实跑发现：归档最新一期时根本不需要 selection。**
+> 最新一期的 h2/callout 刚 append 到文档末尾，`+media-insert` **不带 selection 就是追加到文末**，
+> 正好落在当期 callout 之后。位置对，还绕开了 `--selection-with-ellipsis` 依赖的
+> `mcp.feishu.cn` locate 服务（实跑时它 TLS 超时两次，不带 selection 一次就成）。
+>
+> **selection 只在补历史空档时才需要**——那时要插到中间，没法靠 append。
+>
+> ⚠️ 历史汇总的附件名沿用 **ASCII 小写** `news-digest-<期次键小写>.html`
+> （既有 4 期都是这个形状），与主文档的中文名不同。两边各自沿用，不要统一。
+
 ### 历史汇总纪律
 
 - **append / 定点插入**，不 overwrite（除非用户明确要求重建整页）
@@ -168,3 +207,21 @@ hr
 - 不覆盖原始 `outputs/news-digest/` 文件
 - 未完成 HTML 导出不要改飞书
 - **发布是对外动作，须用户明确要求**（AGENTS.md「绝对不做」第 1 条）
+- 开跑前先 `lark-cli whoami` 与 `auth status --json --verify` 确认 user 身份 ready、token 有效
+- 命令前设 `$env:LARKSUITE_CLI_NO_UPDATE_NOTIFIER=1; $env:LARKSUITE_CLI_NO_SKILLS_NOTIFIER=1` 静默噪音
+
+## 回读校验时的一个坑
+
+写完用脚本核对时，**不要用 `content.find("2026年8月第3周")` 定位当期那一组块**——
+期次名在文档里至少出现两次（目录里的链接文字在文档开头，真正的 h2 在末尾），
+`find` 会先命中目录，于是"当期"从目录一路算到文档结束，把全部期次的附件都算进来。
+
+要匹配真正的标题块：`re.search(r'<h2 id="[^"]+"[^>]*>2026年8月第3周</h2>', content)`。
+本次实跑就被这条绊了一次，第一版校验报「附件插到别期下面了」，其实是校验脚本自己错。
+
+## 一期做完的验收清单
+
+- [ ] 旅业资讯库：`<figure>` 只有 **1 个**，附件名含当期中文标签
+- [ ] 旅业资讯库：📇 往期 callout 与 Peers 节都还在
+- [ ] 历史周报汇总：**期次数 == 附件数 == 目录行数**
+- [ ] 历史周报汇总：当期块顺序是 `h2 → blockquote → callout → figure`，且该段内只有 1 个附件

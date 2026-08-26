@@ -23,11 +23,29 @@ def write_text(path: Path, content: str, *, mkdir: bool = True) -> Path:
     return path
 
 
+#: `os.replace` 撞 Windows 文件锁时重试几次。
+#: 实测过：跑测试时一次 `PermissionError: [WinError 5]`，来自 Defender / 索引器短暂
+#: 持有临时文件的句柄。这不是逻辑错误，隔一下就好。
+#: 值得加重试而不是当偶发忽略——manifest 每记一步都走这个函数，真实运行同样会撞，
+#: 而撞上的后果是那一步的进度没写下去、状态与实际脱节。
+_REPLACE_RETRIES = 5
+_REPLACE_BACKOFF = 0.05
+
+
 def write_text_atomic(path: Path, content: str) -> Path:
     """先写临时文件再替换。用于不能写坏的权威文件。"""
+    import time
+
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     with open(tmp, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(content)
-    tmp.replace(path)
+    for attempt in range(_REPLACE_RETRIES):
+        try:
+            tmp.replace(path)
+            return path
+        except PermissionError:
+            if attempt == _REPLACE_RETRIES - 1:
+                raise
+            time.sleep(_REPLACE_BACKOFF * (attempt + 1))
     return path
