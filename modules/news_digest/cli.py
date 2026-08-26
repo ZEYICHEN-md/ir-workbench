@@ -231,10 +231,16 @@ def cmd_log(args, base) -> Result:
         )
 
     warnings = [f"URL 为空，该条的 URL 层去重会失效：{t}" for t in outcome.no_url]
+    if outcome.already:
+        warnings.append(
+            f"{len(outcome.already)} 条本期已登记过，跳过（改稿后重新登记属正常）。"
+        )
     if not args.commit:
         return Result(
             status="partial",
-            summary=f"预演：{len(outcome.written)} 条可登记，**未写入**。",
+            summary=f"预演：{len(outcome.written)} 条可登记"
+            + (f"，{len(outcome.already)} 条本期已有" if outcome.already else "")
+            + "，**未写入**。",
             domain=DOMAIN,
             period=period,
             warnings=warnings,

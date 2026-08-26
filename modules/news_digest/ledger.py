@@ -40,7 +40,7 @@ from __future__ import annotations
 import difflib
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from workbench.fileio import write_text_atomic
@@ -205,6 +205,8 @@ class AddOutcome:
     written: list[dict]
     blocked: list[tuple[dict, list[Hit]]]
     no_url: list[str]
+    #: 本期已登记过、这次跳过的（改稿后重新登记时的正常情况）
+    already: list[str] = field(default_factory=list)
 
 
 def add(
@@ -240,16 +242,27 @@ def add(
     no_url = [i.get("title", "") for i in items if not (i.get("url") or "").strip()]
 
     blocked: list[tuple[dict, list[Hit]]] = []
-    if not force and not backfill:
-        for item in items:
-            hits = find_duplicates(item, rows, sim)
-            if hits:
-                blocked.append((item, hits))
+    already: list[str] = []
+    remaining: list[dict] = []
+    for item in items:
+        hits = find_duplicates(item, rows, sim)
+        # 命中的全是**本期自己**已登记的条目 → 这是重跑，不是跨期重复。
+        # 台账判的是「这条是不是上期写过了」，同一期再来一遍应当跳过而不是拦住。
+        #
+        # 不区分的后果实测到了：改稿加了一条新闻后重新登记，原有 10 条被判重复，
+        # 整个命令被拦住，那条新的也进不去——同一期修订完就没有登记的路了。
+        if hits and all(h.period == period for h in hits):
+            already.append(item.get("title", ""))
+            continue
+        if hits and not force and not backfill:
+            blocked.append((item, hits))
+            continue
+        remaining.append(item)
     if blocked:
-        return AddOutcome([], blocked, no_url)
+        return AddOutcome([], blocked, no_url, already)
 
     prepared = []
-    for item in items:
+    for item in remaining:
         row = {
             "period": period,
             "date": item.get("date", ""),

@@ -28,7 +28,7 @@ from pathlib import Path
 from workbench.fileio import write_text, write_text_atomic
 from workbench.paths import Paths
 
-from .entry import Entry, EntryError, normalize
+from .entry import Entry, EntryError, make_id, normalize
 
 ENTRIES_NAME = "entries.jsonl"
 REGISTRY_NAME = "companies.json"
@@ -105,6 +105,18 @@ class Store:
         seen_in_batch: set[str] = set()
 
         for index, raw in enumerate(entries, start=1):
+            # **先查在不在库里，再校验。**顺序反了会让已入库的条目被报成「待处理」：
+            # 重新沉淀同一期时，草稿是重新解析的、主题又是猜的，猜不出就抛错，
+            # 于是一条早已在库且标签都核过的条目看起来像还有活要干。
+            probe = raw.id or (
+                make_id(raw.date, raw.url, raw.title)
+                if raw.date and raw.title else None
+            )
+            if probe and (probe in existing or probe in seen_in_batch):
+                raw.id = probe
+                skipped.append(raw)
+                seen_in_batch.add(probe)
+                continue
             try:
                 item, unregistered = normalize(raw, registry=registry)
             except (EntryError, Exception) as exc:  # noqa: BLE001 —— 词表错误也要落到这里

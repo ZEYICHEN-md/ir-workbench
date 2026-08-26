@@ -2,7 +2,7 @@
   "domain": "news-digest",
   "period": "2026-08-W3",
   "created": "2026-08-25T20:03:48+08:00",
-  "updated": "2026-08-25T22:52:44+08:00",
+  "updated": "2026-08-26T11:25:06+08:00",
   "steps": {
     "recall": {
       "state": "done",
@@ -11,26 +11,26 @@
     },
     "draft": {
       "state": "done",
-      "at": "2026-08-25T21:44:45+08:00"
+      "at": "2026-08-26T11:19:09+08:00"
     },
     "validate": {
       "state": "done",
-      "at": "2026-08-25T21:44:45+08:00",
+      "at": "2026-08-26T11:19:09+08:00",
       "note": "0 处硬错误"
     },
     "export": {
       "state": "done",
-      "at": "2026-08-25T21:47:17+08:00"
+      "at": "2026-08-26T11:22:20+08:00"
     },
     "log": {
       "state": "done",
-      "at": "2026-08-25T21:47:12+08:00",
-      "note": "台账登记 10 条"
+      "at": "2026-08-26T11:22:13+08:00",
+      "note": "台账登记 1 条"
     },
     "deposit": {
       "state": "done",
-      "at": "2026-08-25T21:53:33+08:00",
-      "note": "由 ir intel deposit 完成，入库 0 条"
+      "at": "2026-08-26T11:25:06+08:00",
+      "note": "由 ir intel deposit 完成，入库 1 条"
     },
     "publish": {
       "state": "pending"
@@ -39,8 +39,8 @@
   "inputs": {
     "digest": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\news-digest\\2026-08-W3\\旅行行业新闻精选-2026年8月第3周.md",
-      "sha256": "9fd586077758c20015a2051f261760f6221020f979218e75cbd39264129ca8e6",
-      "at": "2026-08-25T21:44:45+08:00"
+      "sha256": "28cfa6417f58825c8f6c2858633c2708abb3705613472f9493000f96577a0184",
+      "at": "2026-08-26T11:19:09+08:00"
     }
   },
   "outputs": {
@@ -51,18 +51,18 @@
     },
     "ledger": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\modules\\news_digest\\news-log.jsonl",
-      "sha256": "40d8d638a67334c9023f992071a1d3df95c67beb438e51690741fa7f649ad604",
-      "at": "2026-08-25T21:47:12+08:00"
+      "sha256": "cc9d51ef5e60a05cfaa456cb233d801b5062af52fe713854f59648f18e3657f8",
+      "at": "2026-08-26T11:22:13+08:00"
     },
     "html": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\news-digest\\2026-08-W3\\旅行行业新闻精选-2026年8月第3周.html",
-      "sha256": "dca1fb6eb5b935d1441be99ebb280d9ae99b8fcf0c2c87e8d533e53f0c34569f",
-      "at": "2026-08-25T21:47:17+08:00"
+      "sha256": "b83a1868e850576d9c0b980359cb8e59181c22f72738d134e5d961d1016e71aa",
+      "at": "2026-08-26T11:22:20+08:00"
     },
     "pdf": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\news-digest\\2026-08-W3\\旅行行业新闻精选-2026年8月第3周.pdf",
-      "sha256": "886f7312d2bd58ee98a7d2d050ab6a6a0c5498bd574c9b6abbea2370bae56abd",
-      "at": "2026-08-25T21:47:17+08:00"
+      "sha256": "2e4796cdaf06b30db608cb0ad3d9659bcc00a1ad25f466bd16a2dc9d0750ab01",
+      "at": "2026-08-26T11:22:20+08:00"
     }
   },
   "notes": [],
