@@ -55,6 +55,7 @@ def checks(workbook: Path) -> list[dict]:
     """返回 checks 列表（`ok` / `warn` / `fail`）。读不出就交给 layout 去报，这里静默跳过。"""
     try:
         right, left = excel.weekly_sides(workbook)
+        notes = list(excel.parse(workbook).get("diagnostics") or [])
     except Exception:  # noqa: BLE001 —— 结构问题由 layout.verify 负责报，不在这里重复
         return []
 
@@ -64,6 +65,9 @@ def checks(workbook: Path) -> list[dict]:
 
     rows = [_check_latest_week(right, weeks)]
     rows.extend(_check_two_sides(right, left, weeks))
+    # 周轴空行、右侧漏填靠左侧兜上——这些 merge 会照常跑完，但人得知道底稿该修。
+    # 放在 doctor 里是因为它是「跑之前」的检查面，merge 之后才看见就晚了。
+    rows.extend({"name": "周轴与填写", "level": "warn", "detail": note} for note in notes)
     return rows
 
 
@@ -78,9 +82,11 @@ def _check_latest_week(right: dict, weeks: list[str]) -> dict:
     ]
 
     if not missing:
-        return {"name": "最新周填写", "level": "ok", "detail": f"{label}：六项齐全"}
+        # 说明「右侧」：右侧漏了一整周时，实际最新周可能靠左侧兜上来，比这里显示的更新。
+        # 不写清楚的话，「最新周 8/2-8/8」会被读成「数据只到 8/8」。
+        return {"name": "右侧最新周填写", "level": "ok", "detail": f"{label}：六项齐全"}
     return {
-        "name": "最新周填写",
+        "name": "右侧最新周填写",
         "level": "warn",
         "detail": f"{label} 缺 {len(missing)} 项：" + "、".join(missing),
         "advice": "酒店与航空每周都更新，缺格通常是漏填。"

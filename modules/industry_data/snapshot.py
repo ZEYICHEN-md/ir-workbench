@@ -79,6 +79,9 @@ class Diff:
     added: list[Change] = field(default_factory=list)
     new_labels: list[str] = field(default_factory=list)
     dropped_labels: list[str] = field(default_factory=list)
+    #: 时间标签整个从轴上消失而丢掉的已有数值。与 `cleared`（标签还在、格变空）分开记，
+    #: 因为二者的排查方向完全不同：前者是轴被截断/改版，后者是有人删了格里的数。
+    dropped_values: list[Change] = field(default_factory=list)
     #: 序列名 → (被清空格数, 该序列原有非空格数)
     clear_ratio: dict[str, tuple[int, int]] = field(default_factory=dict)
 
@@ -87,11 +90,29 @@ class Diff:
         return not (self.cleared or self.changed or self.added or self.new_labels or self.dropped_labels)
 
     @property
+    def lost(self) -> list[Change]:
+        """所有「原来有、重建后没了」的值。门禁一律按这个口径算。
+
+        旧实现只按 `cleared` 算，而 `cleared` 是在**新轴的标签**上逐格比出来的——
+        标签本身从轴上消失时一格都不会命中。实测因此漏过一次 9 周 × 6 序列的丢失，
+        报「清空 0」并把快照写了回去。
+        """
+        return self.cleared + self.dropped_values
+
+    @property
     def blocked_reasons(self) -> list[str]:
         reasons = []
-        if len(self.cleared) > CLEAR_BLOCK_COUNT:
+        if self.dropped_labels:
             reasons.append(
-                f"本次会清空 {len(self.cleared)} 格，超过阈值 {CLEAR_BLOCK_COUNT}"
+                f"底稿里少了 {len(self.dropped_labels)} 个时间标签"
+                f"（{'、'.join(lab.split(' · ')[-1] for lab in self.dropped_labels[:6])}"
+                f"{'…' if len(self.dropped_labels) > 6 else ''}），"
+                f"连带丢掉 {len(self.dropped_values)} 个已有数值。"
+                "时间轴只应变长；变短基本都是读表被截断或底稿改版"
+            )
+        if len(self.lost) > CLEAR_BLOCK_COUNT:
+            reasons.append(
+                f"本次会丢掉 {len(self.lost)} 格数据，超过阈值 {CLEAR_BLOCK_COUNT}"
             )
         for metric, (cleared, total) in sorted(self.clear_ratio.items()):
             if total >= CLEAR_RATIO_MIN_SAMPLE and cleared / total > CLEAR_BLOCK_RATIO:
@@ -106,9 +127,21 @@ def _diff_series_block(where: str, old_block: dict, new_block: dict, label_key: 
     old_labels = list(old_block.get(label_key) or [])
     new_labels = list(new_block.get(label_key) or [])
     diff.new_labels.extend(f"{where} · {lab}" for lab in new_labels if lab not in old_labels)
-    diff.dropped_labels.extend(f"{where} · {lab}" for lab in old_labels if lab not in new_labels)
+    gone = [lab for lab in old_labels if lab not in new_labels]
+    diff.dropped_labels.extend(f"{where} · {lab}" for lab in gone)
 
     metrics = sorted(set(old_block) | set(new_block) - {label_key})
+    # 消失的标签上原有的每个值都是实际丢失，逐格记下来，否则门禁看不见（见 Diff.lost）
+    for label in gone:
+        old_index = old_labels.index(label)
+        for metric in metrics:
+            if metric == label_key:
+                continue
+            old_values = old_block.get(metric) or []
+            old_value = old_values[old_index] if old_index < len(old_values) else None
+            if old_value is not None:
+                diff.dropped_values.append(Change(where, str(label), metric, old_value, None))
+
     for metric in metrics:
         if metric == label_key:
             continue
@@ -187,6 +220,10 @@ def build(workbook: Path, previous: dict | None) -> dict:
         "monthly": parsed["monthly"],
         "quarterly": parsed["quarterly"],
         "meta": ordered,
+        # 只用于把读表提醒带给 `rebuild`，写快照前会被 pop 掉。
+        # 用下划线前缀并单独 pop，是为了让测试里那些 `build = lambda w, p: {...}`
+        # 的替身照旧能用——它们不会带这个键，pop 拿到空列表即可。
+        "_diagnostics": list(parsed.get("diagnostics") or []),
     }
 
 
@@ -216,6 +253,8 @@ def rebuild(paths: DomainPaths, workbook: Path, *, confirm_clears: bool = False)
             ],
         )
 
+    read_notes = list(fresh.pop("_diagnostics", []) or [])
+
     # 归一到有效精度，消除浮点尾数噪音。
     # 同一个数在「人手动保存 Excel」与「COM 全量重算后保存」下表示不同
     # （`-0.104` 对 `-0.10400000000000009`），会让每次上线的 diff 掺进十几行
@@ -226,33 +265,45 @@ def rebuild(paths: DomainPaths, workbook: Path, *, confirm_clears: bool = False)
     data_update = fresh["meta"].get("dataUpdate", "")
 
     blocked = diff.blocked_reasons
+
+    # 数据截至日只应往后走。倒退说明读到的周轴比上一版短，或锁错了底稿——
+    # 这两种都会让看板整体退回旧日期，而逐格 diff 未必超阈值，所以单独设一道。
+    previous_update = ((previous or {}).get("meta") or {}).get("dataUpdate") or ""
+    if previous_update and data_update and data_update < previous_update:
+        blocked = [
+            f"数据截至日倒退：上一版 {previous_update} → 本次 {data_update}。"
+            "要么锁的底稿比上一版旧，要么周轴被截断了",
+            *blocked,
+        ]
+
     if blocked:
         return Result(
             status="blocked",
-            summary="重建被拦下：清空范围异常，疑似底稿结构变化或读错列。",
+            summary="重建被拦下：本次会丢数据，疑似底稿结构变化或读错列。",
             domain=DOMAIN,
             period=data_update or None,
-            warnings=blocked,
-            missing=_render_changes(diff.cleared),
+            warnings=[*blocked, *read_notes],
+            missing=_render_changes(diff.lost),
             next_steps=[
-                "先确认底稿列位没变（周轴 R、酒店 S/T/U、航空 W/X/Y）。",
+                "先确认底稿列位没变（周轴 R、酒店 S/T/U、航空 W/X/Y），周轴中间没被插空行。",
                 "确实是有意清空的话，让 Agent 带上「确认清空」再跑一次。",
             ],
-            data={"cleared": len(diff.cleared)},
+            data={"cleared": len(diff.cleared), "dropped": len(diff.dropped_values)},
         )
 
-    if diff.cleared and not confirm_clears:
+    if diff.lost and not confirm_clears:
         return Result(
             status="partial",
-            summary=f"重建会清空 {len(diff.cleared)} 格，未写入，等你确认。",
+            summary=f"重建会丢掉 {len(diff.lost)} 格数据，未写入，等你确认。",
             domain=DOMAIN,
             period=data_update or None,
-            checks=[{"name": "将被清空", "level": "warn", "detail": item} for item in _render_changes(diff.cleared)],
+            warnings=read_notes,
+            checks=[{"name": "将丢失", "level": "warn", "detail": item} for item in _render_changes(diff.lost)],
             next_steps=[
                 "这些格在底稿里现在是空的。若是有意撤回，回一句「确认清空」即可写入。",
                 "若不该是空的，先去底稿补上再重跑。",
             ],
-            data={"cleared": len(diff.cleared)},
+            data={"cleared": len(diff.cleared), "dropped": len(diff.dropped_values)},
         )
 
     write_text_atomic(paths.snapshot, dumps_canonical(fresh) + "\n")
@@ -260,14 +311,22 @@ def rebuild(paths: DomainPaths, workbook: Path, *, confirm_clears: bool = False)
     checks = [
         {"name": "数据截至", "level": "ok", "detail": data_update or "（未能推断）"},
         {"name": "底稿", "level": "ok", "detail": workbook.name},
-        {"name": "变动", "level": "ok", "detail": f"新增 {len(diff.added)} · 修改 {len(diff.changed)} · 清空 {len(diff.cleared)}"},
+        {
+            "name": "变动",
+            "level": "ok",
+            "detail": (
+                f"新增 {len(diff.added)} · 修改 {len(diff.changed)} · "
+                f"清空 {len(diff.cleared)} · 标签消失丢值 {len(diff.dropped_values)}"
+            ),
+        },
     ]
     if diff.new_labels:
         checks.append({"name": "新时间标签", "level": "ok", "detail": "、".join(diff.new_labels[:8])})
 
     # 正常每周只新增，历史值被改动是要人核对的信号——所以列明细，不只报数量。
     # 只给数量的话，事后无从判断改的是哪一格（快照已被覆盖，无处可查）。
-    warnings: list[str] = []
+    warnings: list[str] = list(read_notes)
+    checks.extend({"name": "底稿填写", "level": "warn", "detail": note} for note in read_notes)
     if diff.changed:
         warnings.append(
             f"有 {len(diff.changed)} 处历史值被改动。正常每周只应新增；"

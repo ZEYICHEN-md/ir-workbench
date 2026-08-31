@@ -28,6 +28,25 @@ RIGHT_AV_PAX_COL = 23
 RIGHT_AV_TICKET_COL = 24
 RIGHT_AV_FLIGHT_COL = 25
 
+#: 左侧「QTD周度」六项列：B 周标签，C/D/E 酒店，G/H/I 航空
+LEFT_QTD_LABEL_COL = 2
+LEFT_QTD_COLS: tuple[tuple[str, int], ...] = (
+    ("hotelOccupancy", 3),
+    ("hotelADR", 4),
+    ("hotelRevPAR", 5),
+    ("aviationPax", 7),
+    ("aviationTicket", 8),
+    ("aviationFlight", 9),
+)
+
+#: 右侧周轴中间容忍的最大连续空行数。
+#:
+#: 给左侧「QTD周度」块加一周时，如果整行插入，右侧周轴就会被punch出一个空行——
+#: 这是**每期都可能发生的常规人工操作**，不是异常。旧实现遇到空行即认为「块到此结束」，
+#: 于是静默丢掉下方所有周次（实测 0830 底稿因此把数据截至日从 8/15 读成 6/13）。
+#: 所以空行要跳过继续往下读；只有连续空到这个数以上，才认为块真的结束了。
+MAX_AXIS_GAP = 3
+
 _WEEK_RANGE = re.compile(r"(\d{1,2})/(\d{1,2})\s*-\s*(\d{1,2})/(\d{1,2})")
 
 #: 指标序列名 → 月度/季度所在列
@@ -128,13 +147,15 @@ def parse(xlsx_path: Path) -> dict:
 
     monthly = _parse_monthly(sheet, year_row)
     quarterly = _parse_quarterly(sheet, year_row)
-    weekly = _parse_weekly(sheet, year_row)
+    weekly, diagnostics = _parse_weekly(sheet, year_row)
 
     return {
         "meta": {"sourceExcel": xlsx_path.name},
         "weekly": weekly,
         "monthly": monthly,
         "quarterly": quarterly,
+        # 读表过程中的提醒（周轴空行、右侧漏填靠左侧兜上……）。给人看，不进快照。
+        "diagnostics": diagnostics,
     }
 
 
@@ -191,17 +212,35 @@ def _read_right_weekly(sheet, year_row: int) -> dict:
     ticket_right: list = []
     flight_right: list = []
 
-    for row in range(header_row + 1, header_row + 80):
+    scan_end = header_row + 80
+    blank_run = 0
+    blank_rows: list[int] = []
+    last_week_row = header_row
+
+    for row in range(header_row + 1, scan_end):
         label = sheet.cell(row, 18).value
-        if label is None or str(label).strip() == "":
-            if weeks:
-                break
-            continue
-        text = str(label).strip()
+        text = "" if label is None else str(label).strip()
+
+        # 注释行是块尾的硬边界。必须在「春节 / 日均」判断之前——底稿末尾那行
+        # `Notes：春节数据为民航局日均（含出境）` 同时含这两个词，顺序反了会被当成周次。
         if text.startswith(("Note", "注", "**")):
             break
+
+        if text == "":
+            if not weeks:
+                continue
+            blank_run += 1
+            blank_rows.append(row)
+            # 连续空到这个数，才认为块真的结束（单个空行通常是插行带出来的洞）
+            if blank_run > MAX_AXIS_GAP:
+                break
+            continue
+
         if not re.search(r"\d+/\d+", text) and "春节" not in text and "日均" not in text:
             break
+
+        blank_run = 0
+        last_week_row = row
         weeks.append(text)
         occupancy.append(_num(sheet.cell(row, 19).value))
         adr.append(_num(sheet.cell(row, 20).value))
@@ -210,8 +249,12 @@ def _read_right_weekly(sheet, year_row: int) -> dict:
         ticket_right.append(_num(sheet.cell(row, RIGHT_AV_TICKET_COL).value))
         flight_right.append(_num(sheet.cell(row, RIGHT_AV_FLIGHT_COL).value))
 
+    # 末周之后的空行是块尾留白，不是洞；只有夹在周次之间的才算。
+    holes = [row for row in blank_rows if row < last_week_row]
+
     return {
         "weeks": weeks,
+        "axisHoles": holes,
         "hotelOccupancy": occupancy,
         "hotelADR": adr,
         "hotelRevPAR": revpar,
@@ -221,75 +264,167 @@ def _read_right_weekly(sheet, year_row: int) -> dict:
     }
 
 
-def _parse_weekly(sheet, year_row: int) -> dict:
-    right = _read_right_weekly(sheet, year_row)
-    weeks = right["weeks"]
-    occupancy = right["hotelOccupancy"]
-    adr = right["hotelADR"]
-    revpar = right["hotelRevPAR"]
-    pax_right = right["aviationPax"]
-    ticket_right = right["aviationTicket"]
-    flight_right = right["aviationFlight"]
-
-    fallback = _parse_weekly_aviation_fallback(sheet, year_row)
-
-    pax: list = []
-    ticket: list = []
-    flight: list = []
-    for index, label in enumerate(weeks):
-        key = norm_week(label) if "春节" not in label else label
-        left = fallback.get(key) or fallback.get(label)
-        for target, right_series, left_index in (
-            (pax, pax_right, 0),
-            (ticket, ticket_right, 1),
-            (flight, flight_right, 2),
-        ):
-            right_value = right_series[index] if index < len(right_series) else None
-            if right_value is not None:
-                target.append(right_value)
-            elif left:
-                target.append(left[left_index])
-            else:
-                target.append(None)
-
-    return {
-        "weeks": weeks,
-        "hotelOccupancy": occupancy,
-        "hotelADR": adr,
-        "hotelRevPAR": revpar,
-        "aviationPax": pax,
-        "aviationTicket": ticket,
-        "aviationFlight": flight,
-    }
+def _week_start(label: str) -> tuple[int, int] | None:
+    """周标签的起始 (月, 日)，用于判断先后。「春节(日均)」这类返回 None。"""
+    match = _WEEK_RANGE.search(str(label))
+    if not match:
+        return None
+    start_m, start_d, _end_m, _end_d = (int(x) for x in match.groups())
+    return start_m, start_d
 
 
-def _parse_weekly_aviation_fallback(sheet, year_row: int) -> dict[str, tuple]:
-    """左侧「QTD周度」G/H/I，仅当右侧对应格为空时回退。"""
+def _read_left_qtd(sheet, year_row: int) -> dict:
+    """左侧「QTD周度」块：B 周标签 + C/D/E 酒店 + G/H/I 航空，六项与右侧同构。
+
+    这一块的表头（第 185 行一带）写的就是「入住率 / ADR / RevPAR / 机票客运量 / 票价 /
+    客运航班量」，与右侧 S/T/U/W/X/Y 一一对应，所以它能给右侧当完整的兜底，
+    不只是航空兜底。
+    """
     month_start = year_row + 3
     qtd_header = None
     for row in range(month_start, month_start + 40):
-        value = sheet.cell(row, 2).value
+        value = sheet.cell(row, LEFT_QTD_LABEL_COL).value
         if value and "QTD" in str(value):
             qtd_header = row
             break
     if qtd_header is None:
-        return {}
+        return {"weeks": [], **{name: [] for name, _ in LEFT_QTD_COLS}}
 
-    by_week: dict[str, tuple] = {}
+    weeks: list[str] = []
+    series: dict[str, list] = {name: [] for name, _ in LEFT_QTD_COLS}
     for row in range(qtd_header + 1, qtd_header + 40):
-        label = sheet.cell(row, 2).value
-        if label is None or str(label).strip() == "":
-            if by_week:
+        label = sheet.cell(row, LEFT_QTD_LABEL_COL).value
+        text = "" if label is None else str(label).strip()
+        if text.startswith(("Note", "注", "**")):
+            break
+        if text == "":
+            if weeks:
                 break
             continue
-        text = str(label).strip()
-        if text.startswith(("Note", "注")):
-            break
         if not re.search(r"\d+/\d+", text) and "春节" not in text:
             break
-        by_week[norm_week(text)] = (
-            _num(sheet.cell(row, 7).value),
-            _num(sheet.cell(row, 8).value),
-            _num(sheet.cell(row, 9).value),
+        weeks.append(text)
+        for name, col in LEFT_QTD_COLS:
+            series[name].append(_num(sheet.cell(row, col).value))
+    return {"weeks": weeks, **series}
+
+
+_WEEKLY_SERIES = (
+    "hotelOccupancy",
+    "hotelADR",
+    "hotelRevPAR",
+    "aviationPax",
+    "aviationTicket",
+    "aviationFlight",
+)
+
+
+def _parse_weekly(sheet, year_row: int) -> tuple[dict, list[str]]:
+    """合并右侧周度区与左侧「QTD周度」块。右侧优先，左侧兜底。
+
+    兜底分两层，都是为了兜住同一个人工习惯——「加了左侧，右侧忘了跟上」：
+
+    1. **逐格兜底**：右侧某格为空、左侧同周同指标有值 → 用左侧的（六项全兜，不只航空）。
+    2. **补周兜底**：某一周只在左侧有、右侧周轴上没有 → 把这一周接到轴末尾。
+       只接**晚于右侧末周**的；更早的缺口位置在中间，接到末尾会打乱时间顺序，只报不接。
+
+    返回 (weekly, diagnostics)。diagnostics 是给人看的提醒，不进快照。
+    """
+    right = _read_right_weekly(sheet, year_row)
+    left = _read_left_qtd(sheet, year_row)
+
+    weeks: list[str] = list(right["weeks"])
+    series: dict[str, list] = {
+        name: list(right[name]) + [None] * (len(weeks) - len(right[name]))
+        for name in _WEEKLY_SERIES
+    }
+
+    left_by_week: dict[str, dict] = {}
+    for index, label in enumerate(left["weeks"]):
+        key = label if "春节" in label else norm_week(label)
+        left_by_week[key] = {name: left[name][index] for name in _WEEKLY_SERIES}
+
+    diagnostics: list[str] = []
+
+    if right["axisHoles"]:
+        rows = "、".join(f"第 {row} 行" for row in right["axisHoles"])
+        diagnostics.append(
+            f"右侧周轴中间有空行（{rows}），已跳过继续往下读。"
+            "通常是给左侧「QTD周度」加一周时整行插入带出来的，建议删掉这一行。"
         )
-    return by_week
+
+    # 第 1 层：逐格兜底
+    filled: dict[str, list[str]] = {}
+    for index, label in enumerate(weeks):
+        key = label if "春节" in label else norm_week(label)
+        source = left_by_week.get(key) or left_by_week.get(label)
+        if not source:
+            continue
+        for name in _WEEKLY_SERIES:
+            if series[name][index] is None and source[name] is not None:
+                series[name][index] = source[name]
+                filled.setdefault(label, []).append(name)
+
+    # 第 2 层：补右侧漏掉的整周
+    right_keys = {label if "春节" in label else norm_week(label) for label in weeks}
+    last_start = None
+    for label in reversed(weeks):
+        last_start = _week_start(label)
+        if last_start:
+            break
+
+    appended: list[str] = []
+    skipped_earlier: list[str] = []
+    for index, label in enumerate(left["weeks"]):
+        key = label if "春节" in label else norm_week(label)
+        if key in right_keys:
+            continue
+        values = {name: left[name][index] for name in _WEEKLY_SERIES}
+        if all(value is None for value in values.values()):
+            continue
+        start = _week_start(label)
+        if last_start is not None and (start is None or start <= last_start):
+            skipped_earlier.append(label)
+            continue
+        weeks.append(key)
+        for name in _WEEKLY_SERIES:
+            series[name].append(values[name])
+        right_keys.add(key)
+        last_start = start
+        appended.append(key)
+
+    if filled:
+        detail = "；".join(
+            f"{label} 的 {len(names)} 项" for label, names in list(filled.items())[:6]
+        )
+        diagnostics.append(
+            f"有 {len(filled)} 周右侧有缺格、已用左侧「QTD周度」的值兜上（{detail}）。"
+            "看板不会缺数，但右侧仍建议补齐——它才是这一块的主填写面。"
+        )
+    if appended:
+        diagnostics.append(
+            f"这些周只在左侧「QTD周度」里有，右侧周轴上没有，已按左侧的值接到轴末尾："
+            + "、".join(appended)
+            + "。请在右侧补上对应行，否则下一期插行时容易再错位。"
+        )
+    if skipped_earlier:
+        diagnostics.append(
+            "这些周只在左侧有，且早于右侧末周，**没有**并入（接到末尾会打乱时间顺序）："
+            + "、".join(skipped_earlier)
+            + "。要补得在右侧对应位置手工插行。"
+        )
+
+    return {"weeks": weeks, **series}, diagnostics
+
+
+def _parse_weekly_aviation_fallback(sheet, year_row: int) -> dict[str, tuple]:
+    """左侧「QTD周度」G/H/I，按周标签索引。供 `weekly_sides()` 做左右交叉核对。"""
+    left = _read_left_qtd(sheet, year_row)
+    return {
+        (label if "春节" in label else norm_week(label)): (
+            left["aviationPax"][index],
+            left["aviationTicket"][index],
+            left["aviationFlight"][index],
+        )
+        for index, label in enumerate(left["weeks"])
+    }

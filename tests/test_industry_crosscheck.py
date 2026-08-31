@@ -30,9 +30,16 @@ def build(
     right: list[tuple | None] | None = None,
     left: list[tuple | None] | None = None,
     left_labels: list[str] | None = None,
+    left_hotel: list[tuple | None] | None = None,
     hotel: list[tuple | None] | None = None,
+    right_rows: list[str | None] | None = None,
+    tail_note: str | None = None,
 ) -> Path:
-    """造一份最小底稿。`right` / `left` 为每周的 (客运量, 票价, 航班量)。"""
+    """造一份最小底稿。`right` / `left` 为每周的 (客运量, 票价, 航班量)。
+
+    `right_rows` 可以逐行摆右侧周轴，`None` 表示留一个空行——用来复现
+    「给左侧插行把右侧周轴punch出洞」这个每期都可能发生的人工失误。
+    """
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = layout.SHEET
@@ -67,21 +74,37 @@ def build(
             for offset, value in enumerate(values):
                 if value is not None:
                     ws.cell(qtd + 1 + index, 7 + offset, value)
+        occ = (left_hotel or [None] * len(labels))[index]
+        if occ:
+            for offset, value in enumerate(occ):
+                if value is not None:
+                    ws.cell(qtd + 1 + index, 3 + offset, value)
 
     # 右侧周度区
-    for index, label in enumerate(WEEKS):
-        row = header + 1 + index
+    rows = list(right_rows) if right_rows is not None else list(WEEKS)
+    week_count = sum(1 for label in rows if label)
+    week_index = 0
+    last_row = header
+    for offset, label in enumerate(rows):
+        row = header + 1 + offset
+        if not label:
+            continue
         ws.cell(row, COL_WEEK, label)
-        occ = (hotel or [(0.01, 0.02, 0.03)] * len(WEEKS))[index]
+        last_row = row
+        occ = (hotel or [(0.01, 0.02, 0.03)] * week_count)[week_index]
         if occ:
             for col, value in zip((COL_OCC, COL_ADR, COL_REVPAR), occ):
                 if value is not None:
                     ws.cell(row, col, value)
-        values = (right or [None] * len(WEEKS))[index]
+        values = (right or [None] * week_count)[week_index]
         if values:
             for col, value in zip((COL_PAX, COL_TICKET, COL_FLIGHT), values):
                 if value is not None:
                     ws.cell(row, col, value)
+        week_index += 1
+
+    if tail_note:
+        ws.cell(last_row + 2, COL_WEEK, tail_note)
 
     wb.save(path)
     return path
@@ -168,12 +191,12 @@ class TestTwoSides(CrosscheckCase):
 class TestLatestWeekCompleteness(CrosscheckCase):
     def test_complete_week_passes(self):
         rows = self.run_checks(right=[(0.05, 0.02, 0.03)] * 3)
-        self.assertEqual(rows["最新周填写"]["level"], "ok")
-        self.assertIn("8/16-8/22", rows["最新周填写"]["detail"])
+        self.assertEqual(rows["右侧最新周填写"]["level"], "ok")
+        self.assertIn("8/16-8/22", rows["右侧最新周填写"]["detail"])
 
     def test_missing_aviation_is_reported(self):
         rows = self.run_checks(right=[(0.05, 0.02, 0.03), (0.05, 0.02, 0.03), None])
-        row = rows["最新周填写"]
+        row = rows["右侧最新周填写"]
         self.assertEqual(row["level"], "warn")
         self.assertIn("缺 3 项", row["detail"])
         self.assertIn("W 列航空客运量", row["detail"])
@@ -183,7 +206,7 @@ class TestLatestWeekCompleteness(CrosscheckCase):
             right=[(0.05, 0.02, 0.03)] * 3,
             hotel=[(0.01, 0.02, 0.03), (0.01, 0.02, 0.03), (None, 0.02, None)],
         )
-        row = rows["最新周填写"]
+        row = rows["右侧最新周填写"]
         self.assertEqual(row["level"], "warn")
         self.assertIn("S 列酒店入住率", row["detail"])
         self.assertIn("U 列酒店RevPAR", row["detail"])
