@@ -2,15 +2,16 @@
   "domain": "industry-data",
   "period": "2026-08-15",
   "created": "2026-08-24T20:10:36+08:00",
-  "updated": "2026-08-25T17:25:58+08:00",
+  "updated": "2026-08-31T14:41:57+08:00",
   "steps": {
     "merge": {
       "state": "done",
-      "at": "2026-08-25T17:25:57+08:00"
+      "at": "2026-08-31T14:37:09+08:00",
+      "note": "0830 底稿周轴有洞被拦；快照仍由 0824 正确重建，数据截至 2026-08-15"
     },
     "dashboard": {
       "state": "done",
-      "at": "2026-08-25T17:25:58+08:00"
+      "at": "2026-08-31T14:37:11+08:00"
     },
     "insights": {
       "state": "pending"
@@ -20,14 +21,14 @@
     },
     "publish": {
       "state": "done",
-      "at": "2026-08-25T17:24:05+08:00"
+      "at": "2026-08-31T14:41:57+08:00"
     }
   },
   "inputs": {
     "workbook": {
-      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\国内行业数据_0824.xlsx",
-      "sha256": "c2b2f0fd8e7f8722444698fab103a4f51a71579e8a165fdeca36e28be61f9a5a",
-      "at": "2026-08-25T17:25:57+08:00"
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\国内行业数据_0830.xlsx",
+      "sha256": "d9fffd50b48ea566b772c7d515abef785a127298fe788c90c40404510a406ad5",
+      "at": "2026-08-31T14:37:09+08:00"
     },
     "str_source": {
       "path": "inputs\\industry-data\\2026-08-15\\【中金互联网】旅游周度数据20260824.xlsx",
@@ -38,13 +39,13 @@
   "outputs": {
     "data_js": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\dashboard\\travel\\data.js",
-      "sha256": "6623d27380418993573897bc0884cb5e7697dd2a82f627e95f8fde7d32bafc27",
-      "at": "2026-08-25T17:25:58+08:00"
+      "sha256": "f2eecf8f919243030e3e52ae264472a024f1268ded042b3bc4a29e9555bda168",
+      "at": "2026-08-31T14:37:11+08:00"
     },
     "insights_js": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\dashboard\\travel\\insights.js",
       "sha256": "2ee7faad79c0d14e73b411fb4f30b82f508209d5a37f928d2f755c57fe6ceb5b",
-      "at": "2026-08-25T17:25:58+08:00"
+      "at": "2026-08-31T14:37:11+08:00"
     }
   },
   "notes": [],
