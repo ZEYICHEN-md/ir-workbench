@@ -2,7 +2,7 @@
   "domain": "industry-data",
   "period": "2026-08-15",
   "created": "2026-08-24T20:10:36+08:00",
-  "updated": "2026-08-31T14:41:57+08:00",
+  "updated": "2026-08-31T15:05:49+08:00",
   "steps": {
     "merge": {
       "state": "done",
@@ -14,14 +14,15 @@
       "at": "2026-08-31T14:37:11+08:00"
     },
     "insights": {
-      "state": "pending"
+      "state": "done",
+      "at": "2026-08-31T14:59:11+08:00"
     },
     "feishu": {
       "state": "pending"
     },
     "publish": {
       "state": "done",
-      "at": "2026-08-31T14:41:57+08:00"
+      "at": "2026-08-31T15:05:49+08:00"
     }
   },
   "inputs": {
@@ -46,6 +47,11 @@
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\dashboard\\travel\\insights.js",
       "sha256": "2ee7faad79c0d14e73b411fb4f30b82f508209d5a37f928d2f755c57fe6ceb5b",
       "at": "2026-08-31T14:37:11+08:00"
+    },
+    "insights_canonical": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\canonical\\travel-insights.json",
+      "sha256": "f66705116e2b0dc44123f1be617a9deeabc2d8c462787805975925a25c48c835",
+      "at": "2026-08-31T14:59:11+08:00"
     }
   },
   "notes": [],
