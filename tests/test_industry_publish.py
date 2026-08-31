@@ -104,16 +104,47 @@ class TestPublishGuards(PublishFixture):
         self.assertIn("CRLF", result.summary)
         self.assertRepoClean()
 
-    def test_whole_file_rewrite_is_blocked_and_reverted(self):
-        """整份重写通常是格式问题而非内容变化，这种 diff 没法核对。"""
+    def test_formatting_only_rewrite_is_blocked_and_reverted(self):
+        """内容一字未动、每行都多了尾随空白——正是 ADR 0006 要拦的「把真变化埋掉」。"""
         self._write(
             self.paths.dashboard_dir / "data.js",
-            [f"totally-different-{i}" for i in range(20)],
+            ["// data.js   ", "line-a   ", "line-b   "],
         )
         result = self._run(yes=True)
         self.assertEqual(result.status, "blocked")
-        self.assertIn("整份重写", result.summary)
+        self.assertIn("内容没变", result.summary)
         self.assertRepoClean()
+
+    def test_full_content_rewrite_is_allowed_with_warning(self):
+        """洞察换一期会重写几乎整个 insights.js——每期都要做的正常操作，不能按占比拦掉。
+
+        原实现只看改动行数占比，于是一次正常的洞察全量刷新（9 条换成 14 条、
+        中英正文全新）被判成「整份重写」拒发。守卫的本意是拦格式重写，不是拦内容刷新。
+        """
+        self._write(
+            self.paths.dashboard_dir / "insights.js",
+            [f"totally-different-{index}" for index in range(20)],
+        )
+        result = self._run()
+
+        self.assertEqual(result.status, "partial")
+        self.assertTrue(
+            any("内容确有变化" in warning for warning in result.warnings), result.warnings
+        )
+        self.assertRepoClean()
+
+    def test_full_content_rewrite_warning_survives_to_the_push_path(self):
+        """提示不能只在 dry-run 出现——真按下发布的那次也要说清这是全量替换。"""
+        self._write(
+            self.paths.dashboard_dir / "insights.js",
+            [f"totally-different-{index}" for index in range(20)],
+        )
+        result = self._run(yes=True)
+
+        # 没有 remote，push 必然失败；这里只关心 warning 有没有一路带到发布路径
+        self.assertTrue(
+            any("内容确有变化" in warning for warning in result.warnings), result.warnings
+        )
 
     def test_missing_source_file_is_blocked(self):
         (self.paths.dashboard_dir / "insights.js").unlink()

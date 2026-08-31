@@ -20,9 +20,34 @@ from .paths import DOMAIN, DomainPaths
 #: 发布仓根目录下的四个文件。顺序固定，便于比对输出稳定。
 PUBLISH_FILES = ("index.html", "data.js", "i18n.js", "insights.js")
 
-#: 单个文件被改动的行数占比超过这个值就视为「整份重写」，拒绝发布。
+#: 单个文件被改动的行数占比超过这个值就视为「整份重写」，要进一步判断是格式还是内容。
 #: 由来：CRLF 回归会让每一行都算改动，从而把真正的 3 处数据变化埋掉（ADR 0006）。
 WHOLE_FILE_REWRITE_RATIO = 0.8
+
+
+def _normalize_text(text: str) -> str:
+    """忽略换行符与行尾空白后的内容。用于判断一次整份重写到底改了什么。"""
+    unified = text.replace("\r\n", "\n").replace("\r", "\n")
+    return "\n".join(line.rstrip() for line in unified.split("\n")).strip()
+
+
+def _is_formatting_only(repo: Path, name: str) -> bool:
+    """整份重写是「只有格式变了」还是「内容真的变了」。
+
+    守卫要拦的是 ADR 0006 那种情况：内容一个字没动、换行符变了，git 把整份文件显示为
+    改写，真正的数据变化被埋在几百行噪音里。
+
+    但「洞察全量刷新」本来就会重写几乎整个 `insights.js`——那个文件通篇都是洞察正文，
+    换一期就是全换。按改动占比一刀切会把这种**每期都要做的正常操作**也拦掉。
+    所以先比一次归一化后的内容：逐字相同才是格式重写，该拦；真的不同就是内容刷新，
+    放过但要显著提示（这种 diff 靠逐行核对确实不可靠，得靠人确认「我就是要全量换」）。
+    """
+    committed = _git(repo, "show", f"HEAD:{name}")
+    if committed.returncode:
+        return False
+    return _normalize_text(committed.stdout) == _normalize_text(
+        (repo / name).read_text(encoding="utf-8", errors="replace")
+    )
 
 
 def _git(repo: Path, *args: str) -> subprocess.CompletedProcess:
@@ -140,21 +165,27 @@ def run(paths: DomainPaths, base, *, yes: bool = False) -> Result:
             checks=[{"name": name, "level": "ok", "detail": "无变化"} for name in PUBLISH_FILES],
         )
 
-    # 5. 整份重写守卫
-    rewritten = [
-        f"{name}：改动 {changed} 行 / 共 {total} 行"
-        for name, (changed, total) in stats.items()
-        if total and changed / total > WHOLE_FILE_REWRITE_RATIO
-    ]
-    if rewritten:
+    # 5. 整份重写守卫：只拦「内容没变、格式变了」，内容真的全换过要放行但显著提示
+    formatting_only: list[str] = []
+    big_but_real: list[str] = []
+    for name, (changed, total) in stats.items():
+        if not total or changed / total <= WHOLE_FILE_REWRITE_RATIO:
+            continue
+        detail = f"{name}：改动 {changed} 行 / 共 {total} 行（{changed / total:.0%}）"
+        if _is_formatting_only(repo, name):
+            formatting_only.append(detail + "，且归一化后与线上逐字相同")
+        else:
+            big_but_real.append(detail)
+
+    if formatting_only:
         _git(repo, "checkout", "--", *PUBLISH_FILES)
         return Result(
             status="blocked",
-            summary="diff 看起来是整份重写，已还原，未发布。",
+            summary="整份重写但内容没变，已还原，未发布。",
             domain=DOMAIN,
-            missing=rewritten,
+            missing=formatting_only,
             next_steps=[
-                "整份重写通常是换行符或格式变了，不是内容变了——这种 diff 没法核对，等于放弃验证。",
+                "内容一个字没动、格式却整份变了——这会把真正的数据变化埋进几百行噪音（ADR 0006）。",
                 "先查清原因（换行符、JSON 序列化写法、键顺序），再发布。",
             ],
         )
@@ -168,6 +199,12 @@ def run(paths: DomainPaths, base, *, yes: bool = False) -> Result:
         for name, (changed, total) in stats.items()
     ]
 
+    warnings = [
+        f"{item} —— 内容确有变化，不是格式问题。这种 diff 靠逐行核对不可靠，"
+        "请确认这就是一次有意的全量刷新（例如洞察换了一期）。"
+        for item in big_but_real
+    ]
+
     # 6. 没有明确确认就停在这里
     if not yes:
         diff_text = _git(repo, "diff", "--", "data.js", "insights.js").stdout
@@ -179,6 +216,7 @@ def run(paths: DomainPaths, base, *, yes: bool = False) -> Result:
             status="partial",
             summary=f"已算出线上会变什么（{len(changed_files)} 个文件），**未发布**。",
             domain=DOMAIN,
+            warnings=warnings,
             checks=checks,
             next_steps=[
                 "逐行核对下面的 diff，确认只有预期的变化。",
@@ -206,6 +244,7 @@ def run(paths: DomainPaths, base, *, yes: bool = False) -> Result:
             status="failed",
             summary=f"git push 失败：{(push.stderr or push.stdout).strip()}",
             domain=DOMAIN,
+            warnings=warnings,
             next_steps=["本地已 commit，网络或权限恢复后重推即可，不必重新生成。"],
         )
 
@@ -214,6 +253,7 @@ def run(paths: DomainPaths, base, *, yes: bool = False) -> Result:
         status="success",
         summary="已推送到发布仓，EdgeOne 会自动部署。",
         domain=DOMAIN,
+        warnings=warnings,
         checks=[*checks, {"name": "发布仓提交", "level": "ok", "detail": head}],
         next_steps=[
             "等 1～几分钟，打开 https://datamax.fun 硬刷新（Ctrl+F5）核对。",
