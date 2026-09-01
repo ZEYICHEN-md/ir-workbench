@@ -35,3 +35,10 @@ dist/
 # 环境
 .venv/
 .env
+
+# 专家访谈原件与抽取文本含第三方/内部材料；只保留 schema、模板和 manifest。
+modules/expert_calls/**/*.pdf
+modules/expert_calls/**/*.txt
+runs/expert-calls/**/*.pdf
+runs/expert-calls/**/*.txt
+outputs/expert-calls/**/*.txt

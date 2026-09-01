@@ -146,6 +146,7 @@ def _register_domain_commands(sub) -> None:
         "modules.aviation_monthly.cli",
         "modules.news_digest.cli",
         "modules.competitor_intel.cli",
+        "modules.expert_calls.cli",
     ):
         try:
             module = importlib.import_module(module_name)

@@ -1,0 +1,69 @@
+{
+  "run_id": "20260901-120000",
+  "interviews": [
+    {
+      "include": true,
+      "skip_reason": null,
+      "title": "合成示例：渠道效率与分销结构",
+      "expert_background": "匿名平台前业务负责人（合成固定件）",
+      "interview_time": "2026 年 8 月",
+      "anchor_numbers": [
+        {
+          "value": "10%",
+          "so_what": "改变渠道效率判断",
+          "source_quote": "合成原话：样本转化率约为 10%。",
+          "quote_where": "synthetic.pdf · 第 1 页第 2 段"
+        },
+        {
+          "value": "20%",
+          "so_what": "说明份额变化",
+          "source_quote": "合成原话：渠道份额约为 20%。",
+          "quote_where": "synthetic.pdf · 第 2 页第 1 段"
+        },
+        {
+          "value": "30%",
+          "so_what": "说明成本边界",
+          "source_quote": "合成原话：获客成本同比增加 30%。",
+          "quote_where": "synthetic.pdf · 第 3 页第 3 段"
+        },
+        {
+          "value": "40%",
+          "so_what": "说明自动化覆盖范围",
+          "source_quote": "合成原话：自动化覆盖约 40% 的咨询。",
+          "quote_where": "synthetic.pdf · 第 4 页第 2 段"
+        }
+      ],
+      "paragraphs": [
+        "合成样本中，渠道转化率约为 10%，份额约为 20%，主要由分销结构调整推动。",
+        "获客成本同比增加 30%，自动化仅覆盖约 40% 的咨询，外推到全行业需谨慎。"
+      ],
+      "left_out": [],
+      "pdf_name": "synthetic.pdf",
+      "pdf_href": "https://trip.larkenterprise.com/file/REPLACE_WITH_TOKEN",
+      "value_reason": "用合成数据演示信息增量与因果机制。",
+      "inclusion_evidence": {
+        "quantified_content": "4 个带原话与页码的锚定数字",
+        "causal_mechanism": "分销结构调整影响转化与成本",
+        "relevant_information_gain": false
+      },
+      "intel_entries": [
+        {
+          "kind": "statement",
+          "date": "2026-08-15",
+          "title": "合成示例：渠道效率口径",
+          "body": "匿名专家称样本转化率约为 10%。",
+          "companies": ["ABNB"],
+          "mentions": [],
+          "topics": ["distribution"],
+          "tags": ["合成固定件"],
+          "media": "synthetic.pdf",
+          "quote": "合成原话：样本转化率约为 10%。",
+          "quote_where": "synthetic.pdf · 第 1 页第 2 段",
+          "speaker": "匿名平台前业务负责人（合成固定件）",
+          "channel": "expert-call",
+          "sensitivity": "internal"
+        }
+      ]
+    }
+  ]
+}

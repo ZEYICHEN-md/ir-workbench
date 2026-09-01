@@ -123,6 +123,16 @@ class TestEntry(unittest.TestCase):
         self.assertEqual(item.mentions, ["TCOM"])
         self.assertEqual(item.sensitivity, "internal")
 
+    def test_expert_call_always_forces_internal_sensitivity(self):
+        item, _ = normalize(action(channel="expert-call", sensitivity="shareable"))
+        self.assertEqual(item.sensitivity, "internal")
+
+    def test_expert_call_statement_still_requires_quote_and_location(self):
+        with self.assertRaisesRegex(EntryError, "quote"):
+            normalize(action(kind="statement", channel="expert-call", quote_where="第 3 页"))
+        with self.assertRaisesRegex(EntryError, "quote_where"):
+            normalize(action(kind="statement", channel="expert-call", quote="原话"))
+
     def test_lead_wins_over_mention_for_same_company(self):
         """同一家既主角又提及会让档案与索引各记一次。"""
         item, _ = normalize(action(companies=["ABNB"], mentions=["Airbnb"]))
@@ -151,6 +161,22 @@ class TestStore(unittest.TestCase):
             store.add([action(companies=["BrandNewCo"])], commit=False)
             self.assertFalse(store.entries_file.exists())
             self.assertFalse(store.registry_file.exists(), "dry-run 不该登记新公司")
+
+    def test_expert_call_add_is_idempotent_and_internal(self):
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            store = Store(paths)
+            expert = action(
+                kind="statement", channel="expert-call", sensitivity="shareable",
+                quote="原话含 12%", quote_where="synthetic.pdf 第 2 页",
+            )
+            store.add([expert], commit=True)
+            again = store.add([action(
+                kind="statement", channel="expert-call", sensitivity="shareable",
+                quote="原话含 12%", quote_where="synthetic.pdf 第 2 页",
+            )], commit=True)
+            self.assertEqual((len(again.added), len(again.skipped)), (0, 1))
+            self.assertEqual(store.load()[0].sensitivity, "internal")
 
     def test_rejected_entries_do_not_block_the_rest(self):
         with TemporaryDirectory() as tmp:

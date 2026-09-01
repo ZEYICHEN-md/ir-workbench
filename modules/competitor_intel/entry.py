@@ -214,7 +214,9 @@ def normalize(
         )
 
     # TCOM 默认内部级（ADR 0002 §9），不进公开作品集仓。
-    if "TCOM" in entry.all_companies:
+    # 专家访谈不论涉及哪家公司都含非公开研究语境，通道级强制 internal；
+    # 调用方即使传 shareable 也会在归一化时被覆盖。
+    if "TCOM" in entry.all_companies or entry.channel == "expert-call":
         entry.sensitivity = "internal"
 
     entry.url = normalize_url(entry.url)

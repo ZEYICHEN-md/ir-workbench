@@ -11,7 +11,9 @@ from dataclasses import dataclass
 from typing import Literal
 
 Facing = Literal["external", "internal"]
-PeriodKind = Literal["month_week", "data_date", "year_month", "fiscal_quarter", "query_date", "none"]
+PeriodKind = Literal[
+    "month_week", "data_date", "year_month", "fiscal_quarter", "query_date", "run_id", "none"
+]
 
 #: 周期键格式。刻意不统一——一套 period 语义装不下四种节奏（ADR 0003 §3）。
 #: **一律 ASCII**：周期键会作为命令行参数和目录名出现，中文在这两处都不安全（ADR 0007）。
@@ -22,6 +24,7 @@ PERIOD_PATTERNS: dict[str, str] = {
     "year_month": r"^20\d{4}$",
     "fiscal_quarter": r"^\d{2}Q[1-4]$",
     "query_date": r"^20\d{2}-\d{2}-\d{2}$",
+    "run_id": r"^20\d{6}-(?:[01]\d|2[0-3])[0-5]\d[0-5]\d$",
     "none": r"^$",
 }
 
@@ -31,6 +34,7 @@ PERIOD_EXAMPLES: dict[str, str] = {
     "year_month": "202607",
     "fiscal_quarter": "26Q2",
     "query_date": "2026-08-22",
+    "run_id": "20260822-143015",
     "none": "（无周期）",
 }
 
@@ -140,8 +144,8 @@ DOMAINS: dict[str, Domain] = {
         zh="专家访谈精选",
         facing="internal",
         cadence="按访谈到达",
-        period_kind="none",
-        summary="访谈 PDF → 洞察提取（锚定数字门槛）→ 飞书 Wiki callout；同时沉淀进情报库。",
+        period_kind="run_id",
+        summary="访谈 PDF → 洞察提取（锚定数字门槛）→ 飞书 Wiki callout；发布后生成内部情报草稿。",
         origin="database_matain/.cursor/skills/expert-call-pipeline",
     ),
     "sellside-research": Domain(

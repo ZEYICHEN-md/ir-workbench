@@ -1,0 +1,1 @@
+<callout border-color="rgb(239,240,241)" emoji="📌"><p><b>{{TITLE}}</b></p><p><em>专家背景：{{EXPERT_BACKGROUND}}</em></p><p><em>时间：{{INTERVIEW_TIME}}</em></p><blockquote>{{PARAGRAPH_BLOCKS}}</blockquote><p><em><span text-color="rgb(143,149,158)">更多详情请见：</span></em>{{PDF_HREF}}</p></callout>
