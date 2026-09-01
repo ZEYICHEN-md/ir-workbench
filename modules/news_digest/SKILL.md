@@ -92,16 +92,17 @@ ir intel deposit --commit --period <期次>       # 核对打标后
 **目录名用 ASCII 键，文件名用中文标签**：目录会被当参数传、被 glob，中文在那两处不安全
 （ADR 0007）；文件名是交付给人的，中文才对。
 
-## 四份 references，写稿前该读哪份
+## 五份 references，写稿前该读哪份
 
 | 文件 | 什么时候读 |
 |---|---|
 | [retrieval.md](references/retrieval.md) | **第 2 步之前必读。**引擎 × 问法的参数级禁令（描述式只喂 exa）、B 类放开域名、覆盖矩阵 |
 | [source-quality.md](references/source-quality.md) | **搜索捞回稿要落地时必读。**可信源清单与判定原则、排除特征、摘要防脑补 |
 | [editorial-standards.md](references/editorial-standards.md) | **第 4 步写稿时必读。**选稿三步、定稿自检、图标语义、概览写法、语气 |
-| [feishu-publish.md](references/feishu-publish.md) | 第 8 步发布时读 |
+| [feishu-publish.md](references/feishu-publish.md) | 第 8 步发布 Wiki 时读 |
+| [feishu-im-card.md](references/feishu-im-card.md) | 用户要**群聊卡片**时读。内部件，默认机器人私聊发给用户再转发 |
 
-这四份是**判据**，上面那份剧本是**顺序**。只按剧本跑不读判据，会跑出「流程都对、
+这五份是**判据**，上面那份剧本是**顺序**。只按剧本跑不读判据，会跑出「流程都对、
 选稿和写法都飘」的结果——第一次迁移就只搬来了顺序。
 
 ## 召回：枚举是主干，检索是补充
@@ -171,7 +172,13 @@ URL 规范化、事件指纹（`主体|事件核心`）、标题相似度（默�
 
 ## 飞书发布
 
-完整 runbook：**[references/feishu-publish.md](references/feishu-publish.md)**。要点：
+两条路径，不要混：
+
+- **Wiki 归档**（旅业资讯库 + 历史周报汇总）：**[references/feishu-publish.md](references/feishu-publish.md)**
+- **内部群周报卡片**（新闻精选 + 行业数据）：**[references/feishu-im-card.md](references/feishu-im-card.md)**。
+  2026-09-01 验收。默认机器人私聊发给用户，由用户转发；不是对外精选，也不是五部分周报。
+
+Wiki 路径要点：
 
 - 两份文档，**写语义相反**：旅业资讯库「撤旧换新、只挂最新一期」；历史周报汇总「末尾追加、不覆盖」。
 - 一律 `lark-cli --as user`，不用浏览器自动化。

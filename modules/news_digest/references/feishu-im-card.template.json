@@ -1,0 +1,197 @@
+{
+  "schema": "2.0",
+  "config": {
+    "update_multi": true,
+    "width_mode": "default",
+    "enable_forward": true,
+    "summary": {
+      "content": "周报 | {{PERIOD_LABEL}}：{{SUMMARY_ONE_LINER}}"
+    },
+    "style": {
+      "text_size": {
+        "title": { "default": "heading-2", "pc": "heading-2", "mobile": "heading-3" },
+        "body": { "default": "normal", "pc": "normal", "mobile": "normal" },
+        "caption": { "default": "notation", "pc": "notation", "mobile": "notation" }
+      },
+      "color": {
+        "cus-primary": { "light_mode": "rgba(30,120,255,1)", "dark_mode": "rgba(80,150,255,1)" },
+        "cus-primary-bg": { "light_mode": "rgba(30,120,255,0.08)", "dark_mode": "rgba(80,150,255,0.12)" },
+        "cus-muted": { "light_mode": "rgba(100,106,115,1)", "dark_mode": "rgba(150,155,163,1)" }
+      }
+    }
+  },
+  "header": {
+    "title": { "tag": "plain_text", "content": "周报 | {{PERIOD_LABEL}}" },
+    "subtitle": {
+      "tag": "plain_text",
+      "content": "情报主周 {{NEWS_WINDOW}}  ·  行业数据截至 {{DATA_AS_OF}}"
+    },
+    "template": "blue",
+    "icon": { "tag": "standard_icon", "token": "chart_colorful" },
+    "text_tag_list": [
+      {
+        "tag": "text_tag",
+        "text": { "tag": "plain_text", "content": "新闻精选" },
+        "color": "blue"
+      },
+      {
+        "tag": "text_tag",
+        "text": { "tag": "plain_text", "content": "行业数据" },
+        "color": "wathet"
+      }
+    ]
+  },
+  "body": {
+    "direction": "vertical",
+    "padding": "12px 12px 20px 12px",
+    "vertical_spacing": "12px",
+    "elements": [
+      {
+        "tag": "column_set",
+        "element_id": "overview",
+        "flex_mode": "none",
+        "background_style": "blue-50",
+        "horizontal_spacing": "8px",
+        "columns": [
+          {
+            "tag": "column",
+            "width": "weighted",
+            "weight": 1,
+            "padding": "12px",
+            "vertical_spacing": "4px",
+            "elements": [
+              {
+                "tag": "markdown",
+                "content": "**本周概览**\n{{OVERVIEW_BULLETS}}"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tag": "column_set",
+        "element_id": "newsblk",
+        "flex_mode": "none",
+        "columns": [
+          {
+            "tag": "column",
+            "width": "weighted",
+            "weight": 1,
+            "padding": "4px 0px 0px 0px",
+            "vertical_spacing": "8px",
+            "elements": [
+              {
+                "tag": "markdown",
+                "content": "**一、OTA/旅游行业新闻精选**\n\n{{NEWS_ITEMS}}"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tag": "column_set",
+        "element_id": "kpis",
+        "flex_mode": "none",
+        "horizontal_spacing": "8px",
+        "columns": [
+          {
+            "tag": "column",
+            "width": "weighted",
+            "weight": 1,
+            "background_style": "grey-50",
+            "padding": "12px",
+            "vertical_spacing": "2px",
+            "elements": [
+              {
+                "tag": "markdown",
+                "text_align": "center",
+                "content": "## <font color='{{KPI1_COLOR}}'>{{KPI1_VALUE}}</font>"
+              },
+              {
+                "tag": "markdown",
+                "text_align": "center",
+                "text_size": "caption",
+                "content": "<font color='grey'>{{KPI1_LABEL}}</font>"
+              }
+            ]
+          },
+          {
+            "tag": "column",
+            "width": "weighted",
+            "weight": 1,
+            "background_style": "grey-50",
+            "padding": "12px",
+            "vertical_spacing": "2px",
+            "elements": [
+              {
+                "tag": "markdown",
+                "text_align": "center",
+                "content": "## <font color='{{KPI2_COLOR}}'>{{KPI2_VALUE}}</font>"
+              },
+              {
+                "tag": "markdown",
+                "text_align": "center",
+                "text_size": "caption",
+                "content": "<font color='grey'>{{KPI2_LABEL}}</font>"
+              }
+            ]
+          },
+          {
+            "tag": "column",
+            "width": "weighted",
+            "weight": 1,
+            "background_style": "grey-50",
+            "padding": "12px",
+            "vertical_spacing": "2px",
+            "elements": [
+              {
+                "tag": "markdown",
+                "text_align": "center",
+                "content": "## <font color='{{KPI3_COLOR}}'>{{KPI3_VALUE}}</font>"
+              },
+              {
+                "tag": "markdown",
+                "text_align": "center",
+                "text_size": "caption",
+                "content": "<font color='grey'>{{KPI3_LABEL}}</font>"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tag": "column_set",
+        "element_id": "datablk",
+        "flex_mode": "none",
+        "background_style": "grey-50",
+        "columns": [
+          {
+            "tag": "column",
+            "width": "weighted",
+            "weight": 1,
+            "padding": "12px",
+            "vertical_spacing": "8px",
+            "elements": [
+              {
+                "tag": "markdown",
+                "content": "**二、行业数据更新**\n<font color='grey'>{{DATA_WINDOW_CAPTION}}</font>\n\n**🏨 国内酒店**\n{{HOTEL_BODY}}\n\n**✈️ 国内航空**\n{{AVIATION_DOM_BODY}}\n\n**🌍 出境航空**\n{{AVIATION_INTL_BODY}}\n\n<font color='grey'>📅 {{FOOTNOTE}}</font>"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tag": "button",
+        "element_id": "opendash",
+        "type": "primary_filled",
+        "width": "fill",
+        "size": "medium",
+        "text": { "tag": "plain_text", "content": "打开行业数据看板" },
+        "icon": { "tag": "standard_icon", "token": "chart_outlined" },
+        "behaviors": [
+          { "type": "open_url", "default_url": "https://datamax.fun" }
+        ]
+      }
+    ]
+  }
+}
