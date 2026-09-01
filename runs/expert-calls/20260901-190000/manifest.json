@@ -1,0 +1,137 @@
+{
+  "domain": "expert-calls",
+  "period": "20260901-190000",
+  "created": "2026-09-01T17:30:45+08:00",
+  "updated": "2026-09-01T17:44:36+08:00",
+  "steps": {
+    "extract": {
+      "state": "done",
+      "at": "2026-09-01T17:44:34+08:00"
+    },
+    "intel-draft": {
+      "state": "done",
+      "at": "2026-09-01T17:40:47+08:00",
+      "result": {
+        "entries": 13
+      }
+    },
+    "shortlist": {
+      "state": "done",
+      "at": "2026-09-01T17:44:36+08:00",
+      "result": {
+        "counts": {
+          "A": 1,
+          "B": 4,
+          "C": 2
+        }
+      }
+    },
+    "validate": {
+      "state": "pending"
+    },
+    "render": {
+      "state": "pending"
+    },
+    "publish": {
+      "state": "pending"
+    }
+  },
+  "inputs": {
+    "manifest": {
+      "path": "scratch\\expert-calls\\20260901-190000\\candidates-with-intel.json",
+      "sha256": "c23cec86f072eb3ac641443489e9e902780c10e98d53c05007517fe4cf23f41b",
+      "at": "2026-09-01T17:44:36+08:00"
+    },
+    "pdf:ABNB - ExpertCall_document_dated_01-09-2026.pdf": {
+      "path": "test_expert_calls\\ABNB - ExpertCall_document_dated_01-09-2026.pdf",
+      "sha256": "53af7e8efe831a468fa77a9fb58cb8dac2c43610cc1e481278f4b53f5415dd4e",
+      "at": "2026-09-01T17:44:09+08:00"
+    },
+    "pdf:ABNB - ExpertCall_document_dated_01-09-2026 (2).pdf": {
+      "path": "test_expert_calls\\ABNB - ExpertCall_document_dated_01-09-2026 (2).pdf",
+      "sha256": "276d962659828a345efc6abefc8dbd37e189878bd2a254fa833f8646074d7ddb",
+      "at": "2026-09-01T17:44:13+08:00"
+    },
+    "pdf:ABNB - ExpertCall_document_dated_01-09-2026 (3).pdf": {
+      "path": "test_expert_calls\\ABNB - ExpertCall_document_dated_01-09-2026 (3).pdf",
+      "sha256": "07dd7208eed5a72825c99902fbd09a7d1d1c701f3d3e3b70dd641cfab39367ad",
+      "at": "2026-09-01T17:44:18+08:00"
+    },
+    "pdf:ABNB - ExpertCall_document_dated_01-09-2026 (4).pdf": {
+      "path": "test_expert_calls\\ABNB - ExpertCall_document_dated_01-09-2026 (4).pdf",
+      "sha256": "34bf089d590a5e7c68ae70b904a0027baf2d4fcfa16cb2e824e728ad12752c01",
+      "at": "2026-09-01T17:44:22+08:00"
+    },
+    "pdf:ABNB - ExpertCall_document_dated_01-09-2026 (5).pdf": {
+      "path": "test_expert_calls\\ABNB - ExpertCall_document_dated_01-09-2026 (5).pdf",
+      "sha256": "9e0f6e7c8625ef41be19a33ef774c799b21eac441ff3d60fc70dd7ad766685fe",
+      "at": "2026-09-01T17:44:25+08:00"
+    },
+    "pdf:EXPE - ExpertCall_document_dated_01-09-2026.pdf": {
+      "path": "test_expert_calls\\EXPE - ExpertCall_document_dated_01-09-2026.pdf",
+      "sha256": "8e04d299d83c9218b340b180e15bfb49a40c711672e976ba3cac1d708e496343",
+      "at": "2026-09-01T17:44:29+08:00"
+    },
+    "pdf:TRIP - ExpertCall_document_dated_01-09-2026.pdf": {
+      "path": "test_expert_calls\\TRIP - ExpertCall_document_dated_01-09-2026.pdf",
+      "sha256": "11c91ffc901ea007963ed031d396bf9ab9b2aae7f69bb3b4943a57db633b8d54",
+      "at": "2026-09-01T17:44:34+08:00"
+    }
+  },
+  "outputs": {
+    "intel-draft": {
+      "path": "scratch\\expert-calls\\20260901-190000\\intel-draft.json",
+      "sha256": "5c381340d0b5162ae8242c95de979e1499510166994c81bfd2b101578123c74c",
+      "at": "2026-09-01T17:40:47+08:00"
+    },
+    "text:ABNB - ExpertCall_document_dated_01-09-2026.txt": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\expert-calls\\20260901-190000\\ABNB - ExpertCall_document_dated_01-09-2026.txt",
+      "sha256": "5ee85c0560847b45c658ca82f989eebaf5169c89101e16c9102ade99ccb40f0c",
+      "at": "2026-09-01T17:44:09+08:00"
+    },
+    "text:ABNB - ExpertCall_document_dated_01-09-2026 (2).txt": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\expert-calls\\20260901-190000\\ABNB - ExpertCall_document_dated_01-09-2026 (2).txt",
+      "sha256": "685d7dfeabc447aadb22696a4f9f821931eef73ca6b6157af2f5dcd2491cf2f8",
+      "at": "2026-09-01T17:44:13+08:00"
+    },
+    "text:ABNB - ExpertCall_document_dated_01-09-2026 (3).txt": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\expert-calls\\20260901-190000\\ABNB - ExpertCall_document_dated_01-09-2026 (3).txt",
+      "sha256": "bb5e4db5057c22761b6723770fe4faca3b2f6751555b479e5df0d0cd9c3900bb",
+      "at": "2026-09-01T17:44:18+08:00"
+    },
+    "text:ABNB - ExpertCall_document_dated_01-09-2026 (4).txt": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\expert-calls\\20260901-190000\\ABNB - ExpertCall_document_dated_01-09-2026 (4).txt",
+      "sha256": "a10de870334902d89b98bf8bc93567dc8e3d039587a73166152f81c0287674a4",
+      "at": "2026-09-01T17:44:22+08:00"
+    },
+    "text:ABNB - ExpertCall_document_dated_01-09-2026 (5).txt": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\expert-calls\\20260901-190000\\ABNB - ExpertCall_document_dated_01-09-2026 (5).txt",
+      "sha256": "109e42664e030d392fa4f5c03580364a47a7450b238309a176835cd3d2236e9c",
+      "at": "2026-09-01T17:44:25+08:00"
+    },
+    "text:EXPE - ExpertCall_document_dated_01-09-2026.txt": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\expert-calls\\20260901-190000\\EXPE - ExpertCall_document_dated_01-09-2026.txt",
+      "sha256": "9e1abcdb8a03260779cf2ef3be4125dede670b3c4420e7d78ecd6acf22c47cd9",
+      "at": "2026-09-01T17:44:29+08:00"
+    },
+    "text:TRIP - ExpertCall_document_dated_01-09-2026.txt": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\expert-calls\\20260901-190000\\TRIP - ExpertCall_document_dated_01-09-2026.txt",
+      "sha256": "f3871e1ecad9ecdd67b711cddd63c79a84aa592378b118c051e43a0ee622298e",
+      "at": "2026-09-01T17:44:34+08:00"
+    },
+    "shortlist": {
+      "path": "scratch\\expert-calls\\20260901-190000\\shortlist.md",
+      "sha256": "fd6f556409271426f85834abb6893a971e4ca7e1392713a28bc38ef0131c1e96",
+      "at": "2026-09-01T17:44:36+08:00"
+    }
+  },
+  "notes": [],
+  "order": [
+    "extract",
+    "intel-draft",
+    "shortlist",
+    "validate",
+    "render",
+    "publish"
+  ]
+}
