@@ -34,12 +34,33 @@ def cmd_extract(args, base) -> Result:
     try:
         written = pipeline.extract_pdf(source, target)
     except pipeline.EmptyOrScannedPDFError as error:
-        steps.record(base, run_id, "extract", "blocked", note=str(error), inputs={"pdf": source})
+        steps.record(
+            base,
+            run_id,
+            "extract",
+            "blocked",
+            note=str(error),
+            inputs={f"pdf:{source.name}": source},
+        )
         return Result(status="blocked", summary="PDF 无可提取文字，已停止。", domain=steps.DOMAIN, period=run_id, missing=[str(error)])
     except Exception as error:
-        steps.record(base, run_id, "extract", "failed", note=str(error), inputs={"pdf": source})
+        steps.record(
+            base,
+            run_id,
+            "extract",
+            "failed",
+            note=str(error),
+            inputs={f"pdf:{source.name}": source},
+        )
         return Result(status="failed", summary="PDF 抽取失败。", domain=steps.DOMAIN, period=run_id, warnings=[str(error)])
-    steps.record(base, run_id, "extract", "done", inputs={"pdf": source}, outputs={"text": written})
+    steps.record(
+        base,
+        run_id,
+        "extract",
+        "done",
+        inputs={f"pdf:{source.name}": source},
+        outputs={f"text:{written.name}": written},
+    )
     return Result(status="success", summary="PDF 已按页抽取到 ignored scratch。", domain=steps.DOMAIN, period=run_id, data={"text": str(written)})
 
 
