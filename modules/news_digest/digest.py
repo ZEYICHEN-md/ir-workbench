@@ -55,6 +55,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from datetime import date, datetime
 from pathlib import Path
 
 from . import calendar_
@@ -73,6 +74,66 @@ _INLINE_LINK = re.compile(r"\[[^\]]+\]\(https?://[^)]+\)")
 #: （写 so-what 时常要提到对携程的影响）。
 TCOM_IN_TITLE = ("携程", "Trip.com", "Ctrip", "TCOM")
 
+#: 2026-08-W4 起强制提供逐条日期审计。历史成稿不补造字段，仍可重放。
+_DATE_AUDIT_CUTOFF = date(2026, 8, 24)
+_DATE_AUDIT_HEADING = re.compile(r"^###\s*事件日期与归期审计\s*$", re.M)
+_AUDIT_COLUMNS = (
+    "title", "event_date", "first_disclosure_date", "material_update_date",
+    "article_date", "basis", "evidence", "delta",
+)
+_BASIS_ANCHOR = {
+    "事件发生": "event_date",
+    "首次披露": "first_disclosure_date",
+    "实质跟进": "material_update_date",
+    "报告发布": "event_date",
+}
+_EVIDENCE_LEVELS = {"官方/直接参与方", "主流媒体独立报道", "单一可信媒体", "未证实线索"}
+_UNKNOWN_DATE = {"", "—", "-", "未知", "不详"}
+
+
+def _requires_date_audit(period: str | None) -> bool:
+    if not period:
+        return False
+    try:
+        monday, _ = calendar_.intelligence_week(period)
+    except calendar_.PeriodError:
+        return False
+    return monday >= _DATE_AUDIT_CUTOFF
+
+
+def _parse_audit_date(value: str) -> date | None:
+    probe = value.strip()
+    if probe in _UNKNOWN_DATE:
+        return None
+    for fmt in ("%Y/%m/%d", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(probe, fmt).date()
+        except ValueError:
+            pass
+    raise ValueError(f"日期应为 YYYY/MM/DD、YYYY-MM-DD 或‘未知’，收到 {value!r}")
+
+
+def _date_audit_rows(text: str) -> list[dict[str, str]]:
+    """读取 8 列日期审计表；多列桌面表不会被三列来源表解析器误收。"""
+    match = _DATE_AUDIT_HEADING.search(text)
+    if not match:
+        return []
+    tail = text[match.end():]
+    next_heading = re.search(r"^###\s+", tail, re.M)
+    block = tail[:next_heading.start()] if next_heading else tail
+    rows: list[dict[str, str]] = []
+    for raw in block.splitlines():
+        line = raw.strip()
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if len(cells) != len(_AUDIT_COLUMNS):
+            continue
+        if cells[0] == "中文标题" or all(set(cell) <= {"-", ":", " "} for cell in cells):
+            continue
+        rows.append(dict(zip(_AUDIT_COLUMNS, cells)))
+    return rows
+
 
 @dataclass
 class Finding:
@@ -86,6 +147,7 @@ class Review:
     period: str | None
     items: list[tuple[str, str]] = field(default_factory=list)
     source_rows: int = 0
+    audit_rows: int = 0
     findings: list[Finding] = field(default_factory=list)
 
     @property
@@ -167,6 +229,68 @@ def review(text: str, *, expect_period: str | None = None) -> Review:
                 add("warn", "pairing-weak",
                     f"「{title}」与来源行「{row['title_cn']}」重合度 {coverage:.2f}，"
                     "疑似错位，请核对顺序。")
+
+    # 从 W4 起，文章发布日期只负责发现，不能单独充当归期依据。
+    audit_rows = _date_audit_rows(text)
+    out.audit_rows = len(audit_rows)
+    if _requires_date_audit(out.period):
+        if not audit_rows:
+            add("error", "date-audit-missing",
+                "缺 `### 事件日期与归期审计`。从 2026-08-W4 起，每条必须交代事件日、"
+                "首次披露日、实质进展日、文章日、归期依据、证据等级和本周信息增量。")
+        elif len(audit_rows) != len(out.items):
+            add("error", "date-audit-count-mismatch",
+                f"正文有 {len(out.items)} 条，日期审计表有 {len(audit_rows)} 行，必须一一对应。")
+        else:
+            monday, sunday = calendar_.intelligence_week(out.period)
+            for (title, _body), audit in zip(out.items, audit_rows):
+                coverage = backfill.title_coverage(title, audit["title"])
+                if coverage < backfill.COVERAGE_FLOOR:
+                    add("warn", "date-audit-pairing-weak",
+                        f"「{title}」与日期审计行「{audit['title']}」疑似错位。")
+
+                parsed_dates: dict[str, date | None] = {}
+                for field_name in ("event_date", "first_disclosure_date",
+                                   "material_update_date", "article_date"):
+                    try:
+                        parsed_dates[field_name] = _parse_audit_date(audit[field_name])
+                    except ValueError as error:
+                        add("error", "date-audit-invalid-date", f"「{title}」：{error}")
+                        parsed_dates[field_name] = None
+
+                basis = audit["basis"]
+                if basis not in _BASIS_ANCHOR:
+                    add("error", "date-audit-invalid-basis",
+                        f"「{title}」归期依据应为：{'、'.join(_BASIS_ANCHOR)}；收到 {basis!r}。")
+                else:
+                    anchor = parsed_dates[_BASIS_ANCHOR[basis]]
+                    if anchor is None:
+                        add("error", "date-audit-anchor-missing",
+                            f"「{title}」选择“{basis}”归期，但对应锚点日期为空。")
+                    elif not monday <= anchor <= sunday:
+                        add("error", "date-audit-anchor-outside-week",
+                            f"「{title}」的“{basis}”锚点是 {anchor:%Y/%m/%d}，"
+                            f"不在情报主周 {monday:%Y/%m/%d}–{sunday:%m/%d}。"
+                            "文章本周发布不能覆盖这个错误。")
+
+                if parsed_dates["article_date"] is None:
+                    add("error", "date-audit-article-date-missing",
+                        f"「{title}」缺文章发布日期；它虽不决定归期，但必须用于溯源。")
+
+                evidence = audit["evidence"]
+                if evidence not in _EVIDENCE_LEVELS:
+                    add("error", "date-audit-invalid-evidence",
+                        f"「{title}」证据等级不合法：{evidence!r}。")
+                elif evidence == "未证实线索":
+                    add("error", "date-audit-unverified",
+                        f"「{title}」仍是未证实线索，不能独立成条。")
+                elif evidence == "单一可信媒体":
+                    add("warn", "date-audit-single-source",
+                        f"「{title}」只有单一可信媒体支持，正文须明确降低确定性。")
+
+                if not audit["delta"].strip() or audit["delta"].strip() in {"—", "-", "无"}:
+                    add("error", "date-audit-delta-missing",
+                        f"「{title}」没有写清本周新增了什么信息。")
 
     for title, body in out.items:
         for needle in TCOM_IN_TITLE:

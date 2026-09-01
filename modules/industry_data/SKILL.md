@@ -1,9 +1,9 @@
 ---
 name: industry-data
 description: >-
-  国内行业数据端到端更新：指标底稿 Excel → 全量重建指标快照（diff 门禁）→ 看板投影
-  → 可选飞书多维表投影 → 可选洞察确认 → 上线 datamax.fun。当用户说更新国内行业数据、
-  补数、同步指标、更新看板、同步飞书、刷新洞察、上线看板时使用。
+  国内行业数据端到端更新：指标底稿 Excel → 全量重建指标快照（diff 门禁）→ 按实际变动粒度
+  自动生成洞察草稿 → 人确认中文 → 看板投影 → 上线 datamax.fun。飞书多维表暂不在默认链路。
+  当用户说更新国内行业数据、补数、同步指标、更新看板、刷新洞察、上线看板时使用。
 ---
 
 # industry-data
@@ -26,33 +26,41 @@ description: >-
 
 ```text
 Excel → merge（全量重建 + diff 门禁）→ travel.json
+      → 自动识别 changedPeriods（weekly / monthly / quarterly）
+      → 只为变动粒度生成洞察草稿 → Agent 填中文 → 展示给人审查
+      → 人说「写入并上线」→ insights confirm（入库 + 英译）
       → generate-dashboard → data.js / insights.js / 洞察 md
-      → commit
-      → 复制四文件 → 发布仓 push → datamax.fun
-      →（可选）feishu plan → 用户确认 → feishu apply --yes
-      →（可选）insights draft → 用户确认中文 → insights confirm
+      → commit → 复制四文件 → 发布仓 push → datamax.fun
+      →（默认跳过）飞书多维表；用户明确需要时才 plan → apply
 ```
 
 ## 用户说「更新数据」时的默认范围
 
-跑满：**merge → generate-dashboard → commit → 发布仓 push 上线**。开跑前一句话说明范围即可，不必每次问是否上线。
+**先自动做，不提问**：锁定用户刚提供/明确更新的底稿 → merge → 识别实际变动粒度 →
+只为这些粒度出洞察草稿 → 生成本地看板投影。Agent 直接把中文洞察摆给用户审查，
+**不要再问一句「要不要刷新洞察」**。
 
-用户说「不要上线 / 只本地」时跳过 push。
+**只问最后一次**：用户看完草稿后，问「是否写入洞察并上线」。用户说「上线」「写入上线」
+即视为同时确认：中文洞察入库（随后英译）+ data.js / insights.js 发布。用户说「不要上线 / 只本地」
+则不 push；若也不确认洞察，草稿保持在 scratch，不写洞察底稿。
 
-**不含在默认内**（须用户另说）：飞书写入、洞察刷新。
+飞书多维表已处于半弃用状态，默认标记 `skipped`，不提问、不 plan、不写；用户哪天明确说
+「同步飞书」再单独打开。
 
 ## 命令
 
 ```powershell
 ir industry status                      # 本域状态 + 本期五步进度
-ir industry merge                       # 按底稿全量重建快照
+ir industry merge                       # 重建快照；自动识别变动粒度并生成对应洞察草稿包
 ir industry merge --confirm-clears      # 确认清空后重建
 ir industry generate-dashboard          # 生成 data.js / insights.js / 洞察 md
 ir industry publish                     # dry-run：算出线上会变什么，逐行摆出 diff
 ir industry publish --yes               # 确认后提交并推送发布仓
-ir industry feishu plan                 # dry-run：待写入 + 冲突清单
-ir industry feishu apply --yes          # 写入（仅新建 + 填空）
-ir industry insights draft [--period weekly|monthly|quarterly]
+ir industry feishu plan                 # 非默认；用户明确需要时才 dry-run
+ir industry feishu apply --yes          # 非默认；写入（仅新建 + 填空）
+ir industry insights draft              # 默认按最近一次 merge 的 changedPeriods 出草稿
+ir industry insights draft --all        # 明确要求周/月/季全量重写时才用
+ir industry insights draft --period weekly|monthly|quarterly
 ir industry insights confirm <草稿包.json>
 ir industry insights mark-stale
 ir industry mark <步骤> <状态> --note    # 手动标记，主要用于跳过可选步骤
@@ -164,9 +172,12 @@ ir industry mark <步骤> <状态> --note    # 手动标记，主要用于跳过
 
 维度固定三槽：**亮点 / 风险 / 展望**。每槽最多 2 条，可缺槽，不写占位句。
 
-流程是混合确认：AI 出草稿 → **人确认中文** → 入库 → 再译英文。看板运行时不调用模型。
+流程是混合确认：merge 的逐格 diff 先判断 **weekly / monthly / quarterly 哪些真的变了** →
+只为变动粒度自动备草稿 → Agent 写中文并直接展示 → **人确认中文** → 入库 → 再译英文。
+看板运行时不调用模型。
 
-指标快照更新后，若对应粒度洞察未重新确认，会被标为可能过期（`mark-stale`），**不自动重写**。
+指标快照更新后，只有实际变动的粒度会被标旧；系统**自动出草稿，但绝不自动入库**。
+同一个 `dataUpdate` 下换修订版底稿也按逐格 diff 判断，不能只看日期。无变化时不造草稿。
 
 ### 显著波动的归因约定
 
@@ -312,10 +323,13 @@ r25/r47/r75/r137/r167）。从第 1 行找第一个「周」会命中 2023 年�
 
 ## Agent 行为清单
 
-- 「更新数据」默认跑满到上线；开跑前一句话说明范围
-- 用户说「不要上线 / 只本地」时跳过发布仓 push
-- 飞书、洞察、确认清空三道门禁必须听到明确措辞
-- 每段结束汇报：改了哪些权威或投影；`dataUpdate` 盖成哪天；哪些门禁还挡着
+- 「更新数据」默认：merge → 读 `changedPeriods` → 只写变动粒度洞察草稿 → 直接展示中文
+- **禁止问「要不要刷新洞察」**；这是默认动作。只在中文展示完后问一次「是否写入并上线」
+- 用户说「上线 / 写入上线」：确认洞察中文 → 英译 → 生成投影 → publish --yes
+- 用户说「不要上线 / 只本地」时跳过发布仓 push；未确认中文则不写洞察底稿
+- 飞书多维表默认 skipped，不提问；用户明确说「同步飞书」才恢复该流程
+- 洞察入库、飞书写入、确认清空三道门禁仍必须听到明确措辞
+- 每段结束汇报：哪些粒度变了；草稿覆盖哪些层；`dataUpdate` 盖成哪天；哪些门禁还挡着
 - 底稿多候选时列出让用户选，不猜
 - 不发明第二套同步脚本；一次性探测进 `scratch/`
 - 流程或入口变了：改本 SKILL + `docs/MIGRATION.md`，避免只改一处

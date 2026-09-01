@@ -18,7 +18,7 @@ from .steps import DOMAIN
 
 
 def _resolve_period(args) -> str:
-    return args.period or calendar_.current_key()
+    return args.period or calendar_.latest_completed_key()
 
 
 def deliverable(base, period: str) -> Path:
@@ -201,6 +201,19 @@ def cmd_log(args, base) -> Result:
                 missing=[str(digest_path)],
                 next_steps=["要么给 --file，要么先把成稿放到上面那个路径（默认从来源表取条目）。"],
             )
+        review = digest.review_file(digest_path, expect_period=period)
+        if not review.ok:
+            return Result(
+                status="blocked",
+                summary=f"成稿还有 {len(review.errors)} 处硬错误，已拒绝登记台账。",
+                domain=DOMAIN,
+                period=period,
+                checks=[
+                    {"name": finding.code, "level": "fail", "detail": finding.message}
+                    for finding in review.errors
+                ],
+                next_steps=[f"先修正成稿，再重新校验 {period}。"],
+            )
         items = _items_from_digest(digest_path)
     try:
         outcome = ledger.add(
@@ -282,6 +295,7 @@ def cmd_validate(args, base) -> Result:
     checks = [
         {"name": "条目", "level": "ok", "detail": f"{len(result.items)} 条"},
         {"name": "来源表", "level": "ok", "detail": f"{result.source_rows} 行"},
+        {"name": "日期审计", "level": "ok", "detail": f"{result.audit_rows} 行"},
     ]
     checks.extend(
         {"name": f.code, "level": {"error": "fail", "warn": "warn"}.get(f.level, "ok"),
@@ -433,11 +447,7 @@ def cmd_mark(args, base) -> Result:
 
 
 def cmd_status(args, base) -> Result:
-    period = args.period
-    if not period:
-        root = base.runs(DOMAIN)
-        periods = sorted((p.name for p in root.iterdir() if p.is_dir()), reverse=True) if root.is_dir() else []
-        period = periods[0] if periods else calendar_.current_key()
+    period = args.period or calendar_.latest_completed_key()
     info = steps.progress(base, period)
     nxt = steps.STEP_BY_KEY.get(info["next"]) if info["next"] else None
     return Result(
@@ -456,7 +466,7 @@ def register(subparsers, common) -> None:
     sub = parser.add_subparsers(dest="news_command", required=True)
 
     p = sub.add_parser("plan", help="本期日历、召回窗口、交付文件名", parents=[common])
-    p.add_argument("--period", help="期次键，如 2026-08-W2；不给取本周")
+    p.add_argument("--period", help="期次键，如 2026-08-W2；不给取最近完整情报主周")
     p.set_defaults(func=cmd_plan)
 
     p = sub.add_parser("recall", help="RSS 枚举候选 + 打印补充检索清单", parents=[common])

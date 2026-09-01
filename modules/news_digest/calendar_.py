@@ -93,9 +93,20 @@ def week_label(period: str) -> str:
 
 
 def current_key(today: date | None = None) -> str:
-    """今天所属的期次键。周中随时可算，取本周一。"""
+    """今天所属的期次键。只用于明确要看正在进行中的自然周。"""
     today = today or date.today()
     return key_from_monday(today - timedelta(days=today.weekday()))
+
+
+def latest_completed_key(today: date | None = None) -> str:
+    """最近一个已结束的情报主周。
+
+    新闻在完整的周一至周日窗口结束后更新。因此无论今天是周几，默认都取
+    上一个自然周；例如 2026-08-31（周一）应取 8/24–8/30，即 2026-08-W4。
+    """
+    today = today or date.today()
+    current_monday = today - timedelta(days=today.weekday())
+    return key_from_monday(current_monday - timedelta(days=7))
 
 
 def plan(period: str) -> dict:

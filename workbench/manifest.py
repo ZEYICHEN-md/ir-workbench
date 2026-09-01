@@ -92,13 +92,23 @@ class Manifest:
         if changed:
             self.save()
 
-    def set_step(self, name: str, state: StepState, note: str | None = None) -> None:
+    def set_step(
+        self,
+        name: str,
+        state: StepState,
+        note: str | None = None,
+        result_data: dict[str, Any] | None = None,
+    ) -> None:
         steps = self.load()["steps"]
         entry = steps.setdefault(name, {})
         entry["state"] = state
         entry["at"] = _now()
         if note:
             entry["note"] = note
+        if result_data is not None:
+            # 只记命令明确返回的小型结构化结果（如 merge.changedPeriods），
+            # 不把终端文本或大产物塞进 manifest。
+            entry["result"] = result_data
         self.save()
 
     def step_state(self, name: str) -> StepState:

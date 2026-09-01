@@ -80,16 +80,14 @@ def mark_all_stale(data: dict) -> dict:
     return data
 
 
-def mark_stale_if_outdated(paths: DomainPaths) -> list[str]:
-    """洞察依据的数据日期落后于快照时，标记全部粒度过期。返回**新**标记的粒度。
+def mark_stale_if_outdated(paths: DomainPaths, periods: list[str] | None = None) -> list[str]:
+    """把实际变动的洞察粒度标旧。返回**新**标记的粒度。
 
-    为什么要自动做：SKILL 承诺「指标快照更新后，若对应粒度洞察未重新确认，会被标为
-    可能过期」，但此前 `mark_all_stale` 只有手动命令会调用——merge 完全不碰它。
-    实测后果是洞察 `basedOnTravelJsonUpdatedAt` 停在 2026-08-08、快照已到 2026-08-15，
-    而 `stale` 三项全是 `False`，看板会拿上一周的洞察配这一周的图表且不作任何提示。
+    `periods` 由 merge 的逐格 diff 给出时，只标这些粒度；这是主路径。这样周度新增不会把
+    月度/季度也一起打旧，底稿在同一 `dataUpdate` 下修订月度值时也不会漏标。
 
-    判据用「洞察依据日期 vs 快照日期」而不是「本次 diff 是否为空」：空跑一次也不该把
-    真实的落后状态抹掉，而洞察若已基于最新数据确认，空跑也不会被误标。
+    不传 `periods` 保留旧兼容逻辑：按「洞察依据日期 vs 快照日期」判断，日期落后时三种
+    粒度都标旧。这个模式用于旧 manifest 或手动调用，但它不知道究竟哪层数据变了。
     """
     current = snapshot_data_update(paths)
     if not current or not paths.insights_canonical.is_file():
@@ -97,15 +95,23 @@ def mark_stale_if_outdated(paths: DomainPaths) -> list[str]:
 
     data = load(paths)
     meta = data.setdefault("meta", {})
-    if (meta.get("basedOnTravelJsonUpdatedAt") or "") == current:
-        return []
+
+    if periods is None:
+        if (meta.get("basedOnTravelJsonUpdatedAt") or "") == current:
+            return []
+        targets = list(PERIODS)
+    else:
+        targets = [period for period in PERIODS if period in periods]
+        if not targets:
+            return []
 
     stale = meta.setdefault("stale", {})
-    newly = [period for period in PERIODS if not stale.get(period)]
+    newly = [period for period in targets if not stale.get(period)]
     if not newly:
         return []
 
-    mark_all_stale(data)
+    for period in newly:
+        stale[period] = True
     save(paths, data)
     return newly
 

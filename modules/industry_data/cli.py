@@ -52,7 +52,7 @@ def _log(base, step: str, result: Result, *, note: str | None = None, **paths_kw
     if not period:
         return result
     state = steps.step_state(result.status, result.data)
-    steps.record(base, period, step, state, note=note, **paths_kw)
+    steps.record(base, period, step, state, note=note, result_data=result.data or None, **paths_kw)
     result.period = period
     info = steps.progress(base, period)
     if info["stuck"]:
@@ -72,26 +72,54 @@ def cmd_merge(args, base) -> Result:
     paths = DomainPaths(base)
     result = snapshot.rebuild(paths, workbook, confirm_clears=args.confirm_clears)
 
-    # 快照写进去了，洞察就可能跟不上——SKILL 承诺过期会被标记，这里落实它。
-    # 不重写洞察内容，只打标；重写要人确认中文（ADR 0001 的洞察独立真源）。
-    if result.status == "success":
+    changed_periods = list(result.data.get("changedPeriods") or [])
+    if result.status == "success" and changed_periods:
+        # 只把**实际变动**的粒度标旧。显式传 diff 结果很重要：同一个 dataUpdate 下换修订版
+        # 底稿时日期没有变化，仅靠日期会漏掉；只新增周度时又不该把月/季一起打旧。
         try:
-            newly_stale = insights_mod.mark_stale_if_outdated(paths)
+            newly_stale = insights_mod.mark_stale_if_outdated(paths, changed_periods)
         except insights_mod.InsightsError:
             newly_stale = []  # 洞察底稿不存在不该拖垮 merge
         if newly_stale:
-            result.warnings.append(
-                "洞察已标为可能过期（指标更新后未重新确认）：" + "、".join(newly_stale)
+            result.warnings.append("实际变动粒度的洞察已标旧：" + "、".join(newly_stale))
+            result.checks.append(
+                {"name": "洞察", "level": "warn", "detail": "已标旧：" + "、".join(newly_stale)}
             )
+
+        # 更新数据后**自动**把对应粒度的草稿包备好。Agent 接下来直接填中文并展示给人，
+        # 不再多问一句「要不要刷新洞察」。人只在看完中文后决定「写入并上线」。
+        draft_result = drafts.prepare(paths, periods=changed_periods)
+        draft_path = draft_result.data.get("draft")
+        if draft_path:
+            result.data["insightsDraft"] = draft_path
             result.checks.append(
                 {
-                    "name": "洞察",
-                    "level": "warn",
-                    "detail": "已标过期：" + "、".join(newly_stale),
+                    "name": "洞察草稿",
+                    "level": "ok",
+                    "detail": f"已按实际变动生成（{'、'.join(changed_periods)}）",
                 }
             )
 
-    return _log(base, "merge", result, inputs={"workbook": workbook})
+    logged = _log(base, "merge", result, inputs={"workbook": workbook})
+
+    if logged.status == "success" and changed_periods and logged.period:
+        # 同一个数据截至日下换修订版时，manifest 可能还保留着上一轮的 done；必须重置下游。
+        manifest = steps.open_manifest(base, logged.period)
+        reason = "指标有新变化：" + "、".join(changed_periods)
+        for step in ("dashboard", "insights", "publish"):
+            manifest.set_step(step, "pending", reason)
+        # 飞书多维表已半弃用：默认不做、不再每期追问；用户哪天明确要同步再单独打开。
+        manifest.set_step("feishu", "skipped", "飞书多维表暂不使用；需要时再单独同步")
+
+        logged.next_steps = [
+            "生成本地看板投影（不发布）。",
+            f"按草稿包只写实际变动的 {'、'.join(changed_periods)} 洞察，并直接展示中文给用户审查。",
+            "不要问『要不要刷新洞察』；用户看完后只问一次：是否写入洞察并上线。",
+        ]
+    elif logged.status == "success" and not changed_periods:
+        logged.checks.append({"name": "洞察草稿", "level": "ok", "detail": "指标无变化，无需刷新"})
+
+    return logged
 
 
 def cmd_generate_dashboard(args, base) -> Result:
@@ -104,8 +132,26 @@ def cmd_generate_dashboard(args, base) -> Result:
 
 
 def cmd_insights_draft(args, base) -> Result:
-    # 出草稿不算完成——洞察这一步的完成判据是「人确认后入库」
-    return drafts.prepare(DomainPaths(base), args.period)
+    # 默认只出最近一次 merge 实际变动的粒度；显式 --all 才全量。
+    # 出草稿不算完成——洞察这一步的完成判据是「人确认后入库」。
+    paths = DomainPaths(base)
+    if args.period:
+        return drafts.prepare(paths, args.period)
+    if args.all:
+        return drafts.prepare(paths)
+
+    period = steps.current_period(paths)
+    selected = steps.changed_periods(base, period)
+    if not selected:
+        return Result(
+            status="success",
+            summary="最近一次 merge 没有指标变化，不需要刷新洞察。",
+            domain=DOMAIN,
+            period=period,
+            next_steps=["若确实要全量重写，显式使用 insights draft --all。"],
+            data={"periods": []},
+        )
+    return drafts.prepare(paths, periods=selected)
 
 
 def cmd_insights_confirm(args, base) -> Result:
@@ -441,8 +487,14 @@ def register(subparsers, common) -> None:
     p_insights = sub.add_parser("insights", help="洞察草稿与入库")
     insights_sub = p_insights.add_subparsers(dest="insights_command", required=True)
 
-    p_draft = insights_sub.add_parser("draft", help="出草稿包给 AI 填", parents=[common])
-    p_draft.add_argument("--period", choices=list(insights_mod.PERIODS))
+    p_draft = insights_sub.add_parser(
+        "draft",
+        help="按最近一次 merge 的实际变动粒度出草稿（默认）；可显式单粒度或全量",
+        parents=[common],
+    )
+    draft_scope = p_draft.add_mutually_exclusive_group()
+    draft_scope.add_argument("--period", choices=list(insights_mod.PERIODS), help="只出指定粒度")
+    draft_scope.add_argument("--all", action="store_true", help="忽略 diff，周/月/季全量出草稿")
     p_draft.set_defaults(func=cmd_insights_draft)
 
     p_confirm = insights_sub.add_parser("confirm", help="人确认中文后入库", parents=[common])

@@ -100,6 +100,21 @@ class Diff:
         return self.cleared + self.dropped_values
 
     @property
+    def changed_periods(self) -> list[str]:
+        """本次真正动过的粒度，固定按 weekly → monthly → quarterly 返回。
+
+        洞察只该刷新实际变动的粒度。以前 merge 只给「新增/修改/清空」总数，Agent 不知道
+        这些变化落在哪一层，只能把周/月/季全部标旧、全部重写；而同一数据截至日下换修订版
+        底稿时，仅靠 `dataUpdate` 也判断不出来。这里直接从逐格 diff 得出唯一答案。
+        """
+        touched = {
+            change.where
+            for change in [*self.cleared, *self.changed, *self.added, *self.dropped_values]
+        }
+        touched.update(item.split(" · ", 1)[0] for item in [*self.new_labels, *self.dropped_labels])
+        return [period for period in ("weekly", "monthly", "quarterly") if period in touched]
+
+    @property
     def blocked_reasons(self) -> list[str]:
         reasons = []
         if self.dropped_labels:
@@ -322,6 +337,13 @@ def rebuild(paths: DomainPaths, workbook: Path, *, confirm_clears: bool = False)
     ]
     if diff.new_labels:
         checks.append({"name": "新时间标签", "level": "ok", "detail": "、".join(diff.new_labels[:8])})
+    checks.append(
+        {
+            "name": "实际变动粒度",
+            "level": "ok",
+            "detail": "、".join(diff.changed_periods) if diff.changed_periods else "无",
+        }
+    )
 
     # 正常每周只新增，历史值被改动是要人核对的信号——所以列明细，不只报数量。
     # 只给数量的话，事后无从判断改的是哪一格（快照已被覆盖，无处可查）。
@@ -350,5 +372,7 @@ def rebuild(paths: DomainPaths, workbook: Path, *, confirm_clears: bool = False)
             "added": len(diff.added),
             "changed": len(diff.changed),
             "cleared": len(diff.cleared),
+            "dropped": len(diff.dropped_values),
+            "changedPeriods": diff.changed_periods,
         },
     )

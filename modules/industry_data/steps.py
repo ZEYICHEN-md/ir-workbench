@@ -43,9 +43,9 @@ STEPS: tuple[Step, ...] = (
         "insights",
         "刷新洞察",
         True,
-        "须用户确认中文后入库",
-        "ir industry insights draft → confirm",
-        phrase="刷新洞察",
+        "草稿自动生成；须用户确认中文后入库",
+        "merge 自动选层出草稿 → Agent 展示中文 → confirm",
+        phrase="确认洞察并写入",
     ),
     Step(
         "feishu",
@@ -113,6 +113,7 @@ def record(
     state: str,
     *,
     note: str | None = None,
+    result_data: dict | None = None,
     inputs: dict[str, Path] | None = None,
     outputs: dict[str, Path] | None = None,
 ) -> Manifest:
@@ -121,8 +122,24 @@ def record(
         manifest.record_input(label, path)
     for label, path in (outputs or {}).items():
         manifest.record_output(label, path)
-    manifest.set_step(step, state, note)
+    manifest.set_step(step, state, note, result_data=result_data)
     return manifest
+
+
+def changed_periods(base: Paths, period: str | None) -> list[str]:
+    """读取本期最近一次 merge 的实际变动粒度。
+
+    存在 manifest 里而不是依赖对话上下文，所以换会话后 `insights draft` 仍只生成该写的层。
+    旧 manifest 没有结构化结果时返回空；调用方可以显式 `--all` 做兼容兜底。
+    """
+    if not period:
+        return []
+    manifest = Manifest(base, DOMAIN, period)
+    if not manifest.exists:
+        return []
+    result = ((manifest.load().get("steps") or {}).get("merge") or {}).get("result") or {}
+    selected = list(result.get("changedPeriods") or [])
+    return [item for item in ("weekly", "monthly", "quarterly") if item in selected]
 
 
 def progress(base: Paths, period: str | None) -> dict:

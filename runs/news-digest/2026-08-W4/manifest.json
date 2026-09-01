@@ -1,0 +1,76 @@
+{
+  "domain": "news-digest",
+  "period": "2026-08-W4",
+  "created": "2026-08-31T17:34:49+08:00",
+  "updated": "2026-09-01T10:55:06+08:00",
+  "steps": {
+    "recall": {
+      "state": "done",
+      "at": "2026-08-31T17:34:49+08:00",
+      "note": "枚举 45 条"
+    },
+    "draft": {
+      "state": "done",
+      "at": "2026-09-01T10:55:06+08:00"
+    },
+    "validate": {
+      "state": "done",
+      "at": "2026-09-01T10:55:06+08:00",
+      "note": "0 处硬错误"
+    },
+    "export": {
+      "state": "done",
+      "at": "2026-08-31T18:13:43+08:00",
+      "note": "HTML 已由工作台导出；PDF 由同一 HTML 经本机 Chrome 打印并校验为 6 页"
+    },
+    "log": {
+      "state": "done",
+      "at": "2026-08-31T17:51:33+08:00",
+      "note": "台账登记 6 条"
+    },
+    "deposit": {
+      "state": "done",
+      "at": "2026-08-31T18:23:19+08:00",
+      "note": "由 ir intel deposit 完成，入库 6 条"
+    },
+    "publish": {
+      "state": "done",
+      "at": "2026-08-31T18:35:20+08:00",
+      "note": "飞书旅业资讯库已撤旧换新至 W4；历史周报汇总已追加 W4；CLI 回读验收 1/1 与 6/6/6 通过"
+    }
+  },
+  "inputs": {
+    "digest": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\news-digest\\2026-08-W4\\旅行行业新闻精选-2026年8月第4周.md",
+      "sha256": "083776b68a84b5b6c9b4cddfa665c558d8aabc6ea00f218dddd38110c4899cdb",
+      "at": "2026-09-01T10:55:06+08:00"
+    }
+  },
+  "outputs": {
+    "candidates": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\news-recall-2026-08-W4.json",
+      "sha256": "0a79d8f0a1ebebb8a9272d868ea530b757cfb749fc7168c2bab0447229b441be",
+      "at": "2026-08-31T17:34:49+08:00"
+    },
+    "html": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\news-digest\\2026-08-W4\\旅行行业新闻精选-2026年8月第4周.html",
+      "sha256": "c5d55887f21d108752c41a4617d55e7c70ea4cc3e338c632527564d3b41a76bb",
+      "at": "2026-08-31T18:13:43+08:00"
+    },
+    "ledger": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\modules\\news_digest\\news-log.jsonl",
+      "sha256": "9271a5057974a7af723dc068bc592a299baf0091abff1014fc108105da818308",
+      "at": "2026-08-31T17:51:33+08:00"
+    }
+  },
+  "notes": [],
+  "order": [
+    "recall",
+    "draft",
+    "validate",
+    "export",
+    "log",
+    "deposit",
+    "publish"
+  ]
+}

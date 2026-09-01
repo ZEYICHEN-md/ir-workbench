@@ -11,11 +11,13 @@ import json
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 
 from modules.industry_data import excel, snapshot
 from modules.industry_data.jsonio import dumps, dumps_canonical
 from modules.industry_data.paths import DomainPaths
 from workbench.paths import Paths
+from workbench.result import Result
 
 
 class TestJsonEquivalence(unittest.TestCase):
@@ -132,6 +134,33 @@ class TestDiffGate(unittest.TestCase):
         )
         self.assertEqual(diff.cleared, [])
         self.assertEqual(diff.new_labels, ["weekly · 1/11-1/17"])
+        self.assertEqual(diff.changed_periods, ["weekly"])
+
+    def test_changed_periods_only_names_layers_that_really_changed(self):
+        old = {
+            "weekly": {"weeks": ["1/4-1/10"], "hotelADR": [0.05]},
+            "monthly": {"months": ["1月"], "railway": [0.01]},
+            "quarterly": {"q1": {"hotelRevPAR": 0.02}},
+        }
+        monthly_only = {
+            "weekly": {"weeks": ["1/4-1/10"], "hotelADR": [0.05]},
+            "monthly": {"months": ["1月"], "railway": [0.03]},
+            "quarterly": {"q1": {"hotelRevPAR": 0.02}},
+        }
+        mixed = {
+            "weekly": {"weeks": ["1/4-1/10", "1/11-1/17"], "hotelADR": [0.05, 0.06]},
+            "monthly": {"months": ["1月"], "railway": [0.03]},
+            "quarterly": {"q1": {"hotelRevPAR": 0.02}},
+        }
+
+        self.assertEqual(snapshot.compute_diff(old, monthly_only).changed_periods, ["monthly"])
+        self.assertEqual(snapshot.compute_diff(old, mixed).changed_periods, ["weekly", "monthly"])
+        self.assertEqual(snapshot.compute_diff(old, old).changed_periods, [])
+
+    def test_quarterly_change_is_detected_as_quarterly_only(self):
+        old = {"quarterly": {"q1": {"hotelRevPAR": 0.02}}}
+        new = {"quarterly": {"q1": {"hotelRevPAR": 0.03}}}
+        self.assertEqual(snapshot.compute_diff(old, new).changed_periods, ["quarterly"])
 
     def test_few_clears_are_not_blocked(self):
         weeks = [f"1/{i}-1/{i + 6}" for i in range(1, 4)]
@@ -331,6 +360,23 @@ class TestStepMachine(unittest.TestCase):
             self.assertEqual(info["total"], len(steps.STEP_ORDER))
             self.assertEqual(info["next"], "dashboard")
 
+    def test_merge_changed_periods_survive_across_sessions(self):
+        """洞察选层不能只活在当前对话里；换会话后仍应读到最近一次逐格 diff。"""
+        from modules.industry_data import steps
+
+        with TemporaryDirectory() as tmp:
+            base = self._paths(tmp)
+            steps.record(
+                base,
+                "2026-08-08",
+                "merge",
+                "done",
+                result_data={"changedPeriods": ["weekly", "monthly"]},
+            )
+
+            # 重新构造 Manifest（模拟换会话），仍能恢复选层
+            self.assertEqual(steps.changed_periods(base, "2026-08-08"), ["weekly", "monthly"])
+
     def test_skipped_counts_as_settled(self):
         from modules.industry_data import steps
 
@@ -358,6 +404,135 @@ class TestStepMachine(unittest.TestCase):
             base = self._paths(tmp)
             with self.assertRaises(SystemExit):
                 Manifest(base, "industry-data", "2026年8月8日")
+
+
+class TestSelectiveInsightDraft(unittest.TestCase):
+    """更新后只出实际变动粒度，不再每次周/月/季全量重写。"""
+
+    @staticmethod
+    def _paths(tmp: str) -> DomainPaths:
+        root = Path(tmp)
+        (root / "workbench").mkdir()
+        (root / "docs").mkdir()
+        (root / "docs" / "GLOSSARY.md").write_text("x", encoding="utf-8")
+        paths = DomainPaths(Paths(root))
+        paths.snapshot.parent.mkdir(parents=True, exist_ok=True)
+        paths.snapshot.write_text(
+            json.dumps(
+                {
+                    "meta": {"dataUpdate": "2026-08-15"},
+                    "weekly": {"weeks": ["8/9-8/15"], "aviationPax": [0.04]},
+                    "monthly": {"months": ["7月"], "railway": [-0.026]},
+                    "quarterly": {"q2": {"railway": 0.046}},
+                }
+            ),
+            encoding="utf-8",
+        )
+        paths.insights_canonical.write_text(
+            json.dumps({"meta": {}, "weekly": {"zh": []}, "monthly": {"zh": []}}),
+            encoding="utf-8",
+        )
+        return paths
+
+    def test_prepare_only_includes_selected_periods(self):
+        from modules.industry_data import drafts
+
+        with TemporaryDirectory() as tmp:
+            paths = self._paths(tmp)
+            result = drafts.prepare(paths, periods=["weekly", "monthly"])
+            package = json.loads(Path(result.data["draft"]).read_text(encoding="utf-8"))
+
+            self.assertEqual(result.status, "success")
+            self.assertEqual(result.data["periods"], ["weekly", "monthly"])
+            self.assertEqual(list(package["periods"]), ["weekly", "monthly"])
+            self.assertNotIn("quarterly", package["periods"])
+
+    def test_empty_selection_does_not_create_draft(self):
+        from modules.industry_data import drafts
+
+        with TemporaryDirectory() as tmp:
+            result = drafts.prepare(self._paths(tmp), periods=[])
+            self.assertEqual(result.status, "success")
+            self.assertEqual(result.data["periods"], [])
+            self.assertNotIn("draft", result.data)
+
+
+class TestUpdateWorkflowOrchestration(unittest.TestCase):
+    """更新数据后自动备草稿，只在最终写入上线处问人。"""
+
+    def test_merge_auto_prepares_changed_layers_and_resets_downstream(self):
+        from modules.industry_data import cli, drafts, insights, snapshot as snapshot_mod, steps
+
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "workbench").mkdir()
+            (root / "docs").mkdir()
+            (root / "docs" / "GLOSSARY.md").write_text("x", encoding="utf-8")
+            base = Paths(root)
+            paths = DomainPaths(base)
+            paths.snapshot.parent.mkdir(parents=True, exist_ok=True)
+            paths.snapshot.write_text(
+                json.dumps({"meta": {"dataUpdate": "2026-08-15"}}), encoding="utf-8"
+            )
+            workbook = root / "data" / "workbooks" / "国内行业数据_0830.xlsx"
+            workbook.parent.mkdir(parents=True)
+            workbook.write_bytes(b"fixture")
+            draft_path = root / "scratch" / "auto-draft.json"
+
+            calls: dict[str, object] = {}
+            originals = (
+                cli._resolve_workbook,
+                snapshot_mod.rebuild,
+                insights.mark_stale_if_outdated,
+                drafts.prepare,
+            )
+            cli._resolve_workbook = lambda _base: (workbook, None)
+            snapshot_mod.rebuild = lambda *_args, **_kwargs: Result(
+                status="success",
+                summary="重建完成",
+                domain="industry-data",
+                data={"changedPeriods": ["weekly", "monthly"]},
+            )
+
+            def fake_stale(_paths, periods):
+                calls["stale"] = list(periods)
+                return list(periods)
+
+            def fake_prepare(_paths, period=None, *, periods=None):
+                calls["draft"] = list(periods or [])
+                return Result(
+                    status="success",
+                    summary="草稿已生成",
+                    domain="industry-data",
+                    data={"draft": str(draft_path), "periods": list(periods or [])},
+                )
+
+            insights.mark_stale_if_outdated = fake_stale
+            drafts.prepare = fake_prepare
+            try:
+                result = cli.cmd_merge(SimpleNamespace(confirm_clears=False), base)
+            finally:
+                (
+                    cli._resolve_workbook,
+                    snapshot_mod.rebuild,
+                    insights.mark_stale_if_outdated,
+                    drafts.prepare,
+                ) = originals
+
+            self.assertEqual(calls["stale"], ["weekly", "monthly"])
+            self.assertEqual(calls["draft"], ["weekly", "monthly"])
+            self.assertEqual(result.data["insightsDraft"], str(draft_path))
+            self.assertTrue(any("不要问" in item for item in result.next_steps), result.next_steps)
+
+            manifest = steps.open_manifest(base, "2026-08-15").load()
+            self.assertEqual(
+                manifest["steps"]["merge"]["result"]["changedPeriods"],
+                ["weekly", "monthly"],
+            )
+            self.assertEqual(manifest["steps"]["dashboard"]["state"], "pending")
+            self.assertEqual(manifest["steps"]["insights"]["state"], "pending")
+            self.assertEqual(manifest["steps"]["publish"]["state"], "pending")
+            self.assertEqual(manifest["steps"]["feishu"]["state"], "skipped")
 
 
 class TestValueTolerance(unittest.TestCase):
@@ -483,6 +658,35 @@ class TestInsightsStaleOnMerge(unittest.TestCase):
             self.assertEqual(insights.mark_stale_if_outdated(paths), [])
             saved = json.loads(paths.insights_canonical.read_text(encoding="utf-8"))
             self.assertFalse(any(saved["meta"]["stale"].values()))
+
+    def test_explicit_changed_periods_work_even_when_data_date_is_unchanged(self):
+        """同一期底稿修订月度值时 dataUpdate 不动；只看日期会漏标，逐格 diff 不会。"""
+        from modules.industry_data import insights
+
+        with TemporaryDirectory() as tmp:
+            paths = self._paths(tmp, based_on="2026-08-15", snapshot_date="2026-08-15")
+            newly = insights.mark_stale_if_outdated(paths, ["monthly"])
+
+            self.assertEqual(newly, ["monthly"])
+            saved = json.loads(paths.insights_canonical.read_text(encoding="utf-8"))
+            self.assertEqual(
+                saved["meta"]["stale"],
+                {"weekly": False, "monthly": True, "quarterly": False},
+            )
+
+    def test_explicit_weekly_change_does_not_mark_monthly_or_quarterly(self):
+        from modules.industry_data import insights
+
+        with TemporaryDirectory() as tmp:
+            paths = self._paths(tmp, based_on="2026-08-08", snapshot_date="2026-08-15")
+            newly = insights.mark_stale_if_outdated(paths, ["weekly"])
+
+            self.assertEqual(newly, ["weekly"])
+            saved = json.loads(paths.insights_canonical.read_text(encoding="utf-8"))
+            self.assertEqual(
+                saved["meta"]["stale"],
+                {"weekly": True, "monthly": False, "quarterly": False},
+            )
 
     def test_already_stale_is_not_reported_twice(self):
         from modules.industry_data import insights

@@ -2,7 +2,7 @@
   "domain": "industry-data",
   "period": "2026-08-15",
   "created": "2026-08-24T20:10:36+08:00",
-  "updated": "2026-08-31T15:05:49+08:00",
+  "updated": "2026-08-31T15:28:28+08:00",
   "steps": {
     "merge": {
       "state": "done",
@@ -18,7 +18,9 @@
       "at": "2026-08-31T14:59:11+08:00"
     },
     "feishu": {
-      "state": "pending"
+      "state": "skipped",
+      "at": "2026-08-31T15:28:28+08:00",
+      "note": "飞书多维表在 IR 经理侧已半弃用，用户明确暂不同步；需要时再说"
     },
     "publish": {
       "state": "done",

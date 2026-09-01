@@ -1,0 +1,83 @@
+{
+  "domain": "industry-data",
+  "period": "2026-08-22",
+  "created": "2026-08-31T17:03:45+08:00",
+  "updated": "2026-08-31T17:19:22+08:00",
+  "steps": {
+    "merge": {
+      "state": "done",
+      "at": "2026-08-31T17:03:45+08:00",
+      "result": {
+        "dataUpdate": "2026-08-22",
+        "added": 6,
+        "changed": 0,
+        "cleared": 0,
+        "dropped": 0,
+        "changedPeriods": [
+          "weekly"
+        ],
+        "insightsDraft": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\insights-draft-weekly-2026-08-31T09-03-45.json"
+      }
+    },
+    "dashboard": {
+      "state": "done",
+      "at": "2026-08-31T17:18:24+08:00",
+      "note": "指标有新变化：weekly",
+      "result": {
+        "step_complete": true
+      }
+    },
+    "insights": {
+      "state": "done",
+      "at": "2026-08-31T17:18:23+08:00",
+      "note": "指标有新变化：weekly",
+      "result": {
+        "periods": [
+          "weekly"
+        ]
+      }
+    },
+    "feishu": {
+      "state": "skipped",
+      "at": "2026-08-31T17:03:45+08:00",
+      "note": "飞书多维表暂不使用；需要时再单独同步"
+    },
+    "publish": {
+      "state": "done",
+      "at": "2026-08-31T17:19:22+08:00",
+      "note": "指标有新变化：weekly"
+    }
+  },
+  "inputs": {
+    "workbook": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\workbooks\\国内行业数据_0831.xlsx",
+      "sha256": "861f153ae451b06037248a4b7161c1e9a6a3455bb41413c66e88081c813b990a",
+      "at": "2026-08-31T17:03:45+08:00"
+    }
+  },
+  "outputs": {
+    "data_js": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\dashboard\\travel\\data.js",
+      "sha256": "a132901cb32f29b7d728999c3cca0c2580ec59eb1e64e4a4ad22dd90e6ddc11f",
+      "at": "2026-08-31T17:18:24+08:00"
+    },
+    "insights_js": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\dashboard\\travel\\insights.js",
+      "sha256": "e42f65c71f80aab9cd1dfcf7bedead18cf87a30efc183c19076b2b5e9fd1eced",
+      "at": "2026-08-31T17:18:24+08:00"
+    },
+    "insights_canonical": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\data\\canonical\\travel-insights.json",
+      "sha256": "9d67eedccfa688787f026ba28165766e7bc0c3709188a0b5188fbfc9d6190d05",
+      "at": "2026-08-31T17:18:23+08:00"
+    }
+  },
+  "notes": [],
+  "order": [
+    "merge",
+    "dashboard",
+    "insights",
+    "feishu",
+    "publish"
+  ]
+}

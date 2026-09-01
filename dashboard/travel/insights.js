@@ -6,7 +6,7 @@
 
 const INSIGHTS = {
   "meta": {
-    "basedOnTravelJsonUpdatedAt": "2026-08-15",
+    "basedOnTravelJsonUpdatedAt": "2026-08-22",
     "confirmedAt": {
       "weekly": "2026-08-31",
       "monthly": "2026-08-31",
@@ -22,94 +22,96 @@ const INSIGHTS = {
     "zh": [
       {
         "tag": "highlight",
-        "title": "客运量连续五周转正，票价降幅收窄",
-        "body": "8/9-8/15 国内航空客运量同比 <span class=\"num-highlight\">+4.0%</span>，为连续第五周转正；机票票价同比 <span class=\"num-highlight\">-6.0%</span>，较前一周 -8.0% 收窄 2 个百分点，客运航班量 <span class=\"num-highlight\">+2.0%</span>。航旅纵横《2026 年暑运出行总结报告》称今年暑运启动偏晚，亲子游、避暑游需求集中在 8 月中上旬释放、出行高峰后移，与这一周量稳价升相符。若高峰确实后移，8 月下旬的回落会比往年更陡。",
+        "title": "酒店 RevPAR 十周后转正",
+        "body": "8/16-8/22 酒店 RevPAR 同比 <span class=\"num-highlight\">+3.1%</span>，较前一周 -4.1% 回升 7.2 个百分点，入住率 <span class=\"num-highlight\">+2.1%</span>、ADR <span class=\"num-highlight\">+1.0%</span> 同时转正；这是 RevPAR 连续十周为负后首次回正。航旅纵横暑运总结称今年需求集中在 8 月中上旬释放、出行高峰后移，与本周住宿量价修复方向一致。后续看转正能否延续到暑运收官。",
         "refs": [
+          "weekly.hotelRevPAR@5/31-6/06",
+          "weekly.hotelRevPAR@6/07-6/13",
+          "weekly.hotelRevPAR@8/9-8/15",
+          "weekly.hotelRevPAR@8/16-8/22",
+          "weekly.hotelOccupancy@8/16-8/22",
+          "weekly.hotelADR@8/16-8/22"
+        ]
+      },
+      {
+        "tag": "highlight",
+        "title": "航空客运量连续六周转正",
+        "body": "8/16-8/22 国内航空客运量同比 <span class=\"num-highlight\">+6.0%</span>，较前一周 +4.0% 加快 2 个百分点；客运航班量同比 <span class=\"num-highlight\">+4.0%</span>，客运量为连续第六周正增长。需求增速高于航班增速，暑运尾段客座率仍有支撑。下一周进入收官段，客流能否守住正增长更关键。",
+        "refs": [
+          "weekly.aviationPax@7/12-7/18",
           "weekly.aviationPax@8/9-8/15",
+          "weekly.aviationPax@8/16-8/22",
+          "weekly.aviationFlight@8/16-8/22"
+        ]
+      },
+      {
+        "tag": "risk",
+        "title": "量增价弱仍未打破",
+        "body": "8/16-8/22 机票票价同比仍为 <span class=\"num-highlight\">-5.0%</span>，虽较前一周 -6.0% 收窄，但与客运量 <span class=\"num-highlight\">+6.0%</span>、客运航班量 +4.0% 的增长仍明显背离。旺季尾段客流增长仍未充分传导到票价，收益修复继续慢于运量。9 月淡季若客流回落，票价能否继续收窄存在压力。",
+        "refs": [
           "weekly.aviationTicket@8/2-8/8",
           "weekly.aviationTicket@8/9-8/15",
-          "weekly.aviationFlight@8/9-8/15"
-        ]
-      },
-      {
-        "tag": "risk",
-        "title": "酒店 RevPAR 降幅走阔至 -4.1%",
-        "body": "8/9-8/15 酒店 RevPAR 同比 <span class=\"num-highlight\">-4.1%</span>，较前一周 -1.5% 明显走阔，入住率 <span class=\"num-highlight\">-3.4%</span>、ADR <span class=\"num-highlight\">-0.7%</span> 同步转弱。同一周航空客流仍在增长，住宿端量价齐跌，暑运客流没有传导到酒店收益。后续看开学季前后 RevPAR 能否止住走阔。",
-        "refs": [
-          "weekly.hotelRevPAR@7/26-8/1",
-          "weekly.hotelRevPAR@8/2-8/8",
-          "weekly.hotelRevPAR@8/9-8/15",
-          "weekly.hotelOccupancy@8/9-8/15",
-          "weekly.hotelADR@8/9-8/15",
-          "weekly.aviationPax@8/9-8/15"
-        ]
-      },
-      {
-        "tag": "risk",
-        "title": "票价同比连续八周为负",
-        "body": "自 6/21-6/27 起机票票价同比连续八周为负，8/9-8/15 仍为 <span class=\"num-highlight\">-6.0%</span>，区间内在 -6% 到 -9% 之间反复。暑运旺季都没能回正，运力供给充裕、旅客价格敏感的格局没有变化。这次收窄能否延续到 9 月淡季是关键。",
-        "refs": [
-          "weekly.aviationTicket@6/21-6/27",
-          "weekly.aviationTicket@7/26-8/1",
-          "weekly.aviationTicket@8/2-8/8",
-          "weekly.aviationTicket@8/9-8/15"
+          "weekly.aviationTicket@8/16-8/22",
+          "weekly.aviationPax@8/16-8/22",
+          "weekly.aviationFlight@8/16-8/22"
         ]
       },
       {
         "tag": "outlook",
-        "title": "开学后量与价会不会各走一边",
-        "body": "待验证三件事：客运量在暑运收官后能否守住正增长、票价收窄是趋势还是单周反弹、酒店 RevPAR 能否止住走阔。若客流回落而票价不回，暑运尾段的收益改善空间会被进一步压缩。",
+        "title": "暑运收官后修复能否延续",
+        "body": "本周酒店量价与航空客流同步改善，是暑运尾段少见的同向修复。后续重点看酒店 RevPAR 能否连续为正、航空客运量能否守住增长，以及票价降幅是否继续收窄；若开学后量先回落而价仍未回正，本周改善更可能是旺季尾声的阶段性高点。",
         "refs": [
-          "weekly.aviationPax@8/9-8/15",
-          "weekly.aviationTicket@8/9-8/15",
-          "weekly.hotelRevPAR@8/9-8/15"
+          "weekly.hotelRevPAR@8/16-8/22",
+          "weekly.aviationPax@8/16-8/22",
+          "weekly.aviationTicket@8/16-8/22"
         ]
       }
     ],
     "en": [
       {
         "tag": "highlight",
-        "title": "Air passenger volume positive for a fifth week, fare decline narrows",
-        "body": "Domestic air passenger volume rose <span class=\"num-highlight\">+4.0%</span> YoY in 8/9-8/15, a fifth consecutive week of growth; average fares came in at <span class=\"num-highlight\">-6.0%</span> YoY, narrowing 2pp from -8.0% the previous week, with passenger flights at <span class=\"num-highlight\">+2.0%</span>. Umetrip's 2026 summer travel review notes the season started late, with family and cool-weather trips concentrated in the first half of August and the peak shifting later, consistent with this week's steady volume and firmer pricing. If the peak has indeed shifted, the late-August drop-off will be steeper than usual.",
+        "title": "Hotel RevPAR turns positive after ten weeks",
+        "body": "Hotel RevPAR rose <span class=\"num-highlight\">3.1% YoY</span> during Aug 16–22, improving 7.2 percentage points from -4.1% in the prior week. Occupancy and ADR also turned positive at <span class=\"num-highlight\">+2.1%</span> and <span class=\"num-highlight\">+1.0%</span>, respectively, marking RevPAR's first positive reading after ten consecutive negative weeks. Umetrip's summer travel review noted that demand was concentrated in early and mid-August and that the travel peak shifted later; the next test is whether the improvement lasts through the end of the summer season.",
         "refs": [
+          "weekly.hotelRevPAR@5/31-6/06",
+          "weekly.hotelRevPAR@6/07-6/13",
+          "weekly.hotelRevPAR@8/9-8/15",
+          "weekly.hotelRevPAR@8/16-8/22",
+          "weekly.hotelOccupancy@8/16-8/22",
+          "weekly.hotelADR@8/16-8/22"
+        ]
+      },
+      {
+        "tag": "highlight",
+        "title": "Air passenger volume stays positive for a sixth week",
+        "body": "Domestic air passenger volume grew <span class=\"num-highlight\">6.0% YoY</span> during Aug 16–22, accelerating by 2 percentage points from +4.0% in the prior week. Passenger flight volume increased <span class=\"num-highlight\">4.0%</span>, while passenger traffic remained positive for a sixth consecutive week. With the summer season nearing its end, the key question is whether traffic can maintain positive growth.",
+        "refs": [
+          "weekly.aviationPax@7/12-7/18",
           "weekly.aviationPax@8/9-8/15",
+          "weekly.aviationPax@8/16-8/22",
+          "weekly.aviationFlight@8/16-8/22"
+        ]
+      },
+      {
+        "tag": "risk",
+        "title": "Volume growth still fails to lift fares",
+        "body": "Airfares remained down <span class=\"num-highlight\">5.0% YoY</span> during Aug 16–22, narrowing from -6.0% in the prior week but still diverging from <span class=\"num-highlight\">6.0%</span> passenger growth and 4.0% flight growth. Stronger peak-season traffic has yet to translate fully into fares, leaving yield recovery behind volume growth. Fare pressure may persist if traffic softens in the September shoulder season.",
+        "refs": [
           "weekly.aviationTicket@8/2-8/8",
           "weekly.aviationTicket@8/9-8/15",
-          "weekly.aviationFlight@8/9-8/15"
-        ]
-      },
-      {
-        "tag": "risk",
-        "title": "Hotel RevPAR decline widens to -4.1%",
-        "body": "Hotel RevPAR was <span class=\"num-highlight\">-4.1%</span> YoY in 8/9-8/15, widening sharply from -1.5% the previous week, with occupancy at <span class=\"num-highlight\">-3.4%</span> and ADR at <span class=\"num-highlight\">-0.7%</span>. Air traffic kept growing in the same week while lodging softened on both volume and rate, so summer travel did not pass through to hotel revenue. Watch whether RevPAR stops widening around the back-to-school period.",
-        "refs": [
-          "weekly.hotelRevPAR@7/26-8/1",
-          "weekly.hotelRevPAR@8/2-8/8",
-          "weekly.hotelRevPAR@8/9-8/15",
-          "weekly.hotelOccupancy@8/9-8/15",
-          "weekly.hotelADR@8/9-8/15",
-          "weekly.aviationPax@8/9-8/15"
-        ]
-      },
-      {
-        "tag": "risk",
-        "title": "Air fares negative for eight consecutive weeks",
-        "body": "Air fares have been negative YoY for eight consecutive weeks since 6/21-6/27, at <span class=\"num-highlight\">-6.0%</span> in 8/9-8/15 and ranging between -6% and -9% over that span. Even peak summer failed to turn them positive; ample capacity and price-sensitive travellers remain the backdrop. Whether this narrowing carries into the September low season is the key question.",
-        "refs": [
-          "weekly.aviationTicket@6/21-6/27",
-          "weekly.aviationTicket@7/26-8/1",
-          "weekly.aviationTicket@8/2-8/8",
-          "weekly.aviationTicket@8/9-8/15"
+          "weekly.aviationTicket@8/16-8/22",
+          "weekly.aviationPax@8/16-8/22",
+          "weekly.aviationFlight@8/16-8/22"
         ]
       },
       {
         "tag": "outlook",
-        "title": "Will volume and price diverge after schools reopen",
-        "body": "Three things to watch: whether air passenger volume holds positive growth after the summer season closes, whether the fare narrowing is a trend or a one-week rebound, and whether hotel RevPAR stops widening. If traffic falls back while fares stay weak, the room for yield improvement in the closing weeks of summer narrows further.",
+        "title": "Can the recovery continue after summer?",
+        "body": "Hotel volume and pricing improved alongside air traffic this week, an uncommon broad-based recovery late in the summer season. The next indicators to watch are whether hotel RevPAR remains positive, air passenger traffic sustains growth, and the airfare decline continues to narrow. If volume falls after schools reopen while fares remain negative, this week's improvement may prove to be a seasonal peak.",
         "refs": [
-          "weekly.aviationPax@8/9-8/15",
-          "weekly.aviationTicket@8/9-8/15",
-          "weekly.hotelRevPAR@8/9-8/15"
+          "weekly.hotelRevPAR@8/16-8/22",
+          "weekly.aviationPax@8/16-8/22",
+          "weekly.aviationTicket@8/16-8/22"
         ]
       }
     ]

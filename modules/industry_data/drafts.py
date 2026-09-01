@@ -50,7 +50,12 @@ def _slice_period(snapshot: dict, period: str) -> dict:
     return {period: snapshot.get(period)}
 
 
-def prepare(paths: DomainPaths, period: str | None = None) -> Result:
+def prepare(
+    paths: DomainPaths,
+    period: str | None = None,
+    *,
+    periods: list[str] | None = None,
+) -> Result:
     if not paths.snapshot.is_file():
         return Result(
             status="blocked",
@@ -58,7 +63,22 @@ def prepare(paths: DomainPaths, period: str | None = None) -> Result:
             domain=DOMAIN,
             next_steps=["先跑一次数据更新（merge）生成快照。"],
         )
-    periods = [period] if period else list(insights_mod.PERIODS)
+    if period and periods is not None:
+        return Result(
+            status="failed",
+            summary="洞察草稿的 period 与 periods 不能同时指定。",
+            domain=DOMAIN,
+        )
+    selected = [period] if period else (list(periods) if periods is not None else list(insights_mod.PERIODS))
+    selected = [item for item in insights_mod.PERIODS if item in selected]
+    if not selected:
+        return Result(
+            status="success",
+            summary="本次指标没有变化，不需要刷新洞察。",
+            domain=DOMAIN,
+            data={"periods": []},
+        )
+
     snapshot = json.loads(paths.snapshot.read_text(encoding="utf-8"))
     try:
         existing = insights_mod.load(paths)
@@ -67,7 +87,7 @@ def prepare(paths: DomainPaths, period: str | None = None) -> Result:
 
     paths.scratch.mkdir(parents=True, exist_ok=True)
     stamp = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H-%M-%S")
-    name = periods[0] if len(periods) == 1 else "all"
+    name = selected[0] if len(selected) == 1 else "-".join(selected)
     out_path = paths.scratch / f"insights-draft-{name}-{stamp}.json"
 
     draft = {
@@ -77,7 +97,7 @@ def prepare(paths: DomainPaths, period: str | None = None) -> Result:
         "periods": {},
         "promptForAi": PROMPT_FOR_AI,
     }
-    for item in periods:
+    for item in selected:
         draft["periods"][item] = {
             "dataSlice": _slice_period(snapshot, item),
             "currentConfirmedZh": ((existing or {}).get(item) or {}).get("zh") or [],
@@ -93,13 +113,13 @@ def prepare(paths: DomainPaths, period: str | None = None) -> Result:
         domain=DOMAIN,
         checks=[
             {"name": "草稿包", "level": "ok", "detail": str(out_path)},
-            {"name": "覆盖粒度", "level": "ok", "detail": "、".join(periods)},
+            {"name": "覆盖粒度", "level": "ok", "detail": "、".join(selected)},
         ],
         next_steps=[
             "按 promptForAi 填 draftZh（每条含可核对数字与 refs）。",
             "**人确认中文之后**才能入库（confirm）；英文在入库时再译。",
         ],
-        data={"draft": str(out_path)},
+        data={"draft": str(out_path), "periods": selected},
     )
 
 
