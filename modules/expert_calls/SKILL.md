@@ -13,7 +13,7 @@
 
 1. `ir expert-calls extract --pdf ... --run-id YYYYMMDD-HHMMSS`：用 `pdfplumber` 按页抽到 Git 忽略的 `scratch/`。
 2. Agent 按 [收录与写作规则](references/inclusion-and-writing.md) 为每篇形成候选记录：一句话概述、关键数字、行业事实/洞察、局限、相关范围、`expert_profile` 和六维评分。此时 `include` 可为 `null`，表示待人决定。
-3. `shortlist`：代码计算透明的 100 分排序与 A/B/C 档，写出人读 Markdown。A = 优先考虑，B = 可考虑，C = 建议不收录；排序只辅助判断，不替人选择。
+3. `shortlist`：代码计算透明的 100 分排序与 A/B/C 档，写出人读 Markdown。A = 优先考虑，B = 可考虑，C = 建议不收录；`information_gain` 0–1 分最高 C、2 分最高 B，只有 3 分及以上才允许进入 A，防止专家身份把与财报或电话会重复的内容抬高。排序只辅助判断，不替人选择。
 4. 人工选择后，Agent 把每篇 `include` 落为 true/false；`validate` 校验直接 IR 信息增量、至少 4 个锚定数字、每段数字、原话/位置和情报条目 schema。
 5. `render`：只为人工选中的访谈渲染本目录模板，不接触飞书。
 6. `publish` 默认 dry-run，列出精确重复和将写标题；确认后才带发布开关。

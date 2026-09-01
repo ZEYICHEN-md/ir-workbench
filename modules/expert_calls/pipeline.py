@@ -410,22 +410,31 @@ def rank_candidates(source: Path | dict[str, Any]) -> list[dict[str, Any]]:
             base_tier = "C"
         scope = profile["organization_scope"]
         market_scope = profile["strategic_market_scope"]
-        tier_cap = ORGANIZATION_TIER_CAPS[scope]
-        if scope == "regional_or_niche" and market_scope == "china_or_apac_priority":
-            tier_cap = "B"
         tier_order = {"A": 0, "B": 1, "C": 2}
+        organization_tier_cap = ORGANIZATION_TIER_CAPS[scope]
+        organization_cap_reason = (
+            f"专家来自{ORGANIZATION_SCOPES[scope]}，按来源偏好最高为 "
+            f"{organization_tier_cap} 档"
+        )
+        if scope == "regional_or_niche" and market_scope == "china_or_apac_priority":
+            organization_tier_cap = "B"
+            organization_cap_reason = (
+                "专家来自区域性/细分公司，但直接覆盖 Trip.com 国际扩张重点的"
+                "中国或亚太市场；来源背书较弱，最高为 B 档"
+            )
+        tier_caps = [(organization_tier_cap, organization_cap_reason)]
+        information_gain_score = scores["information_gain"]["score"]
+        if information_gain_score <= 1:
+            tier_caps.append(("C", "相对已知信息几乎没有增量，最高为 C 档"))
+        elif information_gain_score == 2:
+            tier_caps.append(("B", "相对财报、电话会或既有研究仅有有限增量，最高为 B 档"))
+        tier_cap = max(tier_caps, key=lambda item: tier_order[item[0]])[0]
         tier = base_tier if tier_order[base_tier] >= tier_order[tier_cap] else tier_cap
         tier_cap_reason = ""
         if tier != base_tier:
-            if scope == "regional_or_niche" and market_scope == "china_or_apac_priority":
-                tier_cap_reason = (
-                    "专家来自区域性/细分公司，但直接覆盖 Trip.com 国际扩张重点的"
-                    "中国或亚太市场；来源背书较弱，最高为 B 档"
-                )
-            else:
-                tier_cap_reason = (
-                    f"专家来自{ORGANIZATION_SCOPES[scope]}，按来源偏好最高为 {tier_cap} 档"
-                )
+            tier_cap_reason = "；".join(
+                reason for cap, reason in tier_caps if tier_order[cap] == tier_order[tier_cap]
+            )
         ranked.append({
             "title": row["title"],
             "pdf_name": row["pdf_name"],
@@ -497,7 +506,7 @@ def render_shortlist(source: Path | dict[str, Any], target: Path) -> list[dict[s
         if item["eligibility_reasons"]:
             lines.append(f"- **硬门槛**：未通过（{'；'.join(item['eligibility_reasons'])}）")
         if item["tier_cap_reason"]:
-            lines.append(f"- **来源档位上限**：{item['tier_cap_reason']}")
+            lines.append(f"- **档位上限**：{item['tier_cap_reason']}")
         lines.extend(["", "**关键数据**"])
         if item["valuable_data"]:
             for anchor in item["valuable_data"]:
