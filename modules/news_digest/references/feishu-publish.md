@@ -15,7 +15,8 @@ HTML 导出完成后，同步两份飞书文档（用户明确要求发布/归�
 | [旅业资讯库](https://trip.larkenterprise.com/wiki/JobqwazW9ivX2ykm4Jqc8dXwnBd) | 行业数据库主文档，只挂**最新一期** | **撤旧换新** |
 | [历史周报汇总](https://trip.larkenterprise.com/wiki/G4GPwwRoQiDUCYkXVMncvwYKnCb) | 历史归档 | **末尾追加**，不覆盖已有期次 |
 
-操作一律 `lark-cli`、`--as user`。Wiki URL 先 `wiki +node-get` 核对 `obj_token`。
+操作一律 `lark-cli`、`--as user`（**当前登录同事**的身份）。Wiki URL 先 `wiki +node-get` 核对 `obj_token`。
+这两份是部门共享文档，不是某个人的云空间；换同事跑，只要 TA 对 Wiki 有编辑权限即可。开跑前 `lark-cli whoami`，不要沿用上一位操作者的 ID。
 
 ---
 
@@ -207,7 +208,7 @@ hr
 - 不覆盖原始 `outputs/news-digest/` 文件
 - 未完成 HTML 导出不要改飞书
 - **发布是对外动作，须用户明确要求**（AGENTS.md「绝对不做」第 1 条）
-- 开跑前先 `lark-cli whoami` 与 `auth status --json --verify` 确认 user 身份 ready、token 有效
+- 开跑前先 `lark-cli whoami` 与 `auth status --json --verify` 确认**当前同事**的 user 身份 ready、token 有效；失败则 `blocked`，不要借用其他人的登录态
 - 命令前设 `$env:LARKSUITE_CLI_NO_UPDATE_NOTIFIER=1; $env:LARKSUITE_CLI_NO_SKILLS_NOTIFIER=1` 静默噪音
 
 ## 回读校验时的一个坑

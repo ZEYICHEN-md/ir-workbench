@@ -26,7 +26,7 @@ Wiki 两份文档仍走 [feishu-publish.md](feishu-publish.md)，和这张卡互
 本卡片与新闻精选采编长程链路**解耦独立触发**。
 当你完成了当周的新闻精选采编与云文档归档后，说 **「做这周飞书卡片周报」** 或 **「发飞书卡片周报」** 即可。
 
-机器人会将组合好的卡片私聊发给你，由你一键转发到「IR小分队」群。
+Agent 用本机当前 `lark-cli` 登录者的身份组卡，私聊发给**这位同事**，由 TA 转发到「IR小分队」。不写死任何人的飞书 ID。
 
 缺料就停，不要凑：
 
@@ -34,7 +34,7 @@ Wiki 两份文档仍走 [feishu-publish.md](feishu-publish.md)，和这张卡互
 |---|---|
 | `blocked` | 没有当期 `outputs/news-digest/<期次键>/旅行行业新闻精选-*.md`；或 `travel.json` 最新一周缺 `hotelRevPAR` / `aviationPax` / `aviationTicket` 任一 |
 | `partial` | 精选和 KPI 有了，但 `travel-insights-zh.md` 的 `basedOnTravelJsonUpdatedAt` 对不上 `travel.json` 的 `dataUpdate`：KPI 仍用快照数字，评述用已确认洞察，脚注写清两个日期 |
-| `success` | 模板占位符填齐并私聊发出 |
+| `success` | 模板占位符填齐，并私聊发给当前 `lark-cli whoami` 的操作者 |
 
 ## 取数对照（每周只读这些地方）
 
@@ -89,19 +89,22 @@ Header：`周报 | {月}月第{周}周`，副标题固定写成 `新闻情报主
 
 ## 怎么发
 
-默认：**机器人私聊发给当前用户，由用户转发到群**。
-「IR小分队」(`oc_9d2437490bdc33f010e928d777c20c2f`) 里没有 CLI 机器人；用户身份发卡片还缺 `im:message.send_as_user`。2026-09-01 实测这条路径可转发。
+默认：**本机 CLI 应用把卡片私聊发给当前操作者，由 TA 转发到群**。
+这是可分发路径：每位同事用自己的飞书完成 `lark-cli` 授权后，应用可见范围通常是「仅本人」，发给自己再转发，换人仍然成立。不要把某个人的 `open_id` 或 CLI 应用 ID 写进仓库、脚本或下一轮对话。
+
+群名「IR小分队」是部门共享目标，**默认不直发进群**——每个人的个人 CLI 应用未必已在该群里。只有当前操作者明确说「发到某某群」，且已确认该群里有**TA 这台机器上的** CLI 应用时，才改 `receive_id_type=chat_id`。
 
 ```powershell
+# 0. 解析当前操作者，失败就 blocked，不要沿用任何人的旧 ID
+lark-cli whoami
+lark-cli auth status --json --verify
+
 # 1. 复制 template.json，替换占位符，写出 scratch/im-send-card.json
-#    payload = { receive_id: 当前用户 open_id, msg_type: "interactive", content: <卡片 JSON 字符串> }
+#    payload = { receive_id: <本步 whoami 的 open_id>, msg_type: "interactive", content: <卡片 JSON 字符串> }
 # 2. params 文件：{"receive_id_type":"open_id"}
 # 3. 发送（Windows 必须 @file + UTF-8 无 BOM，见 conventions/lark-cli-windows.md）
 lark-cli api POST /open-apis/im/v1/messages --as bot --params @scratch/im-send-params.json --data @scratch/im-send-card.json
 ```
-
-当前用户 open_id 用 `lark-cli whoami`，不要写死。
-只有用户明确说「发到某某群」且该群已有机器人时，才改 `receive_id_type=chat_id`。
 
 ## 构造时不要碰的坑
 
