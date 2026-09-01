@@ -25,7 +25,7 @@
 
 顶层必填 `run_id`（`YYYYMMDD-HHMMSS`）。候选阶段每篇必填 `title`、`expert_background`、`expert_profile`、`interview_time`、`pdf_name`、`anchor_numbers`、`inclusion_evidence` 与 `selection_review`；`include` 可为 `null`。`expert_profile` 记录公司规模层级、战略市场相关性、职位层级和职能接近度；`selection_review` 必须含一句话概述、关键洞察、局限和六维评分。人工决定后，`include` 必须变成 boolean；收录记录再必填 `paragraphs`、`left_out`、`pdf_href`、`value_reason` 和非空 `intel_entries`。每个 `anchor_numbers` 项必填 `value`、`so_what`、`source_quote`、`quote_where`。不收录记录必填 `skip_reason`。合成示例见 `templates/expert_calls.manifest.example.json`。
 
-直接 IR 信息增量是收录硬门槛，受控范围只有：携程经营与财务判断、中国及跨境旅行需求、全球 OTA 竞争格局、AI 对旅行搜索/流量/交易转化的影响。**B2B 不是独立相关性分类**；只有当它显著影响竞对增长、利润率、渠道黏性或 AI 防御时，才作为经营机制写入。
+直接 IR 信息增量是收录硬门槛，受控范围只有：携程经营与财务判断、中国及跨境旅行需求、全球 OTA 竞争格局、AI 对旅行搜索/流量/交易转化的影响。亚太竞争映射须把 Agoda 和 Traveloka 视为 Trip.com 的重点直接竞对：Agoda 兼具 Booking Holdings 全球平台背书与亚太直接相关性，Traveloka 具有亚太直接相关性但按多市场公司评估来源规模。**B2B 不是独立相关性分类**；只有当它显著影响竞对增长、利润率、渠道黏性或 AI 防御时，才作为经营机制写入。
 
 `intel_entries` 不得把摘要转述当原话：`statement` 仍须 `quote` + `quote_where`，位置至少写到「文件名 · 第 N 页/段」。发布后只生成 draft；`channel` 强制 `expert-call`，`sensitivity` 强制 `internal`。
 

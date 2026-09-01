@@ -26,6 +26,8 @@ A 档为 80 分及以上，优先考虑进入飞书；B 档为 65–79.9 分，�
 
 公司规模影响的是**专家背书强度**，不等于信息本身无效。亚太区域公司的专家若能提供直接关联 Trip.com 重点市场的需求、竞争、渠道或用户行为信息，应在 `ir_relevance` 中获得高分，同时因来源规模较弱在 `expert_authority` 中降分，最终通常落在 B 档。非重点区域的小公司、地方公司或单体酒店即使数字很多，原则上仍不进入精选；其材料可作为背景，但不能与 Booking/Airbnb/Expedia 相关业务高管等权。大型公司高管也不是自动高分：传播、公共事务等相邻职能谈供给或财务数据时，要在 `functional_proximity`、`expert_authority` 和 `evidence_quality` 中降分。
 
+亚太竞争映射中，**Agoda 和 Traveloka 是 Trip.com 的重点直接竞对**。Agoda 隶属 Booking Holdings，相关业务专家的 `organization_scope` 按 `global_leader` 评估；Traveloka 覆盖多个东南亚市场，按 `scaled_multimarket` 评估。两者的 `strategic_market_scope` 均为 `china_or_apac_priority`。如果访谈直接涉及亚太市场份额、流量、供给、定价、用户行为或渠道竞争，`ir_relevance` 可以给高分；`expert_authority` 仍取决于职位、职能和数据接近度。因此，Agoda 相关业务高管可进入 A 档，Traveloka 专家按现行公司规模上限最高为 B 档。
+
 ## 直接 IR 信息增量
 
 收录记录必须至少命中以下一个受控范围，并写清“为什么会改变 IR 判断”：
