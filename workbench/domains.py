@@ -141,11 +141,11 @@ DOMAINS: dict[str, Domain] = {
     ),
     "expert-calls": Domain(
         key="expert-calls",
-        zh="专家访谈精选",
+        zh="专家访谈情报与精选",
         facing="internal",
         cadence="按访谈到达",
         period_kind="run_id",
-        summary="访谈 PDF → 候选排序供人选择 → 飞书 Wiki callout；发布后生成内部情报草稿。",
+        summary="访谈 PDF → 先生成内部情报草稿供核对入库；独立排序后再由人选择飞书 callout。",
         origin="database_matain/.cursor/skills/expert-call-pipeline",
     ),
     "sellside-research": Domain(

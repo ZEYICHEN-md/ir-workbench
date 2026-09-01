@@ -312,9 +312,12 @@ class TestLarkPlanning(unittest.TestCase):
         planned = pipeline.plan_insertions([first, duplicate, third], content)
         self.assertEqual([row["title"] for row in planned], ["第一条", "第三条"])
 
-    def test_missing_intel_projection_blocks_before_lark(self):
-        def forbidden_lark(*_args):
-            self.fail("missing intel_entries must block before any Lark call")
+    def test_publish_does_not_require_intel_projection(self):
+        calls = []
+
+        def fake_lark(*args):
+            calls.append(args)
+            return {"ok": True, "data": {"document": {"content": ANCHOR_CONTENT}}}
 
         with TemporaryDirectory() as tmp:
             paths = make_root(tmp)
@@ -324,10 +327,11 @@ class TestLarkPlanning(unittest.TestCase):
                 encoding="utf-8",
             )
             result = pipeline.publish_manifest(
-                source, paths, "20260822-143015", confirm=True, lark=forbidden_lark
+                source, paths, "20260822-143015", lark=fake_lark
             )
-        self.assertEqual(result.status, "blocked")
-        self.assertIn("intel_entries", result.missing[0])
+        self.assertEqual(result.status, "partial")
+        self.assertTrue(calls)
+        self.assertNotIn("intel_draft", result.data)
 
     def test_no_confirmation_means_no_lark_write(self):
         calls = []
@@ -393,7 +397,7 @@ class TestLarkPlanning(unittest.TestCase):
             result = pipeline.publish_manifest(
                 source, paths, "20260822-143015", confirm=True, lark=fake_lark
             )
-            self.assertTrue(Path(result.data["intel_draft"]).is_file())
+            self.assertNotIn("intel_draft", result.data)
         updates = [call for call in calls if "+update" in call]
         anchors = [call[call.index("--block-id") + 1] for call in updates]
         self.assertEqual(anchors, ["grid-1680", "callout-1"])
@@ -441,21 +445,26 @@ class TestRunIdAndIntelDraft(unittest.TestCase):
         self.assertTrue(domain.validate_period("20260822-143015"))
         self.assertFalse(domain.validate_period("2026-08-22"))
 
-    def test_intel_draft_forces_channel_and_internal_without_commit(self):
+    def test_intel_draft_collects_excluded_interview_and_forces_internal(self):
         entry = {
             "kind": "action", "date": "2026-06-18", "title": "渠道调整",
             "body": "样本转化改善 12%。", "companies": ["ABNB"],
             "topics": ["distribution"], "media": "synthetic interview",
             "url": "https://example.invalid/source", "channel": "weekly",
-            "sensitivity": "shareable",
+            "sensitivity": "shareable", "quote": "样本转化改善 12%。",
+            "quote_where": "synthetic-interview.pdf · 第 2 页第 1 段",
         }
+        excluded = record(
+            include=False,
+            skip_reason="不适合飞书完整展示",
+            intel_entries=[entry],
+        )
         with TemporaryDirectory() as tmp:
             target = Path(tmp) / "draft.json"
-            pipeline.write_intelligence_draft(
-                {"interviews": [record()], "intel_entries": [entry]}, target
-            )
+            pipeline.write_intelligence_draft(manifest(excluded), target)
             draft = json.loads(target.read_text(encoding="utf-8"))
         self.assertFalse(draft["committed"])
+        self.assertEqual(draft["period"], "20260822-143015")
         self.assertEqual(draft["entries"][0]["channel"], "expert-call")
         self.assertEqual(draft["entries"][0]["sensitivity"], "internal")
 

@@ -21,11 +21,11 @@ class Step:
 
 STEPS = (
     Step("extract", "抽取访谈 PDF"),
-    Step("shortlist", "生成精选候选排序"),
-    Step("validate", "校验人工选择结果"),
+    Step("intel-draft", "提取公司情报库草稿"),
+    Step("shortlist", "生成飞书精选候选排序"),
+    Step("validate", "校验飞书人工选择结果"),
     Step("render", "渲染 callout XML"),
     Step("publish", "发布到飞书", "写飞书须明确确认", "发布专家访谈精选"),
-    Step("intel-draft", "生成情报库草稿"),
 )
 STEP_ORDER = [step.key for step in STEPS]
 STEP_BY_KEY = {step.key: step for step in STEPS}

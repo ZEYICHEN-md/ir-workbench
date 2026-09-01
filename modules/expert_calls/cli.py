@@ -43,6 +43,50 @@ def cmd_extract(args, base) -> Result:
     return Result(status="success", summary="PDF 已按页抽取到 ignored scratch。", domain=steps.DOMAIN, period=run_id, data={"text": str(written)})
 
 
+def cmd_intel_draft(args, base) -> Result:
+    run_id = _run_id(args)
+    source = Path(args.manifest)
+    target = (
+        Path(args.draft_out)
+        if args.draft_out
+        else base.scratch / "expert-calls" / run_id / "intel-draft.json"
+    )
+    try:
+        payload = pipeline.validate_shortlist(source)
+        prepared = pipeline.prepare_intelligence_entries(payload)
+        written = pipeline.write_intelligence_draft(payload, target, prepared=prepared)
+    except (OSError, ValueError) as error:
+        steps.record(base, run_id, "intel-draft", "blocked", note=str(error))
+        return Result(
+            status="blocked",
+            summary="专家访谈情报草稿未生成。",
+            domain=steps.DOMAIN,
+            period=run_id,
+            missing=[str(error)],
+        )
+    steps.record(
+        base,
+        run_id,
+        "intel-draft",
+        "done",
+        inputs={"manifest": source},
+        outputs={"intel-draft": written},
+        result_data={"entries": len(prepared)},
+    )
+    return Result(
+        status="partial",
+        summary=f"已提取 {len(prepared)} 条内部情报草稿，尚未写入公司情报库。",
+        domain=steps.DOMAIN,
+        period=run_id,
+        checks=[
+            {"name": "来源", "level": "ok", "detail": "每条保留专家原话与 PDF 页码/位置"},
+            {"name": "敏感度", "level": "ok", "detail": "expert-call · internal"},
+        ],
+        next_steps=["人工核对草稿后，先预演公司情报库写入；明确确认后再正式入库。"],
+        data={"draft": str(written), "entries": len(prepared)},
+    )
+
+
 def cmd_shortlist(args, base) -> Result:
     run_id = _run_id(args)
     source = Path(args.manifest)
@@ -131,8 +175,6 @@ def cmd_publish(args, base) -> Result:
         note=result.summary,
         result_data={"written_block_ids": result.data.get("written_block_ids", [])},
     )
-    if result.status == "success":
-        steps.record(base, run_id, "intel-draft", "done", outputs={"draft": Path(result.data["intel_draft"])})
     return result
 
 
@@ -161,7 +203,7 @@ def _add_run_id(parser) -> None:
 
 
 def register(subparsers, common) -> None:
-    parser = subparsers.add_parser("expert-calls", help="专家访谈 PDF → callout → 飞书")
+    parser = subparsers.add_parser("expert-calls", help="专家访谈 → 内部情报 + 飞书精选")
     sub = parser.add_subparsers(dest="expert_calls_command", required=True)
 
     extract = sub.add_parser("extract", help="按页抽取 PDF 到 ignored scratch", parents=[common])
@@ -169,6 +211,12 @@ def register(subparsers, common) -> None:
     extract.add_argument("--text-out", help="抽取文本路径；默认写 ignored scratch")
     _add_run_id(extract)
     extract.set_defaults(func=cmd_extract)
+
+    intel = sub.add_parser("intel-draft", help="独立生成公司情报库草稿", parents=[common])
+    intel.add_argument("--manifest", required=True)
+    intel.add_argument("--draft-out", help="情报草稿 JSON；默认写 ignored scratch")
+    _add_run_id(intel)
+    intel.set_defaults(func=cmd_intel_draft)
 
     shortlist = sub.add_parser("shortlist", help="生成人工精选候选排序", parents=[common])
     shortlist.add_argument("--manifest", required=True)

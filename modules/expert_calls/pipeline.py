@@ -237,7 +237,7 @@ def _validate_included(row: dict[str, Any], index: int) -> None:
     required = (
         "include", "title", "expert_background", "interview_time", "anchor_numbers",
         "paragraphs", "pdf_name", "pdf_href", "value_reason",
-        "inclusion_evidence", "expert_profile", "selection_review", "intel_entries",
+        "inclusion_evidence", "expert_profile", "selection_review",
     )
     missing = [key for key in required if not _present(row, key)]
     if "left_out" not in row:
@@ -318,11 +318,6 @@ def validate_manifest(source: Path | dict[str, Any]) -> dict[str, Any]:
             _validate_included(row, index)
         elif not isinstance(row.get("skip_reason"), str) or not row["skip_reason"].strip():
             raise ManifestValidationError(f"第 {index} 条未收录记录必须给非空字符串 skip_reason")
-        if "intel_entries" in row and not isinstance(row["intel_entries"], list):
-            raise ManifestValidationError(f"第 {index} 条 intel_entries 必须是数组")
-    if "intel_entries" in payload and not isinstance(payload["intel_entries"], list):
-        raise ManifestValidationError("manifest.intel_entries 必须是数组")
-    prepare_intelligence_entries(payload)
     return payload
 
 
@@ -747,22 +742,40 @@ def _save_publish_state(
 
 
 def _collect_intel_entries(payload: dict[str, Any]) -> list[dict[str, Any]]:
-    entries = list(payload.get("intel_entries", []))
-    for record in _records(payload):
-        if record.get("include"):
-            entries.extend(record.get("intel_entries", []))
+    """Collect intelligence from every interview, independent of Lark selection."""
+    top_level = payload.get("intel_entries", [])
+    if not isinstance(top_level, list):
+        raise ManifestValidationError("manifest.intel_entries 必须是数组")
+    entries = list(top_level)
+    for index, record in enumerate(_records(payload), 1):
+        record_entries = record.get("intel_entries", [])
+        if not isinstance(record_entries, list):
+            raise ManifestValidationError(f"第 {index} 条 intel_entries 必须是数组")
+        entries.extend(record_entries)
     return entries
+
+
 def prepare_intelligence_entries(payload: dict[str, Any]) -> list[dict[str, Any]]:
-    """Validate the complete intelligence projection before any Lark write."""
+    """Validate an internal intelligence draft without reading or writing Lark."""
     from modules.competitor_intel.entry import Entry, normalize
 
     raw_entries = _collect_intel_entries(payload)
-    if any(record.get("include") for record in _records(payload)) and not raw_entries:
+    if not raw_entries:
         raise ManifestValidationError(
-            "发布前必须提供 intel_entries；statement 必须含原话 quote 与位置 quote_where"
+            "没有可沉淀的 intel_entries；情报草稿至少需要 1 条有原话和位置的增量信息"
         )
     prepared: list[dict[str, Any]] = []
-    for raw in raw_entries:
+    for index, raw in enumerate(raw_entries, 1):
+        if not isinstance(raw, dict):
+            raise ManifestValidationError(f"第 {index} 条 intel entry 必须是 object")
+        quote = raw.get("quote")
+        quote_where = raw.get("quote_where")
+        if not isinstance(quote, str) or not quote.strip():
+            raise ManifestValidationError(f"第 {index} 条 intel entry 缺专家原话 quote")
+        if not isinstance(quote_where, str) or not _located(quote_where):
+            raise ManifestValidationError(
+                f"第 {index} 条 intel entry 的 quote_where 必须含 PDF 页码/位置"
+            )
         row = deepcopy(raw)
         row["channel"] = "expert-call"
         row["sensitivity"] = "internal"
@@ -777,12 +790,13 @@ def write_intelligence_draft(
     *,
     prepared: list[dict[str, Any]] | None = None,
 ) -> Path:
-    """Write an internal expert-call draft without committing it to the store."""
+    """Write a reviewable internal draft; this never commits to the store."""
     entries = prepared if prepared is not None else prepare_intelligence_entries(payload)
     write_text(
         target,
         json.dumps(
             {
+                "period": payload.get("run_id", ""),
                 "channel": "expert-call",
                 "sensitivity": "internal",
                 "committed": False,
@@ -803,10 +817,9 @@ def publish_manifest(
     confirm: bool = False,
     lark: LarkRunner = run_lark,
 ) -> Result:
-    """Plan or sequentially publish records, re-fetching after every write."""
+    """Plan or publish selected callouts; intelligence is a separate branch."""
     try:
         payload = validate_manifest(manifest_path)
-        prepared_intel = prepare_intelligence_entries(payload)
         anchor_content = fetch_document(lark, keyword=HEADING)
         anchor = resolve_anchor(anchor_content)
         included = [row for row in _records(payload) if row["include"]]
@@ -887,38 +900,19 @@ def publish_manifest(
                 data={"written_block_ids": written_ids, "written_titles": written_titles},
             )
 
-    try:
-        draft = write_intelligence_draft(
-            payload,
-            base.scratch / "expert-calls" / f"intel-draft-{run_id}.json",
-            prepared=prepared_intel,
-        )
-    except Exception as error:
-        _save_publish_state(manifest_path, status="partial", block_ids=written_ids, error=str(error))
-        return Result(
-            status="partial",
-            summary=f"飞书发布完成 {len(written_ids)} 条，但情报草稿校验失败。",
-            domain=DOMAIN,
-            period=run_id,
-            warnings=[str(error)],
-            data={"written_block_ids": written_ids},
-        )
-
     _save_publish_state(manifest_path, status="success", block_ids=written_ids)
     return Result(
         status="success",
-        summary=f"飞书发布完成 {len(written_ids)} 条；情报仅生成草稿，未入库。",
+        summary=f"飞书发布完成 {len(written_ids)} 条。",
         domain=DOMAIN,
         period=run_id,
         checks=[
             {"name": "逐条回读", "level": "ok", "detail": f"{len(written_ids)} 个 block id"},
-            {"name": "情报库", "level": "ok", "detail": "只生成 draft，committed=false"},
         ],
         data={
             "written_block_ids": written_ids,
             "written_titles": written_titles,
             "duplicates": duplicates,
-            "intel_draft": str(draft),
         },
     )
 
