@@ -11,7 +11,7 @@
 
 ## 旧仓与去向
 
-## 仓库现状（2026-08-24）
+## 仓库现状（2026-09-01）
 
 | 仓 | 地址 | 可见性 | 说明 |
 |---|---|---|---|
@@ -53,7 +53,9 @@
 - [x] `--json` 在子命令前后都能写；CLI 输出强制 UTF-8。
 - [x] 回归测试 58 项。
 
-未做（第二梯队，移交前要补）：首次安装引导、`ir package` 打包、CI。
+- [x] **Windows CI**：`.github/workflows/tests.yml` 在 push / PR / 手动触发时安装完整依赖，跑全量 unittest、doctor、域注册表和 LF hygiene。
+
+未做（第二梯队，移交前再补）：首次安装引导、`ir package` 打包。
 
 ### ✅ 第 0 步：骨架 + Control Plane（2026-08-22）
 
@@ -166,10 +168,10 @@
 
 | 内容 | 去向 |
 |---|---|
-| `.cursor/skills/expert-call-pipeline/`、`.cursor/agents/expert-call-insights.md`、`scripts/expert_call_pipeline.py`、`scripts/templates/expert_call*` | 第 3.5 步 `expert-calls`（ADR 0005） |
+| `.cursor/skills/expert-call-pipeline/`、`.cursor/agents/expert-call-insights.md`、`scripts/expert_call_pipeline.py`、`scripts/templates/expert_call*` | 已迁入 `modules/expert_calls/`（第 3.5 步，ADR 0005） |
 | `docs/briefs/`、`scripts/generate_brief_charts.py`、`scripts/publish_feishu_q3_brief.py` | **归档不迁**——季度展望简报确认为一次性产物（DECISIONS Q27）。归档进 `archive/` 或留在冻结的旧仓即可，脚本废弃。 |
 
-### 🔄 第 2 步：`aviation-monthly`（已迁入，待真实写入验收）
+### ✅ 第 2 步：`aviation-monthly`（2026-08 完成真实写入验收）
 
 - [x] 管道整体迁入 `modules/aviation_monthly/pipeline.py`（保留原有 dry-run/commit、staging、
       原子安装、独立复算、溯源 manifest —— 这部分质量高，不重写）
@@ -182,7 +184,7 @@
       结构不符须停止、跨年度先建新块）
 - [x] 修两个缺陷（见下），补 10 项解析测试
 - [x] **dry-run 真实跑通**：2026年7月，34/34 校验通过
-- [ ] **真实写入验收**：`--commit` 需用户确认；写入后须接 `ir industry merge`
+- [x] **真实写入验收**：2026 年 7 月数据已正式写入两份权威 Excel，随后重建行业快照与看板；`runs/aviation-monthly/202607/pipeline.json` 45/45 校验通过，16 个官方输入均可逐格溯源
 
 ### 迁移时修掉的两个既有缺陷
 
@@ -214,7 +216,7 @@
 
 固定件用的是 2026-08-15 发布的三家真实公告片段。
 
-### 🔄 第 3 步：`news-digest` + `competitor-intel`（2026-08-25 迁入，待真实一期验收）
+### ✅ 第 3 步：`news-digest` + `competitor-intel`（2026-08-W4 完成真实一期验收）
 
 两个一起——沉淀是新闻采集的副产品。
 
@@ -232,13 +234,13 @@
 
 - [x] 期次键改 ASCII（`2026-08-W2`），中文标签只用于汇报与交付文件名
 - [x] 召回层合并两个脚本（Skift + 36氪 RSS）；补充检索清单只打印不执行
-- [x] 去重台账迁入并补全：31 条 → **51 条 / 7 期**
+- [x] 去重台账迁入并补全：迁移时 31 条 → 51 条 / 7 期；W4 验收后为 **68 条 / 9 期**
 - [x] 交付物结构校验取代旧的 §二 校验；主动拦五部分骨架
 - [x] 导出器**照搬不重写**，逐字节比对证明新旧输出一致
 - [x] 删掉独立命令行入口，唯一入口 `ir news ...`
 - [x] 四期真实成品全部通过校验，零假警告；两个 RSS 源实测可达
 - [x] 32 项测试
-- [ ] **真实一期验收**：下一期从 `plan` 走到 `deposit`
+- [x] **真实一期验收**：`2026-08-W4` 从日期审计、validate、export、log、情报库沉淀到飞书发布全链完成；新闻 manifest 7/7、情报库 2/2
 
 **明确停用的五部分周报**
 
@@ -313,7 +315,8 @@
 
 **2. 台账漏登记两期，跨期去重对那两周是瞎的。**
 旧台账 31 条覆盖 `06-W4 / 07-W1 / 07-W2 / 07-W4 / 08-W2`，缺 `07-W3` 与 `08-W1`——
-这两期有成品、也进了情报库，但从没登记。已从情报库条目补录 20 条，现为 51 条 / 7 期。
+这两期有成品、也进了情报库，但从没登记。已从情报库条目补录 20 条，迁移当时达到 51 条 / 7 期；
+完成 W4 真实验收后，当前为 **68 条 / 9 期**。
 
 **3. 台账的「最近 N 期」原本按文件顺序取，补录会把它搞坏。**
 补录的期次追加到文件末尾，于是被当成最新的，真正的最近三期被挤出比对范围——查重静默失效。
@@ -332,17 +335,26 @@
 配对可信度用 `SequenceMatcher.ratio()` 把 4 条正确配对判成疑似错位——来源表标题是正文标题
 的**刻意缩写**，按两串总长归一必然偏低，须改成「短串被覆盖了多少」。
 
-**6. 建档层 8 家里 MEITUAN / TCEL / FLIGGY 回填后 0 条。**
-4 期精选里确实没有这三家的条目。这与选稿边界一致（中文侧只收「携程非当事方」的境内事件，
-可收范围本来就窄），是覆盖事实不是 bug。`ir doctor` 会持续报这一项，直到中文侧采集补上。
+**6. 迁移回填时建档层 8 家里 MEITUAN / TCEL / FLIGGY 为 0 条。**
 
-### ⬜ 第 3.5 步：`expert-calls`
+这是迁移时点的覆盖事实；2026-08-W4 后 TCEL 与 FLIGGY 已有条目，当前只剩 MEITUAN 仍为
+预期稀疏。名单不动，`ir doctor` 只提示不阻断；若连续多期有公开动作仍为 0，才判采集漏项。
 
-紧跟情报库之后，因为它是第三条采集通道（ADR 0005）。
+### 🔄 第 3.5 步：`expert-calls`（2026-09-01 代码迁入，待首篇真实访谈验收）
 
-要做：搬 `expert_call_pipeline.py` + `expert-call-insights.md` + callout 模板 + `config.example.json`；把飞书 doc token 与版块锚点写进 runbook（外部依赖，飞书改版会打断）；洞察写入飞书后追加沉淀进情报库，条目标内部级。
+紧跟情报库之后，因为它是第三条采集通道（ADR 0005）。已完成：
 
-验收：跑一篇真实访谈到飞书，且情报库里出现对应条目。
+- [x] 新模块 `modules/expert_calls/`、统一入口 `ir expert-calls`、`YYYYMMDD-HHMMSS` run id 与五步状态机
+- [x] `pdfplumber` 按页抽取；空文本/扫描件 hard block；真实 PDF/TXT 加入 Git 忽略边界
+- [x] manifest 代码门禁：2/3 收录信号、至少 4 个锚定数字、每段数字、每个数字原话与页码/位置
+- [x] 2026-09-01 用 `lark-cli --as user` 回读目标 Wiki **revision 1680**，确认三个现有摘要的唯一版式：灰边框 + 📌 + blockquote + 裸 URL；旧浅蓝背景与 bookmark 模板作废
+- [x] 发布默认 dry-run；按精确标题/PDF 链接判重；逐条写后回读并用新 block id 串行插入；中途失败保留已写 ids
+- [x] 飞书发布后只生成情报库草稿；`expert-call` 通道强制 `internal`，`statement` 强制原话与位置指针
+- [x] 合成固定件回归测试，不使用真实访谈材料、不访问飞书
+- [ ] **真实业务验收**：待用户提供下一篇真实访谈后，完成摘要审阅、明确发布确认、飞书写后回读与情报草稿核对；未获确认前不写线上
+
+代码迁移已使该域计入 `ir domains` 的 5/8；但在首篇真实输入走完前，状态必须保留“待真实验收”，
+不能把在线版式回读或 mock 测试包装成真实发布。
 
 ### ⬜ 第 4 步：`hk-market` / `sellside-research`
 

@@ -43,7 +43,32 @@ AlphaSense 类专家访谈的敏感度高于新闻。所有由本通道产生的
 
 ### 4. 权威归属不变
 
-Expert Call 精选的权威仍在飞书 Wiki（沿用原 SKILL 的判断，本流水线不写 `data/canonical/`）。情报库里的条目是**投影**，用于检索，不是权威稿。
+Expert Call 精选的权威仍在飞书 Wiki。情报库条目是用于检索的投影，不是权威稿。
+
+### 5. 实施增补（2026-09-01）
+
+迁移时以目标 Wiki 的 **revision 1680** 只读回读为准，确认旧本地模板已漂移。唯一有效结构是：
+
+```xml
+<callout border-color="rgb(239,240,241)" emoji="📌">
+  <p><b>标题</b></p>
+  <p><em>专家背景：...</em></p>
+  <p><em>时间：...</em></p>
+  <blockquote><p>...</p></blockquote>
+  <p><em><span text-color="rgb(143,149,158)">更多详情请见：</span></em>飞书文件裸 URL</p>
+</callout>
+```
+
+旧模板的浅蓝 `background-color` 与 `<bookmark>` 作废。标题仍是三栏 grid 中的红色居中 h2，
+callout 必须插在**整个 grid 后**。锚点每次运行时解析，不能把 block id 写死。
+
+- 运行索引采用 `YYYYMMDD-HHMMSS`，避免原 `period_kind = none` 无法追踪批次。
+- PDF 用 `pdfplumber` 按页抽取；空文本/扫描件硬停并要求 OCR，真实 PDF/TXT 不进 Git。
+- 发布默认 dry-run；只有用户明确说「发布专家访谈精选」才写飞书。
+- 写入前按精确标题或 PDF 链接判重；每写一条立即回读，取得新 block id 后再插下一条。
+- 中途失败返回 `partial` 并保留已写 block ids，重跑时依靠精确判重跳过已完成项。
+- 情报草稿只在飞书发布成功后生成，仍需另行确认才入库。`channel = expert-call` 一律强制
+  `internal`；表述条目必须保存原话和 `PDF 文件名 + 页码/位置`，摘要转述不得冒充原话。
 
 ## 后果
 

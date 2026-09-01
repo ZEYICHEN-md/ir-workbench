@@ -16,7 +16,7 @@
 
 ## 怎么用
 
-打开这个文件夹（Cursor 或 Claude Code 均可），对 Agent 说话。不需要记命令，不需要开终端。
+打开这个文件夹（Kiro、Cursor 或 Claude Code 均可），对 Agent 说话。不需要记命令，不需要开终端。
 
 不确定能做什么时，问一句「**工作台现在能做什么 / 什么状态**」。
 
@@ -42,12 +42,14 @@
 
 ## 迁移状态
 
-工作台正在把三个旧项目整合进来。当前进度：
+工作台正在把三个旧项目整合进来。当前 **5/8** 个域已迁入；前四个已完成真实业务验收，
+`expert-calls` 已完成代码迁移并等待下一篇真实访谈做首次发布验收。
 
-- [x] 骨架 + Control Plane（`ir doctor` / `ir status` 可用）
-- [ ] `industry-data`（含指标底稿归位）
-- [ ] `aviation-monthly`
-- [ ] `news-digest` + `competitor-intel`
+- [x] 骨架 + Control Plane（`ir doctor` / `ir status` / Windows CI）
+- [x] `industry-data`（含指标底稿归位与真实上线）
+- [x] `aviation-monthly`（含 2026 年 7 月真实写入）
+- [x] `news-digest` + `competitor-intel`（含 2026-08-W4 真实验收）
+- [x] `expert-calls`（代码、门禁、线上 revision 1680 模板；待首篇真实发布验收）
 - [ ] `hk-market` / `sellside-research`
 - [ ] `peers-appendix`
 

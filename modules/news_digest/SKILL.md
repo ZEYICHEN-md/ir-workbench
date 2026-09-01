@@ -137,7 +137,7 @@ ir intel deposit --commit --period <期次>       # 核对打标后
 
 ## 去重台账：只给候选，不下判断
 
-`modules/news_digest/news-log.jsonl`，51 条，覆盖 7 期。三道确定性防线：
+`modules/news_digest/news-log.jsonl`，68 条，覆盖 9 期。三道确定性防线：
 URL 规范化、事件指纹（`主体|事件核心`）、标题相似度（默认 0.72，比最近 3 期）。
 
 **「这算不算实质跟进」是人判断。**台账只报疑似，附命中原因。自动剔除会漏掉真正的跟进
