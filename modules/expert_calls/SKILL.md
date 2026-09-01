@@ -12,7 +12,7 @@
 ## 主链
 
 1. `ir expert-calls extract --pdf ... --run-id YYYYMMDD-HHMMSS`：用 `pdfplumber` 按页抽到 Git 忽略的 `scratch/`。
-2. Agent 按 [收录与写作规则](references/inclusion-and-writing.md) 为每篇形成候选记录：一句话概述、关键数字、行业事实/洞察、局限、相关范围和五维评分。此时 `include` 可为 `null`，表示待人决定。
+2. Agent 按 [收录与写作规则](references/inclusion-and-writing.md) 为每篇形成候选记录：一句话概述、关键数字、行业事实/洞察、局限、相关范围、`expert_profile` 和六维评分。此时 `include` 可为 `null`，表示待人决定。
 3. `shortlist`：代码计算透明的 100 分排序与 A/B/C 档，写出人读 Markdown。A = 优先考虑，B = 可考虑，C = 建议不收录；排序只辅助判断，不替人选择。
 4. 人工选择后，Agent 把每篇 `include` 落为 true/false；`validate` 校验直接 IR 信息增量、至少 4 个锚定数字、每段数字、原话/位置和情报条目 schema。
 5. `render`：只为人工选中的访谈渲染本目录模板，不接触飞书。
@@ -23,7 +23,7 @@
 
 ## Manifest 契约
 
-顶层必填 `run_id`（`YYYYMMDD-HHMMSS`）。候选阶段每篇必填 `title`、`expert_background`、`interview_time`、`pdf_name`、`anchor_numbers`、`inclusion_evidence` 与 `selection_review`；`include` 可为 `null`。`selection_review` 必须含一句话概述、关键洞察、局限和五维评分。人工决定后，`include` 必须变成 boolean；收录记录再必填 `paragraphs`、`left_out`、`pdf_href`、`value_reason` 和非空 `intel_entries`。每个 `anchor_numbers` 项必填 `value`、`so_what`、`source_quote`、`quote_where`。不收录记录必填 `skip_reason`。合成示例见 `templates/expert_calls.manifest.example.json`。
+顶层必填 `run_id`（`YYYYMMDD-HHMMSS`）。候选阶段每篇必填 `title`、`expert_background`、`expert_profile`、`interview_time`、`pdf_name`、`anchor_numbers`、`inclusion_evidence` 与 `selection_review`；`include` 可为 `null`。`expert_profile` 记录公司规模层级、职位层级和职能接近度；`selection_review` 必须含一句话概述、关键洞察、局限和六维评分。人工决定后，`include` 必须变成 boolean；收录记录再必填 `paragraphs`、`left_out`、`pdf_href`、`value_reason` 和非空 `intel_entries`。每个 `anchor_numbers` 项必填 `value`、`so_what`、`source_quote`、`quote_where`。不收录记录必填 `skip_reason`。合成示例见 `templates/expert_calls.manifest.example.json`。
 
 直接 IR 信息增量是收录硬门槛，受控范围只有：携程经营与财务判断、中国及跨境旅行需求、全球 OTA 竞争格局、AI 对旅行搜索/流量/交易转化的影响。**B2B 不是独立相关性分类**；只有当它显著影响竞对增长、利润率、渠道黏性或 AI 防御时，才作为经营机制写入。
 

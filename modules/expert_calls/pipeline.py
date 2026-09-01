@@ -34,10 +34,36 @@ RELEVANCE_AREAS = {
 }
 SCORE_WEIGHTS = {
     "ir_relevance": 30,
-    "information_gain": 25,
-    "evidence_quality": 20,
-    "causal_depth": 15,
-    "freshness": 10,
+    "information_gain": 20,
+    "expert_authority": 20,
+    "evidence_quality": 15,
+    "causal_depth": 10,
+    "freshness": 5,
+}
+ORGANIZATION_SCOPES = {
+    "global_leader": "大型跨国平台/集团",
+    "scaled_multimarket": "有规模的多市场公司",
+    "regional_or_niche": "区域性或细分公司",
+    "single_property_or_local": "单体酒店或本地小型公司",
+}
+ORGANIZATION_TIER_CAPS = {
+    "global_leader": "A",
+    "scaled_multimarket": "B",
+    "regional_or_niche": "C",
+    "single_property_or_local": "C",
+}
+ROLE_LEVELS = {
+    "c_suite_or_business_head",
+    "vp_or_head",
+    "director",
+    "manager_or_operator",
+    "advisor_or_external",
+}
+FUNCTIONAL_PROXIMITIES = {
+    "direct_owner",
+    "direct_team",
+    "adjacent_function",
+    "external_observer",
 }
 TIER_LABELS = {
     "A": "优先考虑进入飞书",
@@ -121,6 +147,24 @@ def _relevance_details(
     return list(dict.fromkeys(areas)), reason.strip()
 
 
+def _validate_expert_profile(row: dict[str, Any], index: int) -> dict[str, Any]:
+    profile = row.get("expert_profile")
+    if not isinstance(profile, dict):
+        raise ManifestValidationError(f"第 {index} 条缺 expert_profile")
+    for key in ("organization", "organization_scope", "role_level", "functional_proximity", "assessment"):
+        if not isinstance(profile.get(key), str) or not profile[key].strip():
+            raise ManifestValidationError(f"第 {index} 条 expert_profile.{key} 不能为空")
+    if profile["organization_scope"] not in ORGANIZATION_SCOPES:
+        raise ManifestValidationError(
+            f"第 {index} 条 organization_scope 只能是：{', '.join(ORGANIZATION_SCOPES)}"
+        )
+    if profile["role_level"] not in ROLE_LEVELS:
+        raise ManifestValidationError(f"第 {index} 条 role_level 不在受控分类中")
+    if profile["functional_proximity"] not in FUNCTIONAL_PROXIMITIES:
+        raise ManifestValidationError(f"第 {index} 条 functional_proximity 不在受控分类中")
+    return profile
+
+
 def _validate_selection_review(row: dict[str, Any], index: int) -> dict[str, Any]:
     review = row.get("selection_review")
     if not isinstance(review, dict):
@@ -180,7 +224,7 @@ def _validate_included(row: dict[str, Any], index: int) -> None:
     required = (
         "include", "title", "expert_background", "interview_time", "anchor_numbers",
         "paragraphs", "pdf_name", "pdf_href", "value_reason",
-        "inclusion_evidence", "selection_review", "intel_entries",
+        "inclusion_evidence", "expert_profile", "selection_review", "intel_entries",
     )
     missing = [key for key in required if not _present(row, key)]
     if "left_out" not in row:
@@ -241,6 +285,7 @@ def _validate_included(row: dict[str, Any], index: int) -> None:
     if not bool(evidence.get("quantified_content")):
         raise ManifestValidationError(f"第 {index} 条缺少量化内容证据")
     _relevance_details(evidence, index, required=True)
+    _validate_expert_profile(row, index)
     _validate_selection_review(row, index)
 
 
@@ -271,7 +316,7 @@ def validate_manifest(source: Path | dict[str, Any]) -> dict[str, Any]:
 def _validate_shortlist_candidate(row: dict[str, Any], index: int) -> None:
     required = (
         "title", "expert_background", "interview_time", "pdf_name",
-        "anchor_numbers", "inclusion_evidence", "selection_review",
+        "anchor_numbers", "inclusion_evidence", "expert_profile", "selection_review",
     )
     missing = [key for key in required if not _present(row, key)]
     if missing:
@@ -302,6 +347,7 @@ def _validate_shortlist_candidate(row: dict[str, Any], index: int) -> None:
             f"第 {index} 个候选 inclusion_evidence 有未知键：{', '.join(sorted(unknown))}"
         )
     areas, _reason = _relevance_details(evidence, index, required=False)
+    _validate_expert_profile(row, index)
     review = _validate_selection_review(row, index)
     if not areas and review["scores"]["ir_relevance"]["score"] != 0:
         raise ManifestValidationError(
@@ -332,6 +378,7 @@ def rank_candidates(source: Path | dict[str, Any]) -> list[dict[str, Any]]:
         evidence = row["inclusion_evidence"]
         areas, relevance_reason = _relevance_details(evidence, 1, required=False)
         scores = row["selection_review"]["scores"]
+        profile = row["expert_profile"]
         total = round(sum(
             scores[key]["score"] * weight / 5
             for key, weight in SCORE_WEIGHTS.items()
@@ -343,11 +390,20 @@ def rank_candidates(source: Path | dict[str, Any]) -> list[dict[str, Any]]:
             eligibility_reasons.append(f"只有 {len(row['anchor_numbers'])} 个锚定数字，少于 4 个")
         eligible = not eligibility_reasons
         if eligible and total >= 80:
-            tier = "A"
+            base_tier = "A"
         elif eligible and total >= 65:
-            tier = "B"
+            base_tier = "B"
         else:
-            tier = "C"
+            base_tier = "C"
+        scope = profile["organization_scope"]
+        tier_cap = ORGANIZATION_TIER_CAPS[scope]
+        tier_order = {"A": 0, "B": 1, "C": 2}
+        tier = base_tier if tier_order[base_tier] >= tier_order[tier_cap] else tier_cap
+        tier_cap_reason = ""
+        if tier != base_tier:
+            tier_cap_reason = (
+                f"专家来自{ORGANIZATION_SCOPES[scope]}，按来源偏好最高为 {tier_cap} 档"
+            )
         ranked.append({
             "title": row["title"],
             "pdf_name": row["pdf_name"],
@@ -356,7 +412,14 @@ def rank_candidates(source: Path | dict[str, Any]) -> list[dict[str, Any]]:
             "summary": row["selection_review"]["one_line_summary"],
             "score": total,
             "tier": tier,
+            "raw_tier": base_tier,
+            "tier_cap": tier_cap,
+            "tier_cap_reason": tier_cap_reason,
             "recommendation": TIER_LABELS[tier],
+            "expert_profile": {
+                **deepcopy(profile),
+                "organization_scope_label": ORGANIZATION_SCOPES[scope],
+            },
             "eligible": eligible,
             "eligibility_reasons": eligibility_reasons,
             "relevance_areas": [RELEVANCE_AREAS[area] for area in areas],
@@ -395,6 +458,13 @@ def render_shortlist(source: Path | dict[str, Any], target: Path) -> list[dict[s
             "",
             f"- **建议**：{item['recommendation']}；**人工决定**：{item['human_decision']}",
             f"- **专家背景**：{_one_line(item['expert_background'])}",
+            (
+                f"- **专家来源偏好**：{_one_line(item['expert_profile']['organization'])} · "
+                f"{item['expert_profile']['organization_scope_label']} · "
+                f"{item['expert_profile']['role_level']} · "
+                f"{item['expert_profile']['functional_proximity']}"
+            ),
+            f"- **身份判断**：{_one_line(item['expert_profile']['assessment'])}",
             f"- **访谈时间**：{_one_line(item['interview_time'])}",
             f"- **大致讲什么**：{_one_line(item['summary'])}",
             f"- **IR 相关范围**：{'、'.join(item['relevance_areas']) or '无直接相关性'}",
@@ -402,6 +472,8 @@ def render_shortlist(source: Path | dict[str, Any], target: Path) -> list[dict[s
         ])
         if item["eligibility_reasons"]:
             lines.append(f"- **硬门槛**：未通过（{'；'.join(item['eligibility_reasons'])}）")
+        if item["tier_cap_reason"]:
+            lines.append(f"- **来源档位上限**：{item['tier_cap_reason']}")
         lines.extend(["", "**关键数据**"])
         if item["valuable_data"]:
             for anchor in item["valuable_data"]:

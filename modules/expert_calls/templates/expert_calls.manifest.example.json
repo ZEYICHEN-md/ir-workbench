@@ -6,6 +6,13 @@
       "skip_reason": null,
       "title": "合成示例：渠道效率与分销结构",
       "expert_background": "匿名平台前业务负责人（合成固定件）",
+      "expert_profile": {
+        "organization": "Synthetic Global OTA",
+        "organization_scope": "global_leader",
+        "role_level": "vp_or_head",
+        "functional_proximity": "direct_owner",
+        "assessment": "合成示例设定为大型跨国平台、直接负责相关业务的负责人。"
+      },
       "interview_time": "2026 年 8 月",
       "anchor_numbers": [
         {
@@ -62,6 +69,7 @@
         "scores": {
           "ir_relevance": {"score": 5, "reason": "直接影响 OTA 增长质量判断。"},
           "information_gain": {"score": 4, "reason": "同时给出份额、成本和自动化覆盖。"},
+          "expert_authority": {"score": 5, "reason": "大型跨国平台相关业务直接负责人。"},
           "evidence_quality": {"score": 4, "reason": "每个数字均保留原话与页码。"},
           "causal_depth": {"score": 4, "reason": "给出渠道结构影响转化和成本的机制。"},
           "freshness": {"score": 4, "reason": "示例时间接近当前评估期。"}

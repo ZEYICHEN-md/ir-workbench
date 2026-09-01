@@ -28,6 +28,13 @@ def record(**over):
         "include": True,
         "title": "分发效率改善",
         "expert_background": "前某平台业务负责人",
+        "expert_profile": {
+            "organization": "Synthetic Global OTA",
+            "organization_scope": "global_leader",
+            "role_level": "vp_or_head",
+            "functional_proximity": "direct_owner",
+            "assessment": "大型跨国平台相关业务直接负责人。",
+        },
         "interview_time": "2026 年 6 月",
         "anchor_numbers": [
             {
@@ -64,6 +71,7 @@ def record(**over):
             "scores": {
                 "ir_relevance": {"score": 5, "reason": "直接影响 OTA 增长质量判断。"},
                 "information_gain": {"score": 4, "reason": "提供多项可核对数字。"},
+                "expert_authority": {"score": 5, "reason": "大型跨国平台相关业务负责人。"},
                 "evidence_quality": {"score": 4, "reason": "原话与位置齐全。"},
                 "causal_depth": {"score": 4, "reason": "解释渠道到转化的机制。"},
                 "freshness": {"score": 4, "reason": "访谈时间较新。"},
@@ -161,6 +169,7 @@ class TestShortlistRanking(unittest.TestCase):
         medium_review["scores"] = {
             "ir_relevance": {"score": 4, "reason": "与竞对经营有关。"},
             "information_gain": {"score": 3, "reason": "部分信息已有公开线索。"},
+            "expert_authority": {"score": 3, "reason": "专家层级和接近度中等。"},
             "evidence_quality": {"score": 3, "reason": "主要是专家估算。"},
             "causal_depth": {"score": 3, "reason": "机制解释中等。"},
             "freshness": {"score": 3, "reason": "信息略有时滞。"},
@@ -182,6 +191,20 @@ class TestShortlistRanking(unittest.TestCase):
         self.assertEqual(ranked[0]["tier"], "C")
         self.assertFalse(ranked[0]["eligible"])
         self.assertIn("没有直接 IR 信息增量", ranked[0]["eligibility_reasons"])
+
+    def test_regional_or_niche_source_cannot_reach_a_or_b(self):
+        row = record(title="区域公司高分访谈", include=None)
+        row["expert_profile"] = {
+            "organization": "Regional Travel Operator",
+            "organization_scope": "regional_or_niche",
+            "role_level": "vp_or_head",
+            "functional_proximity": "direct_owner",
+            "assessment": "职位较高，但公司仅覆盖区域市场。",
+        }
+        ranked = pipeline.rank_candidates(manifest(row))
+        self.assertEqual(ranked[0]["raw_tier"], "A")
+        self.assertEqual(ranked[0]["tier"], "C")
+        self.assertIn("最高为 C 档", ranked[0]["tier_cap_reason"])
 
     def test_shortlist_markdown_exposes_data_insights_and_caveats(self):
         with TemporaryDirectory() as tmp:
