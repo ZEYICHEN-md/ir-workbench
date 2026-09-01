@@ -21,6 +21,42 @@ JSON 骨架：[feishu-im-card.template.json](feishu-im-card.template.json)
 
 Wiki 两份文档仍走 [feishu-publish.md](feishu-publish.md)，和这张卡互不替代。
 
+## 每周怎么触发
+
+从 2026-09-01 起，**做完当期新闻精选定稿就默认出这张卡**，不必再等一句「发周报卡片」。
+说「做这周新闻精选」或「发周报卡片」都走这里。机器人私聊发给用户，用户转发到「IR小分队」。
+
+缺料就停，不要凑：
+
+| 状态 | 何时 |
+|---|---|
+| `blocked` | 没有当期 `outputs/news-digest/<期次键>/旅行行业新闻精选-*.md`；或 `travel.json` 最新一周缺 `hotelRevPAR` / `aviationPax` / `aviationTicket` 任一 |
+| `partial` | 精选和 KPI 有了，但 `travel-insights-zh.md` 的 `basedOnTravelJsonUpdatedAt` 对不上 `travel.json` 的 `dataUpdate`：KPI 仍用快照数字，评述用已确认洞察，脚注写清两个日期 |
+| `success` | 模板占位符填齐并私聊发出 |
+
+## 取数对照（每周只读这些地方）
+
+不要打开 Excel 手抄，不要另写点评。卡片上每一块都有固定来源：
+
+| 卡片位置 | 读哪里 | 取什么 |
+|---|---|---|
+| 标题 `周报 \| {月}月第{周}周` | `ir news plan` 的中文标签，或精选定稿文件名 | 如 `8月第4周` |
+| 副标题新闻窗口 | 定稿开头「情报主周」 | `8/24–8/30` |
+| 副标题数据截至 | `data/canonical/travel.json` → `meta.dataUpdate` | `8/22` |
+| 本周概览 | 定稿「本周概览」列表 | 压缩成 2–3 条，不改判断 |
+| 新闻标题 + 正文 | 定稿「一、OTA/旅游行业新闻精选」各条 | 标题可缩短显示，so-what 不改口径 |
+| 新闻标题链接 | 定稿「新闻来源」表，**与正文同序同行** | `https://…` 必须来自该表，禁止另搜 |
+| KPI 酒店 RevPAR | `travel.json` → `weekly.hotelRevPAR` **最后一格** | 带符号百分数，升绿降红 |
+| KPI 航空客运量 | `weekly.aviationPax` 最后一格 | 同上 |
+| KPI 机票票价 | `weekly.aviationTicket` 最后一格 | 同上 |
+| KPI 三块里的口径 | `weekly.weeks` 最后一项 | 写成 `周度同比 8/16–8/22` |
+| 国内酒店 / 国内航空 / 出境航空评述 | `modules/industry_data/insights/travel-insights-zh.md` 已确认中文 | 周度 + 最近完整月度，可压缩，不新写归因 |
+| 脚注来源名单 | `travel.json` → `meta.dataSource` | 不要写底稿文件名 |
+| 看板按钮 | 固定 | `https://datamax.fun` |
+
+新闻主周和数据截至日经常错开一周，两个日期都写上，不要假装对齐。
+不要把港股、卖方、来源表塞进卡片。完整来源表只在精选 Markdown 里。
+
 ## 骨架（4 个视觉块 + 1 个按钮）
 
 1. **概览** `blue-50`：本周 2–3 条要点，来自精选定稿的「本周概览」
@@ -48,12 +84,6 @@ Header：`周报 | {月}月第{周}周`，副标题固定写成 `新闻情报主
 | `DATA_WINDOW_CAPTION` | `周度同比 8/16–8/22 · 月度为 7 月` |
 | `HOTEL_BODY` / `AVIATION_DOM_BODY` / `AVIATION_INTL_BODY` | 来自已确认中文洞察，可压缩，不新写归因 |
 | `FOOTNOTE` | 新闻期次与发布日、数据截至日、来源、仅供内部参考。**不要写底稿文件名** |
-
-## 取数
-
-- **新闻**：`outputs/news-digest/<期次键>/旅行行业新闻精选-*.md` 已定稿。标题沿用图标语义，并做成 Markdown 链接指向来源表 URL；正文可缩短，但数字和 so-what 不得改口径。不写携程当事方。
-- **数据**：`data/canonical/travel.json` 取最新一周三个 KPI；`modules/industry_data/insights/travel-insights-zh.md` 取酒店 / 国内航空 / 出境航空评述。新闻主周和数据截至日经常错开一周，**两个日期都写上，不要假装对齐**。
-- **不要**把港股、卖方、来源表塞进卡片。完整来源表在精选 Markdown 里。
 
 ## 怎么发
 

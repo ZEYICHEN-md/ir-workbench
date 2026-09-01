@@ -339,4 +339,4 @@ r25/r47/r75/r137/r167）。从第 1 行找第一个「周」会命中 2023 年�
 - `docs/adr/0001-excel-as-metrics-authority.md` — 为什么 Excel 是权威
 - `docs/GLOSSARY.md` § 数据 — 指标底稿 / 指标快照 / 洞察底稿
 - `tests/test_industry_data.py` — diff 门禁与投影等价性的回归测试
-- `modules/news_digest/references/feishu-im-card.md` — 内部群周报卡片的数据节从本域已确认洞察取，不在本域另写一套评述
+- `modules/news_digest/references/feishu-im-card.md` — 每周默认周报卡片的数据节从本域已确认洞察取，不在本域另写一套评述
