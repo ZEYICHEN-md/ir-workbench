@@ -9,34 +9,67 @@
     },
     "style": {
       "text_size": {
-        "title": { "default": "heading-2", "pc": "heading-2", "mobile": "heading-3" },
-        "body": { "default": "normal", "pc": "normal", "mobile": "normal" },
-        "caption": { "default": "notation", "pc": "notation", "mobile": "notation" }
+        "title": {
+          "default": "heading-2",
+          "pc": "heading-2",
+          "mobile": "heading-3"
+        },
+        "body": {
+          "default": "normal",
+          "pc": "normal",
+          "mobile": "normal"
+        },
+        "caption": {
+          "default": "notation",
+          "pc": "notation",
+          "mobile": "notation"
+        }
       },
       "color": {
-        "cus-primary": { "light_mode": "rgba(30,120,255,1)", "dark_mode": "rgba(80,150,255,1)" },
-        "cus-primary-bg": { "light_mode": "rgba(30,120,255,0.08)", "dark_mode": "rgba(80,150,255,0.12)" },
-        "cus-muted": { "light_mode": "rgba(100,106,115,1)", "dark_mode": "rgba(150,155,163,1)" }
+        "cus-primary": {
+          "light_mode": "rgba(30,120,255,1)",
+          "dark_mode": "rgba(80,150,255,1)"
+        },
+        "cus-primary-bg": {
+          "light_mode": "rgba(30,120,255,0.08)",
+          "dark_mode": "rgba(80,150,255,0.12)"
+        },
+        "cus-muted": {
+          "light_mode": "rgba(100,106,115,1)",
+          "dark_mode": "rgba(150,155,163,1)"
+        }
       }
     }
   },
   "header": {
-    "title": { "tag": "plain_text", "content": "周报 | {{PERIOD_LABEL}}" },
+    "title": {
+      "tag": "plain_text",
+      "content": "周报 | {{PERIOD_LABEL}}"
+    },
     "subtitle": {
       "tag": "plain_text",
-      "content": "情报主周 {{NEWS_WINDOW}}  ·  行业数据截至 {{DATA_AS_OF}}"
+      "content": "新闻情报主周 {{NEWS_WINDOW}}  ·  行业数据截至 {{DATA_AS_OF}}"
     },
     "template": "blue",
-    "icon": { "tag": "standard_icon", "token": "chart_colorful" },
+    "icon": {
+      "tag": "standard_icon",
+      "token": "chart_colorful"
+    },
     "text_tag_list": [
       {
         "tag": "text_tag",
-        "text": { "tag": "plain_text", "content": "新闻精选" },
+        "text": {
+          "tag": "plain_text",
+          "content": "新闻精选"
+        },
         "color": "blue"
       },
       {
         "tag": "text_tag",
-        "text": { "tag": "plain_text", "content": "行业数据" },
+        "text": {
+          "tag": "plain_text",
+          "content": "行业数据"
+        },
         "color": "wathet"
       }
     ]
@@ -112,6 +145,12 @@
                 "text_align": "center",
                 "text_size": "caption",
                 "content": "<font color='grey'>{{KPI1_LABEL}}</font>"
+              },
+              {
+                "tag": "markdown",
+                "text_align": "center",
+                "text_size": "caption",
+                "content": "<font color='grey'>{{KPI_SCOPE}}</font>"
               }
             ]
           },
@@ -133,6 +172,12 @@
                 "text_align": "center",
                 "text_size": "caption",
                 "content": "<font color='grey'>{{KPI2_LABEL}}</font>"
+              },
+              {
+                "tag": "markdown",
+                "text_align": "center",
+                "text_size": "caption",
+                "content": "<font color='grey'>{{KPI_SCOPE}}</font>"
               }
             ]
           },
@@ -154,6 +199,12 @@
                 "text_align": "center",
                 "text_size": "caption",
                 "content": "<font color='grey'>{{KPI3_LABEL}}</font>"
+              },
+              {
+                "tag": "markdown",
+                "text_align": "center",
+                "text_size": "caption",
+                "content": "<font color='grey'>{{KPI_SCOPE}}</font>"
               }
             ]
           }
@@ -186,10 +237,19 @@
         "type": "primary_filled",
         "width": "fill",
         "size": "medium",
-        "text": { "tag": "plain_text", "content": "打开行业数据看板" },
-        "icon": { "tag": "standard_icon", "token": "chart_outlined" },
+        "text": {
+          "tag": "plain_text",
+          "content": "打开行业数据看板"
+        },
+        "icon": {
+          "tag": "standard_icon",
+          "token": "chart_outlined"
+        },
         "behaviors": [
-          { "type": "open_url", "default_url": "https://datamax.fun" }
+          {
+            "type": "open_url",
+            "default_url": "https://datamax.fun"
+          }
         ]
       }
     ]
