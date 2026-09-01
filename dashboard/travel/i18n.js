@@ -383,6 +383,11 @@ function applyStaticI18n() {
   applyIrBrand();
   applyHeroMeta();
   document.querySelectorAll('.dl-text').forEach(el => { el.textContent = t('downloadImg'); });
+  document.querySelectorAll('.download-all').forEach(el => {
+    const label = t('downloadAll');
+    el.setAttribute('aria-label', label);
+    el.setAttribute('title', label);
+  });
   const langBtn = document.getElementById('lang-toggle');
   if (langBtn) langBtn.textContent = t('langBtn');
   const footer = document.getElementById('i18n-footer');

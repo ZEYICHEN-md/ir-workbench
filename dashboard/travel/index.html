@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>2026年旅游行业数据看板</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,7 +43,8 @@
             min-height: 100vh;
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
-            padding-top: 52px; /* fixed topnav */
+            overflow-x: hidden;
+            padding-top: calc(52px + env(safe-area-inset-top, 0px)); /* fixed topnav */
         }
 
         .container {
@@ -59,6 +60,7 @@
             left: 0;
             right: 0;
             z-index: 50;
+            padding-top: env(safe-area-inset-top, 0px);
             background: rgba(255, 255, 255, 0.94);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border);
@@ -345,7 +347,7 @@
         /* Chart Grid */
         .chart-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(560px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(560px, 100%), 1fr));
             gap: 16px;
             margin-bottom: 20px;
         }
@@ -707,6 +709,7 @@
             .q-sector-grid--2 { grid-template-columns: minmax(0, 1fr); width: 100%; }
         }
         @media (max-width: 768px) {
+            .container { padding: 12px 12px 20px; }
             .chart-grid { grid-template-columns: 1fr; }
             .kpi-row { grid-template-columns: repeat(2, 1fr); }
             .kpi-value { font-size: 20px; }
@@ -719,16 +722,38 @@
             .q-sector .kpi-card {
                 flex-basis: 58px;
             }
-            .topnav-inner {
-                padding: 10px 14px;
-                gap: 10px;
+            .q-overview-block,
+            .chart-card,
+            .conclusions {
+                padding: 14px 12px;
             }
-            .topnav-tabs .tab { padding: 7px 10px; font-size: 12px; }
+            .topnav-inner {
+                padding: 8px 12px;
+                gap: 8px;
+            }
+            .topnav-tabs {
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+            .topnav-tabs .tab {
+                padding: 8px 8px;
+                font-size: 12px;
+            }
+            .topnav-actions { gap: 6px; }
+            .lang-toggle {
+                padding: 8px 10px;
+                min-height: 36px;
+            }
+            .download-all {
+                padding: 8px 10px;
+                min-height: 36px;
+            }
+            .download-all span { display: none; }
             .page-hero {
-                padding: 16px 14px 6px;
+                padding: 16px 12px 6px;
             }
             .page-hero-card {
-                padding: 22px 18px 18px;
+                padding: 22px 16px 18px;
                 border-radius: 10px;
             }
             .ir-brand {
@@ -748,6 +773,55 @@
             .page-hero-accent {
                 margin: 12px auto 14px;
             }
+            .chart-header {
+                flex-wrap: wrap;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .chart-title {
+                font-size: 15px;
+                line-height: 1.4;
+                flex: 1 1 180px;
+            }
+            .chart-download {
+                min-height: 36px;
+                padding: 8px 12px;
+            }
+            .chart-container,
+            .chart-container.tall {
+                height: 300px;
+            }
+            .chart-container.zoomable {
+                height: 360px;
+            }
+            .series-toggle {
+                padding: 6px 10px 6px 10px;
+                font-size: 12px;
+                gap: 8px;
+            }
+            .series-toggle-switch {
+                width: 22px;
+                height: 12px;
+            }
+            .series-toggle-switch::after {
+                width: 10px;
+                height: 10px;
+            }
+            .chart-zoom-metrics {
+                justify-content: flex-start;
+                gap: 4px;
+                margin-top: 8px;
+            }
+            .zoom-metric-hint,
+            .zoom-metric-btn {
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+            .ytd-avg-tag {
+                font-size: 11px;
+                padding: 2px 6px;
+                border-radius: 2px;
+            }
             .insight-group {
                 grid-template-columns: 1fr;
                 gap: 8px;
@@ -765,7 +839,7 @@
             </div>
             <div class="topnav-actions">
                 <button type="button" class="lang-toggle" id="lang-toggle" onclick="toggleLang()">EN</button>
-                <button type="button" class="download-all" onclick="downloadAllCharts()">
+                <button type="button" class="download-all" onclick="downloadAllCharts()" aria-label="下载全部图表" title="下载全部图表">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     <span id="i18n-download-all">下载全部图表</span>
                 </button>
@@ -1065,6 +1139,12 @@
 
     <script>
         const chartInstances = {};
+        const NARROW_MQ = '(max-width: 768px)';
+        let lastNarrow = window.matchMedia(NARROW_MQ).matches;
+
+        function isNarrow() {
+            return window.matchMedia(NARROW_MQ).matches;
+        }
 
         function getChart(id) {
             if (chartInstances[id]) chartInstances[id].dispose();
@@ -1228,14 +1308,15 @@
 
         // ============ WEEKLY ============
         function weeklyXAxis(weeks) {
-            const step = weeks.length > 16 ? 2 : 1;
+            const narrow = isNarrow();
+            const step = weeks.length > 16 ? (narrow ? 4 : 2) : 1;
             return {
                 ...baseOpts.xAxis,
                 data: weeks,
                 axisLabel: {
                     ...baseOpts.xAxis.axisLabel,
-                    rotate: 35,
-                    fontSize: 10,
+                    rotate: narrow ? 50 : 35,
+                    fontSize: narrow ? 9 : 10,
                     hideOverlap: true,
                     interval: (idx) => idx === 0 || idx === weeks.length - 1 || idx % step === 0,
                 },
@@ -1245,28 +1326,37 @@
         // 底部滑块：经典 dataZoom 阴影；用隐藏首序列指定预览指标
         const zoomShadowIndex = { 'weekly-hotel': 1, 'weekly-aviation': 0 };
 
-        function weeklyDataZoom() {
+        function weeklyDataZoom(weekCount) {
+            const narrow = isNarrow();
+            const visible = 16;
+            const start = (narrow && weekCount > visible)
+                ? Math.max(0, 100 * (1 - visible / weekCount))
+                : 0;
             return [
                 {
                     type: 'inside',
                     xAxisIndex: 0,
                     filterMode: 'filter',
-                    zoomOnMouseWheel: true,
+                    zoomOnMouseWheel: !narrow,
                     moveOnMouseMove: true,
                     moveOnMouseWheel: false,
+                    start,
+                    end: 100,
                 },
                 {
                     type: 'slider',
                     xAxisIndex: 0,
                     filterMode: 'filter',
-                    height: 22,
-                    bottom: 8,
-                    showDetail: true,
+                    height: narrow ? 18 : 22,
+                    bottom: narrow ? 6 : 8,
+                    start,
+                    end: 100,
+                    showDetail: !narrow,
                     showDataShadow: true,
                     borderColor: 'rgba(8,34,86,0.10)',
                     fillerColor: 'rgba(8,34,86,0.06)',
                     handleIcon: 'path://M-1,0 L1,0 L1,12 L-1,12 Z',
-                    handleSize: '80%',
+                    handleSize: narrow ? '110%' : '80%',
                     handleStyle: {
                         color: 'rgba(8,34,86,0.35)',
                         borderColor: 'rgba(8,34,86,0.25)',
@@ -1290,6 +1380,7 @@
         }
 
         function weeklyChartOpts(weeks, series, shadowIdx) {
+            const narrow = isNarrow();
             const idx = Math.max(0, Math.min(series.length - 1, shadowIdx == null ? 0 : shadowIdx));
             const src = series[idx];
             const shadow = {
@@ -1306,17 +1397,22 @@
                 emphasis: { disabled: true },
                 z: 0,
             };
+            const visSeries = narrow
+                ? series.map(s => Object.assign({}, s, { label: { show: false } }))
+                : series;
             return {
                 ...baseOpts,
                 legend: {
                     show: false,
                     selectedMode: true,
-                    data: series.map(s => s.name).filter(Boolean),
+                    data: visSeries.map(s => s.name).filter(Boolean),
                 },
-                grid: { ...baseOpts.grid, right: 168, bottom: 78, top: '10%' },
-                dataZoom: weeklyDataZoom(),
+                grid: narrow
+                    ? { left: 6, right: 10, top: 18, bottom: 58, containLabel: true }
+                    : { ...baseOpts.grid, right: 168, bottom: 78, top: '10%' },
+                dataZoom: weeklyDataZoom(weeks.length),
                 xAxis: weeklyXAxis(weeks),
-                series: [shadow].concat(series),
+                series: [shadow].concat(visSeries),
             };
         }
 
@@ -1330,10 +1426,11 @@
                 row.className = 'chart-zoom-metrics';
             }
             const toggles = card.querySelector('.series-toggles') || chartDom.querySelector('.series-toggles');
+            const togglesOnCard = toggles && toggles.parentElement === card;
             if (row.parentElement !== card) {
-                // Always keep preview metrics below the chart block (slider lives inside chart)
-                chartDom.insertAdjacentElement('afterend', row);
-            } else if (toggles && toggles.parentElement === card && toggles.nextElementSibling !== row) {
+                if (togglesOnCard) toggles.insertAdjacentElement('afterend', row);
+                else chartDom.insertAdjacentElement('afterend', row);
+            } else if (togglesOnCard && toggles.nextElementSibling !== row) {
                 toggles.insertAdjacentElement('afterend', row);
             }
 
@@ -1378,7 +1475,7 @@
             }
             row.hidden = false;
 
-            const inZoomable = host.classList.contains('zoomable');
+            const inZoomable = host.classList.contains('zoomable') && !isNarrow();
             if (inZoomable) {
                 if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
                 if (row.parentElement !== host) host.appendChild(row);
@@ -1863,11 +1960,14 @@
                 return;
             }
             let left = 0, top = 0;
+            const narrow = isNarrow();
             try {
                 const yPx = chart.convertToPixel({ yAxisIndex: 0 }, avg);
                 const rect = chart.getModel().getComponent('grid', 0).coordinateSystem.getRect();
-                // Anchor LEFT edge just past the plot so text stays in the right blank margin
-                left = Math.round(rect.x + rect.width + 10);
+                // Desktop: sit in the right gutter. Phone: sit inside the plot so we don't steal 168px.
+                left = narrow
+                    ? Math.round(rect.x + rect.width - 8)
+                    : Math.round(rect.x + rect.width + 10);
                 top = Math.round(yPx);
             } catch (e) {
                 return;
@@ -1877,6 +1977,7 @@
             tag.style.right = 'auto';
             tag.style.left = left + 'px';
             tag.style.top = top + 'px';
+            tag.style.transform = narrow ? 'translate(-100%, -50%)' : 'translateY(-50%)';
             tag.style.color = color || C.ytdAvg;
             chart.setOption({
                 graphic: [{
@@ -1889,8 +1990,8 @@
                     style: {
                         text: tag.textContent,
                         fill: color || C.ytdAvg,
-                        font: '700 13px "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif',
-                        align: 'left',
+                        font: (narrow ? '700 11px' : '700 13px') + ' "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif',
+                        align: narrow ? 'right' : 'left',
                         verticalAlign: 'middle',
                         opacity: 0,
                     },
@@ -2368,6 +2469,12 @@
             initAll();
         });
         window.addEventListener('resize', () => {
+            const nowNarrow = isNarrow();
+            if (nowNarrow !== lastNarrow) {
+                lastNarrow = nowNarrow;
+                if (typeof renderWeeklyHotel === 'function') renderWeeklyHotel();
+                if (typeof renderWeeklyAviation === 'function') renderWeeklyAviation();
+            }
             Object.values(chartInstances).forEach(c => {
                 c.resize();
                 if (typeof c.__ytdRefresh === 'function') c.__ytdRefresh();
