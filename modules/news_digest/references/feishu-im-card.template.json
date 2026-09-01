@@ -115,7 +115,7 @@
             "elements": [
               {
                 "tag": "markdown",
-                "content": "**一、OTA/旅游行业新闻精选**\n\n{{NEWS_ITEMS}}"
+                "content": "**一、OTA/旅游行业新闻精选**\n<font color='grey'>点击新闻标题可跳转原文</font>\n\n{{NEWS_ITEMS}}"
               }
             ]
           }
