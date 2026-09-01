@@ -73,21 +73,19 @@ ir news log --period <期次> --commit
 ir intel deposit --dir outputs/news-digest/<期次键> --period <期次>
 ir intel deposit --commit --period <期次>       # 核对打标后
 
-# 8 内部群周报卡片（**每周默认做**）
-#   套 references/feishu-im-card.md：定稿精选 + travel.json + 已确认洞察
-#   机器人私聊发给用户，由用户转发到 IR小分队。结构冻结，只填占位符。
-
-# 9 发布飞书 Wiki（**只有用户明确要求才做**）
-#   照 references/feishu-publish.md 走，两份文档写语义相反，别搞混
+# 8 发布飞书 Wiki（云文档归档）
+#   照 references/feishu-publish.md 走：
+#   - 旅业资讯库（主文档只挂最新一期 HTML 附件）
+#   - 历史周报汇总（末尾追加当期记录与 HTML 附件）
 ```
 
-三处门禁，其余不要停下来问：
+门禁与独立触发：
 
-| 停在哪 | 需要听到什么 |
+| 动作 | 门禁 / 触发方式 |
 |---|---|
 | 第 7 步入库前 | 打标草稿核对过（主题是猜的，公司标签可信） |
-| 第 8 步卡片 | **每周默认发给用户**（2026-09-01 起）。缺精选定稿或缺 `travel.json` 最新一周三序列则 `blocked`，说明缺什么 |
-| 第 9 步 Wiki | 用户明确说要发到旅业资讯库 / 历史周报汇总 |
+| 第 8 步 Wiki 发布 | 精选定稿导出后自动执行；若两份文档写语义有冲突则停下 |
+| **飞书卡片周报（独立触发）** | 说「做这周飞书卡片周报」时独立跑（见 references/feishu-im-card.md），读取当期定稿精选 + `travel.json` 最新行业数据与洞察，私聊发给用户转发 |
 
 > 迁移欠账（已补）：旧仓 `travel-pulse-weekly/SKILL.md` 就是这样一份端到端剧本，
 > 使用者说一句话、Agent 一路跑完包括飞书。第一次迁移只搬来了命令清单，没搬这份剧本，
@@ -104,8 +102,8 @@ ir intel deposit --commit --period <期次>       # 核对打标后
 | [retrieval.md](references/retrieval.md) | **第 2 步之前必读。**引擎 × 问法的参数级禁令（描述式只喂 exa）、B 类放开域名、覆盖矩阵 |
 | [source-quality.md](references/source-quality.md) | **搜索捞回稿要落地时必读。**可信源清单与判定原则、排除特征、摘要防脑补 |
 | [editorial-standards.md](references/editorial-standards.md) | **第 4 步写稿时必读。**选稿三步、定稿自检、图标语义、概览写法、语气 |
-| [feishu-im-card.md](references/feishu-im-card.md) | **每周默认。**第 8 步内部群卡片；结构冻结，只填占位符 |
-| [feishu-publish.md](references/feishu-publish.md) | 第 9 步发布 Wiki 时读 |
+| [feishu-publish.md](references/feishu-publish.md) | **第 8 步发布 Wiki 时读。**旅业资讯库（撤旧换新）+ 历史周报汇总（追加） |
+| [feishu-im-card.md](references/feishu-im-card.md) | **独立触发。**用户说「做这周飞书卡片周报」时读；结构冻结，只填占位符 |
 
 这五份是**判据**，上面那份剧本是**顺序**。只按剧本跑不读判据，会跑出「流程都对、
 选稿和写法都飘」的结果——第一次迁移就只搬来了顺序。
@@ -175,13 +173,12 @@ URL 规范化、事件指纹（`主体|事件核心`）、标题相似度（默�
 重写的收益是代码整齐，代价是排版悄悄变样而没人立刻发现。迁移时用逐字节比对证明了
 新旧对同一份精选产出完全一致。
 
-## 飞书发布
+## 飞书分流（两套不同产物）
 
-两条路径，不要混：
-
-- **Wiki 归档**（旅业资讯库 + 历史周报汇总）：**[references/feishu-publish.md](references/feishu-publish.md)**。须用户明确说要发 Wiki。
-- **内部群周报卡片**（新闻精选 + 行业数据）：**[references/feishu-im-card.md](references/feishu-im-card.md)**。
-  **每周默认**：精选定稿后套冻结模板，机器人私聊发给用户，由用户转发。不是对外精选，也不是五部分周报。
+- **Wiki 云文档归档**（旅业资讯库 + 历史周报汇总）：**[references/feishu-publish.md](references/feishu-publish.md)**。
+  作为新闻精选的收尾交付，将 HTML 附件更新到旅业资讯库（最新一期）与历史周报汇总（追加）。
+- **飞书卡片周报**（内部群聊即时交付）：**[references/feishu-im-card.md](references/feishu-im-card.md)**。
+  **独立触发**：用户说「做这周飞书卡片周报」时跑。读取当期定稿精选 + `travel.json` 最新行业数据与洞察，套冻结模板，机器人私聊发给用户转发。不是对外精选，也不是五部分周报。
 
 Wiki 路径要点：
 
@@ -193,7 +190,8 @@ Wiki 路径要点：
 
 ## 硬纪律
 
-- **不擅自对外发布。**Wiki 归档须用户明确说了才做。内部群周报卡片从 2026-09-01 起每周默认私聊发给用户，由用户转发；仍不直接发进群。
+- **两段流程解耦，不擅自跨线。**说「做这周新闻精选」负责新闻采编、校验导出、沉淀入库与云文档归档；说「做这周飞书卡片周报」才组合行业数据发卡。
+- **卡片只私聊发给用户。**由用户转发到「IR小分队」，不直接发进群。
 - **不写携程自己的动作与表述**（见上）。
 - **写字不自动化。**工具做召回、查重、校验、导出、沉淀；那两三句 so-what 是判断，人写。
 - **硬错误没清掉不要导出、不要登记台账、不要沉淀。**`export` 与默认成稿 `log` 都会前置复核。
