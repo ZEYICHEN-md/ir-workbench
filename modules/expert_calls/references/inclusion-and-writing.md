@@ -21,10 +21,10 @@ A 档为 80 分及以上，优先考虑进入飞书；B 档为 65–79.9 分，�
 
 - `global_leader`：大型跨国平台/集团，可进入 A 档；
 - `scaled_multimarket`：有规模的多市场公司，最高 B 档；
-- `regional_or_niche`：区域性或细分公司，最高 C 档；
+- `regional_or_niche`：区域性或细分公司通常最高 C 档；但若直接覆盖 Trip.com 国际扩张重点的中国或亚太市场，最高可到 B 档；
 - `single_property_or_local`：单体酒店或本地小型公司，最高 C 档。
 
-因此，小酒店负责人、地方公司或区域性公司的专家即使数字很多，也原则上不进入精选；其材料可作为背景，但不能与 Booking/Airbnb/Expedia 相关业务高管等权。大型公司高管也不是自动高分：传播、公共事务等相邻职能谈供给或财务数据时，要在 `functional_proximity`、`expert_authority` 和 `evidence_quality` 中降分。
+公司规模影响的是**专家背书强度**，不等于信息本身无效。亚太区域公司的专家若能提供直接关联 Trip.com 重点市场的需求、竞争、渠道或用户行为信息，应在 `ir_relevance` 中获得高分，同时因来源规模较弱在 `expert_authority` 中降分，最终通常落在 B 档。非重点区域的小公司、地方公司或单体酒店即使数字很多，原则上仍不进入精选；其材料可作为背景，但不能与 Booking/Airbnb/Expedia 相关业务高管等权。大型公司高管也不是自动高分：传播、公共事务等相邻职能谈供给或财务数据时，要在 `functional_proximity`、`expert_authority` 和 `evidence_quality` 中降分。
 
 ## 直接 IR 信息增量
 

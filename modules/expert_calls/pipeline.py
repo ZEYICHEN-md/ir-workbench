@@ -52,6 +52,12 @@ ORGANIZATION_TIER_CAPS = {
     "regional_or_niche": "C",
     "single_property_or_local": "C",
 }
+STRATEGIC_MARKET_SCOPES = {
+    "china_or_apac_priority": "中国或亚太重点市场",
+    "global_peer_readthrough": "全球竞对映射",
+    "other_region": "其他区域市场",
+    "local_only": "单一本地市场",
+}
 ROLE_LEVELS = {
     "c_suite_or_business_head",
     "vp_or_head",
@@ -151,12 +157,19 @@ def _validate_expert_profile(row: dict[str, Any], index: int) -> dict[str, Any]:
     profile = row.get("expert_profile")
     if not isinstance(profile, dict):
         raise ManifestValidationError(f"第 {index} 条缺 expert_profile")
-    for key in ("organization", "organization_scope", "role_level", "functional_proximity", "assessment"):
+    for key in (
+        "organization", "organization_scope", "strategic_market_scope",
+        "role_level", "functional_proximity", "assessment",
+    ):
         if not isinstance(profile.get(key), str) or not profile[key].strip():
             raise ManifestValidationError(f"第 {index} 条 expert_profile.{key} 不能为空")
     if profile["organization_scope"] not in ORGANIZATION_SCOPES:
         raise ManifestValidationError(
             f"第 {index} 条 organization_scope 只能是：{', '.join(ORGANIZATION_SCOPES)}"
+        )
+    if profile["strategic_market_scope"] not in STRATEGIC_MARKET_SCOPES:
+        raise ManifestValidationError(
+            f"第 {index} 条 strategic_market_scope 只能是：{', '.join(STRATEGIC_MARKET_SCOPES)}"
         )
     if profile["role_level"] not in ROLE_LEVELS:
         raise ManifestValidationError(f"第 {index} 条 role_level 不在受控分类中")
@@ -396,14 +409,23 @@ def rank_candidates(source: Path | dict[str, Any]) -> list[dict[str, Any]]:
         else:
             base_tier = "C"
         scope = profile["organization_scope"]
+        market_scope = profile["strategic_market_scope"]
         tier_cap = ORGANIZATION_TIER_CAPS[scope]
+        if scope == "regional_or_niche" and market_scope == "china_or_apac_priority":
+            tier_cap = "B"
         tier_order = {"A": 0, "B": 1, "C": 2}
         tier = base_tier if tier_order[base_tier] >= tier_order[tier_cap] else tier_cap
         tier_cap_reason = ""
         if tier != base_tier:
-            tier_cap_reason = (
-                f"专家来自{ORGANIZATION_SCOPES[scope]}，按来源偏好最高为 {tier_cap} 档"
-            )
+            if scope == "regional_or_niche" and market_scope == "china_or_apac_priority":
+                tier_cap_reason = (
+                    "专家来自区域性/细分公司，但直接覆盖 Trip.com 国际扩张重点的"
+                    "中国或亚太市场；来源背书较弱，最高为 B 档"
+                )
+            else:
+                tier_cap_reason = (
+                    f"专家来自{ORGANIZATION_SCOPES[scope]}，按来源偏好最高为 {tier_cap} 档"
+                )
         ranked.append({
             "title": row["title"],
             "pdf_name": row["pdf_name"],
@@ -419,6 +441,7 @@ def rank_candidates(source: Path | dict[str, Any]) -> list[dict[str, Any]]:
             "expert_profile": {
                 **deepcopy(profile),
                 "organization_scope_label": ORGANIZATION_SCOPES[scope],
+                "strategic_market_scope_label": STRATEGIC_MARKET_SCOPES[market_scope],
             },
             "eligible": eligible,
             "eligibility_reasons": eligibility_reasons,
@@ -461,6 +484,7 @@ def render_shortlist(source: Path | dict[str, Any], target: Path) -> list[dict[s
             (
                 f"- **专家来源偏好**：{_one_line(item['expert_profile']['organization'])} · "
                 f"{item['expert_profile']['organization_scope_label']} · "
+                f"{item['expert_profile']['strategic_market_scope_label']} · "
                 f"{item['expert_profile']['role_level']} · "
                 f"{item['expert_profile']['functional_proximity']}"
             ),

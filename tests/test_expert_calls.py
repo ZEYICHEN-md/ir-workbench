@@ -31,6 +31,7 @@ def record(**over):
         "expert_profile": {
             "organization": "Synthetic Global OTA",
             "organization_scope": "global_leader",
+            "strategic_market_scope": "global_peer_readthrough",
             "role_level": "vp_or_head",
             "functional_proximity": "direct_owner",
             "assessment": "大型跨国平台相关业务直接负责人。",
@@ -197,6 +198,7 @@ class TestShortlistRanking(unittest.TestCase):
         row["expert_profile"] = {
             "organization": "Regional Travel Operator",
             "organization_scope": "regional_or_niche",
+            "strategic_market_scope": "other_region",
             "role_level": "vp_or_head",
             "functional_proximity": "direct_owner",
             "assessment": "职位较高，但公司仅覆盖区域市场。",
@@ -205,6 +207,21 @@ class TestShortlistRanking(unittest.TestCase):
         self.assertEqual(ranked[0]["raw_tier"], "A")
         self.assertEqual(ranked[0]["tier"], "C")
         self.assertIn("最高为 C 档", ranked[0]["tier_cap_reason"])
+
+    def test_apac_regional_source_can_reach_b_but_not_a(self):
+        row = record(title="亚太区域公司高价值访谈", include=None)
+        row["expert_profile"] = {
+            "organization": "APAC Regional OTA",
+            "organization_scope": "regional_or_niche",
+            "strategic_market_scope": "china_or_apac_priority",
+            "role_level": "vp_or_head",
+            "functional_proximity": "direct_owner",
+            "assessment": "区域来源背书较弱，但直接覆盖 Trip.com 国际扩张重点市场。",
+        }
+        ranked = pipeline.rank_candidates(manifest(row))
+        self.assertEqual(ranked[0]["raw_tier"], "A")
+        self.assertEqual(ranked[0]["tier"], "B")
+        self.assertIn("亚太市场", ranked[0]["tier_cap_reason"])
 
     def test_shortlist_markdown_exposes_data_insights_and_caveats(self):
         with TemporaryDirectory() as tmp:
