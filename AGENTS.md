@@ -52,7 +52,7 @@ ir domains     # 有哪些域、哪些已迁入
 
 工作台正在整合三个旧项目，当前 **5/8** 个域已迁入新架构。`industry-data`、
 `aviation-monthly`、`news-digest` 与 `competitor-intel` 均已完成真实业务验收；
-`expert-calls` 已完成代码迁移、线上 revision 1680 版式回读和回归测试，待收到下一篇真实访谈后做首次发布验收。
+`expert-calls` 已完成代码迁移、线上 revision 1680 版式回读、回归测试和 7 篇真实访谈候选排序只读验证，待人工选择后做首次发布验收。
 其余未迁入域相关能力暂不可用，`ir domains` 会显示。进度与顺序见
 [docs/MIGRATION.md](docs/MIGRATION.md)。
 

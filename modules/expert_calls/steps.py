@@ -21,7 +21,8 @@ class Step:
 
 STEPS = (
     Step("extract", "抽取访谈 PDF"),
-    Step("validate", "校验收录 manifest"),
+    Step("shortlist", "生成精选候选排序"),
+    Step("validate", "校验人工选择结果"),
     Step("render", "渲染 callout XML"),
     Step("publish", "发布到飞书", "写飞书须明确确认", "发布专家访谈精选"),
     Step("intel-draft", "生成情报库草稿"),

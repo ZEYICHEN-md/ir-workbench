@@ -43,13 +43,13 @@
 ## 迁移状态
 
 工作台正在把三个旧项目整合进来。当前 **5/8** 个域已迁入；前四个已完成真实业务验收，
-`expert-calls` 已完成代码迁移并等待下一篇真实访谈做首次发布验收。
+`expert-calls` 已完成代码迁移和 7 篇真实访谈候选排序只读验证，待人工选择后做首次发布验收。
 
 - [x] 骨架 + Control Plane（`ir doctor` / `ir status` / Windows CI）
 - [x] `industry-data`（含指标底稿归位与真实上线）
 - [x] `aviation-monthly`（含 2026 年 7 月真实写入）
 - [x] `news-digest` + `competitor-intel`（含 2026-08-W4 真实验收）
-- [x] `expert-calls`（代码、门禁、线上 revision 1680 模板；待首篇真实发布验收）
+- [x] `expert-calls`（候选排序、人工选择门禁、线上 revision 1680 模板；待首篇真实发布验收）
 - [ ] `hk-market` / `sellside-research`
 - [ ] `peers-appendix`
 

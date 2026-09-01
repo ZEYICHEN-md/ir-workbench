@@ -44,7 +44,28 @@
       "inclusion_evidence": {
         "quantified_content": "4 个带原话与页码的锚定数字",
         "causal_mechanism": "分销结构调整影响转化与成本",
-        "relevant_information_gain": false
+        "relevant_information_gain": {
+          "areas": ["global_ota_competition"],
+          "reason": "渠道效率和获客成本会影响 OTA 的增长质量与利润率判断。"
+        }
+      },
+      "selection_review": {
+        "one_line_summary": "用合成数据说明渠道结构如何同时影响转化、份额、获客成本和自动化覆盖。",
+        "key_insights": [
+          {
+            "insight": "份额增长若伴随获客成本上升，不能直接等同于经营质量改善。",
+            "why_it_matters": "需要把增长与单位经济性放在一起判断。",
+            "anchor_refs": [2, 3]
+          }
+        ],
+        "caveats": ["全部数字为合成固定件，不能用于真实公司判断。"],
+        "scores": {
+          "ir_relevance": {"score": 5, "reason": "直接影响 OTA 增长质量判断。"},
+          "information_gain": {"score": 4, "reason": "同时给出份额、成本和自动化覆盖。"},
+          "evidence_quality": {"score": 4, "reason": "每个数字均保留原话与页码。"},
+          "causal_depth": {"score": 4, "reason": "给出渠道结构影响转化和成本的机制。"},
+          "freshness": {"score": 4, "reason": "示例时间接近当前评估期。"}
+        }
       },
       "intel_entries": [
         {

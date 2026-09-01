@@ -344,9 +344,11 @@
 
 紧跟情报库之后，因为它是第三条采集通道（ADR 0005）。已完成：
 
-- [x] 新模块 `modules/expert_calls/`、统一入口 `ir expert-calls`、`YYYYMMDD-HHMMSS` run id 与五步状态机
+- [x] 新模块 `modules/expert_calls/`、统一入口 `ir expert-calls`、`YYYYMMDD-HHMMSS` run id 与六步状态机
 - [x] `pdfplumber` 按页抽取；空文本/扫描件 hard block；真实 PDF/TXT 加入 Git 忽略边界
-- [x] manifest 代码门禁：2/3 收录信号、至少 4 个锚定数字、每段数字、每个数字原话与页码/位置
+- [x] 人工选择前生成候选排序：逐篇概述、关键数据、行业事实/洞察、局限与五维评分，代码计算 A/B/C 档；排序不代替人决定
+- [x] **候选排序真实只读验证**：2026-09-01 并行读取 `test_expert_calls/` 的 7 篇真实访谈，生成 A 5 / B 1 / C 1 排序与人读报告；全部保持待决定，未渲染 callout、未调用飞书；这不等于真实发布验收
+- [x] manifest 代码门禁：直接 IR 信息增量、至少 4 个锚定数字、每段数字、每个数字原话与页码/位置；B2B 不单独构成收录理由
 - [x] 2026-09-01 用 `lark-cli --as user` 回读目标 Wiki **revision 1680**，确认三个现有摘要的唯一版式：灰边框 + 📌 + blockquote + 裸 URL；旧浅蓝背景与 bookmark 模板作废
 - [x] 发布默认 dry-run；按精确标题/PDF 链接判重；逐条写后回读并用新 block id 串行插入；中途失败保留已写 ids
 - [x] 飞书发布后只生成情报库草稿；`expert-call` 通道强制 `internal`，`statement` 强制原话与位置指针

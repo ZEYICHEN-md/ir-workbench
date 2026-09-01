@@ -26,6 +26,24 @@ EVIDENCE_KEYS = (
     "causal_mechanism",
     "relevant_information_gain",
 )
+RELEVANCE_AREAS = {
+    "tcom_operations": "携程经营与财务判断",
+    "china_cross_border": "中国及跨境旅行需求",
+    "global_ota_competition": "全球 OTA 竞争格局",
+    "ai_travel_distribution": "AI 对旅行搜索、流量与交易转化的影响",
+}
+SCORE_WEIGHTS = {
+    "ir_relevance": 30,
+    "information_gain": 25,
+    "evidence_quality": 20,
+    "causal_depth": 15,
+    "freshness": 10,
+}
+TIER_LABELS = {
+    "A": "优先考虑进入飞书",
+    "B": "可考虑，需人工权衡",
+    "C": "建议不收录",
+}
 
 
 class ManifestValidationError(ValueError):
@@ -72,11 +90,97 @@ def _located(value: Any) -> bool:
     ))
 
 
+def _relevance_details(
+    evidence: dict[str, Any],
+    index: int,
+    *,
+    required: bool,
+) -> tuple[list[str], str]:
+    value = evidence.get("relevant_information_gain")
+    if value in (None, False, "", []):
+        if required:
+            raise ManifestValidationError(
+                f"第 {index} 条没有直接 IR 信息增量；B2B 不能单独作为收录理由"
+            )
+        return [], ""
+    if not isinstance(value, dict):
+        raise ManifestValidationError(
+            f"第 {index} 条 relevant_information_gain 必须包含 areas 与 reason"
+        )
+    areas = value.get("areas")
+    reason = value.get("reason")
+    if not isinstance(areas, list) or not areas or not all(isinstance(area, str) for area in areas):
+        raise ManifestValidationError(f"第 {index} 条相关性 areas 必须是非空数组")
+    unknown = set(areas) - set(RELEVANCE_AREAS)
+    if unknown:
+        raise ManifestValidationError(
+            f"第 {index} 条有未知相关性分类：{', '.join(sorted(unknown))}"
+        )
+    if not isinstance(reason, str) or not reason.strip():
+        raise ManifestValidationError(f"第 {index} 条相关性 reason 不能为空")
+    return list(dict.fromkeys(areas)), reason.strip()
+
+
+def _validate_selection_review(row: dict[str, Any], index: int) -> dict[str, Any]:
+    review = row.get("selection_review")
+    if not isinstance(review, dict):
+        raise ManifestValidationError(f"第 {index} 条缺 selection_review")
+    summary = review.get("one_line_summary")
+    if not isinstance(summary, str) or not summary.strip():
+        raise ManifestValidationError(f"第 {index} 条 one_line_summary 不能为空")
+    caveats = review.get("caveats")
+    if not isinstance(caveats, list) or not all(isinstance(item, str) and item.strip() for item in caveats):
+        raise ManifestValidationError(f"第 {index} 条 caveats 必须是字符串数组")
+    insights = review.get("key_insights")
+    if not isinstance(insights, list):
+        raise ManifestValidationError(f"第 {index} 条 key_insights 必须是数组")
+    for insight_number, insight in enumerate(insights, 1):
+        if not isinstance(insight, dict):
+            raise ManifestValidationError(f"第 {index} 条第 {insight_number} 个 insight 必须是 object")
+        for key in ("insight", "why_it_matters", "anchor_refs"):
+            if key not in insight:
+                raise ManifestValidationError(
+                    f"第 {index} 条第 {insight_number} 个 insight 缺 {key}"
+                )
+        if not all(
+            isinstance(insight[key], str) and insight[key].strip()
+            for key in ("insight", "why_it_matters")
+        ):
+            raise ManifestValidationError(
+                f"第 {index} 条第 {insight_number} 个 insight 文本不能为空"
+            )
+        refs = insight["anchor_refs"]
+        if not isinstance(refs, list) or not all(isinstance(ref, int) and ref > 0 for ref in refs):
+            raise ManifestValidationError(
+                f"第 {index} 条第 {insight_number} 个 anchor_refs 必须是正整数数组"
+            )
+        if any(ref > len(row.get("anchor_numbers", [])) for ref in refs):
+            raise ManifestValidationError(
+                f"第 {index} 条第 {insight_number} 个 insight 引用了不存在的 anchor"
+            )
+    scores = review.get("scores")
+    if not isinstance(scores, dict) or set(scores) != set(SCORE_WEIGHTS):
+        raise ManifestValidationError(
+            f"第 {index} 条 scores 必须且只能包含：{', '.join(SCORE_WEIGHTS)}"
+        )
+    for key in SCORE_WEIGHTS:
+        item = scores[key]
+        if not isinstance(item, dict):
+            raise ManifestValidationError(f"第 {index} 条 {key} 评分必须是 object")
+        score = item.get("score")
+        reason = item.get("reason")
+        if isinstance(score, bool) or not isinstance(score, int) or not 0 <= score <= 5:
+            raise ManifestValidationError(f"第 {index} 条 {key}.score 必须是 0–5 整数")
+        if not isinstance(reason, str) or not reason.strip():
+            raise ManifestValidationError(f"第 {index} 条 {key}.reason 不能为空")
+    return review
+
+
 def _validate_included(row: dict[str, Any], index: int) -> None:
     required = (
         "include", "title", "expert_background", "interview_time", "anchor_numbers",
         "paragraphs", "pdf_name", "pdf_href", "value_reason",
-        "inclusion_evidence", "intel_entries",
+        "inclusion_evidence", "selection_review", "intel_entries",
     )
     missing = [key for key in required if not _present(row, key)]
     if "left_out" not in row:
@@ -134,9 +238,10 @@ def _validate_included(row: dict[str, Any], index: int) -> None:
     unknown = set(evidence) - set(EVIDENCE_KEYS)
     if unknown:
         raise ManifestValidationError(f"第 {index} 条 inclusion_evidence 有未知键：{', '.join(sorted(unknown))}")
-    met = [key for key in EVIDENCE_KEYS if bool(evidence.get(key))]
-    if len(met) < 2:
-        raise ManifestValidationError(f"第 {index} 条收录证据只满足 {len(met)}/3，至少需要 2/3")
+    if not bool(evidence.get("quantified_content")):
+        raise ManifestValidationError(f"第 {index} 条缺少量化内容证据")
+    _relevance_details(evidence, index, required=True)
+    _validate_selection_review(row, index)
 
 
 def validate_manifest(source: Path | dict[str, Any]) -> dict[str, Any]:
@@ -161,6 +266,178 @@ def validate_manifest(source: Path | dict[str, Any]) -> dict[str, Any]:
         raise ManifestValidationError("manifest.intel_entries 必须是数组")
     prepare_intelligence_entries(payload)
     return payload
+
+
+def _validate_shortlist_candidate(row: dict[str, Any], index: int) -> None:
+    required = (
+        "title", "expert_background", "interview_time", "pdf_name",
+        "anchor_numbers", "inclusion_evidence", "selection_review",
+    )
+    missing = [key for key in required if not _present(row, key)]
+    if missing:
+        raise ManifestValidationError(f"第 {index} 个候选缺字段：{', '.join(missing)}")
+    if row.get("include") not in (None, True, False):
+        raise ManifestValidationError(f"第 {index} 个候选 include 必须是 true/false/null")
+    anchors = row["anchor_numbers"]
+    if not isinstance(anchors, list):
+        raise ManifestValidationError(f"第 {index} 个候选 anchor_numbers 必须是数组")
+    for number, anchor in enumerate(anchors, 1):
+        if not isinstance(anchor, dict):
+            raise ManifestValidationError(f"第 {index} 个候选第 {number} 个 anchor 必须是 object")
+        for key in ("value", "so_what", "source_quote", "quote_where"):
+            if not isinstance(anchor.get(key), str) or not anchor[key].strip():
+                raise ManifestValidationError(
+                    f"第 {index} 个候选第 {number} 个 anchor 的 {key} 不能为空"
+                )
+        if not _located(anchor["quote_where"]):
+            raise ManifestValidationError(
+                f"第 {index} 个候选第 {number} 个 anchor 的 quote_where 必须含页码/位置"
+            )
+    evidence = row["inclusion_evidence"]
+    if not isinstance(evidence, dict):
+        raise ManifestValidationError(f"第 {index} 个候选 inclusion_evidence 必须是 object")
+    unknown = set(evidence) - set(EVIDENCE_KEYS)
+    if unknown:
+        raise ManifestValidationError(
+            f"第 {index} 个候选 inclusion_evidence 有未知键：{', '.join(sorted(unknown))}"
+        )
+    areas, _reason = _relevance_details(evidence, index, required=False)
+    review = _validate_selection_review(row, index)
+    if not areas and review["scores"]["ir_relevance"]["score"] != 0:
+        raise ManifestValidationError(
+            f"第 {index} 个候选无直接 IR 相关性时，ir_relevance.score 必须为 0"
+        )
+
+
+def validate_shortlist(source: Path | dict[str, Any]) -> dict[str, Any]:
+    """Validate a pre-decision candidate manifest where include may be null."""
+    payload = _load_payload(source)
+    run_id = payload.get("run_id")
+    if not isinstance(run_id, str) or not re.fullmatch(
+        r"20\d{6}-(?:[01]\d|2[0-3])[0-5]\d[0-5]\d", run_id
+    ):
+        raise ManifestValidationError("manifest.run_id 必须是 YYYYMMDD-HHMMSS")
+    for index, row in enumerate(_records(payload), 1):
+        if not isinstance(row, dict):
+            raise ManifestValidationError(f"第 {index} 个候选必须是 object")
+        _validate_shortlist_candidate(row, index)
+    return payload
+
+
+def rank_candidates(source: Path | dict[str, Any]) -> list[dict[str, Any]]:
+    """Return a transparent, evidence-backed ranking for human selection."""
+    payload = validate_shortlist(source)
+    ranked: list[dict[str, Any]] = []
+    for row in _records(payload):
+        evidence = row["inclusion_evidence"]
+        areas, relevance_reason = _relevance_details(evidence, 1, required=False)
+        scores = row["selection_review"]["scores"]
+        total = round(sum(
+            scores[key]["score"] * weight / 5
+            for key, weight in SCORE_WEIGHTS.items()
+        ), 1)
+        eligibility_reasons: list[str] = []
+        if not areas:
+            eligibility_reasons.append("没有直接 IR 信息增量")
+        if len(row["anchor_numbers"]) < 4:
+            eligibility_reasons.append(f"只有 {len(row['anchor_numbers'])} 个锚定数字，少于 4 个")
+        eligible = not eligibility_reasons
+        if eligible and total >= 80:
+            tier = "A"
+        elif eligible and total >= 65:
+            tier = "B"
+        else:
+            tier = "C"
+        ranked.append({
+            "title": row["title"],
+            "pdf_name": row["pdf_name"],
+            "expert_background": row["expert_background"],
+            "interview_time": row["interview_time"],
+            "summary": row["selection_review"]["one_line_summary"],
+            "score": total,
+            "tier": tier,
+            "recommendation": TIER_LABELS[tier],
+            "eligible": eligible,
+            "eligibility_reasons": eligibility_reasons,
+            "relevance_areas": [RELEVANCE_AREAS[area] for area in areas],
+            "relevance_reason": relevance_reason,
+            "valuable_data": [deepcopy(anchor) for anchor in row["anchor_numbers"][:5]],
+            "key_insights": deepcopy(row["selection_review"]["key_insights"]),
+            "caveats": list(row["selection_review"]["caveats"]),
+            "score_details": deepcopy(scores),
+            "human_decision": (
+                "待决定" if row.get("include") is None
+                else "选择进入飞书" if row["include"] else "不进入飞书"
+            ),
+        })
+    ranked.sort(key=lambda item: ({"A": 0, "B": 1, "C": 2}[item["tier"]], -item["score"], item["title"]))
+    for rank, item in enumerate(ranked, 1):
+        item["rank"] = rank
+    return ranked
+
+
+def _one_line(value: Any) -> str:
+    return re.sub(r"\s+", " ", str(value)).strip()
+
+
+def render_shortlist(source: Path | dict[str, Any], target: Path) -> list[dict[str, Any]]:
+    """Write the human review report; this stage never renders or publishes callouts."""
+    ranked = rank_candidates(source)
+    lines = [
+        "# Expert Call 精选候选排序",
+        "",
+        "> 这是辅助人工选择的透明排序，不代表自动发布。只有人工决定 include 后，才进入 callout 草稿。",
+        "",
+    ]
+    for item in ranked:
+        lines.extend([
+            f"## {item['rank']}. [{item['tier']} · {item['score']:.1f}/100] {_one_line(item['title'])}",
+            "",
+            f"- **建议**：{item['recommendation']}；**人工决定**：{item['human_decision']}",
+            f"- **专家背景**：{_one_line(item['expert_background'])}",
+            f"- **访谈时间**：{_one_line(item['interview_time'])}",
+            f"- **大致讲什么**：{_one_line(item['summary'])}",
+            f"- **IR 相关范围**：{'、'.join(item['relevance_areas']) or '无直接相关性'}",
+            f"- **为什么重要**：{_one_line(item['relevance_reason']) or '未建立直接 IR 信息增量'}",
+        ])
+        if item["eligibility_reasons"]:
+            lines.append(f"- **硬门槛**：未通过（{'；'.join(item['eligibility_reasons'])}）")
+        lines.extend(["", "**关键数据**"])
+        if item["valuable_data"]:
+            for anchor in item["valuable_data"]:
+                lines.append(
+                    f"- **{_one_line(anchor['value'])}**：{_one_line(anchor['so_what'])}；"
+                    f"原话：{_one_line(anchor['source_quote'])}（{_one_line(anchor['quote_where'])}）"
+                )
+        else:
+            lines.append("- 无足够可核对数字")
+        lines.extend(["", "**高参考意义的事实与洞察**"])
+        if item["key_insights"]:
+            for insight in item["key_insights"]:
+                refs = "、".join(str(ref) for ref in insight["anchor_refs"]) or "无数字锚点"
+                lines.append(
+                    f"- {_one_line(insight['insight'])} —— {_one_line(insight['why_it_matters'])}"
+                    f"（锚点 {refs}）"
+                )
+        else:
+            lines.append("- 未识别出足以改变判断的洞察")
+        lines.extend(["", "**局限与风险**"])
+        if item["caveats"]:
+            lines.extend(f"- {_one_line(caveat)}" for caveat in item["caveats"])
+        else:
+            lines.append("- 未记录；人工选择前应补充核对")
+        lines.extend(["", "**评分依据**"])
+        for key in SCORE_WEIGHTS:
+            detail = item["score_details"][key]
+            lines.append(
+                f"- `{key}` {detail['score']}/5（权重 {SCORE_WEIGHTS[key]}%）："
+                f"{_one_line(detail['reason'])}"
+            )
+        lines.extend(["", "---", ""])
+    write_text(target, "\n".join(lines).rstrip() + "\n")
+    return ranked
+
+
 def extract_pdf(pdf_path: Path, out: Path | None = None) -> Path:
     """Extract page-marked text with pdfplumber; reject image-only/empty PDFs."""
     try:

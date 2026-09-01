@@ -145,7 +145,7 @@ DOMAINS: dict[str, Domain] = {
         facing="internal",
         cadence="按访谈到达",
         period_kind="run_id",
-        summary="访谈 PDF → 洞察提取（锚定数字门槛）→ 飞书 Wiki callout；发布后生成内部情报草稿。",
+        summary="访谈 PDF → 候选排序供人选择 → 飞书 Wiki callout；发布后生成内部情报草稿。",
         origin="database_matain/.cursor/skills/expert-call-pipeline",
     ),
     "sellside-research": Domain(

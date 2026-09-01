@@ -43,6 +43,56 @@ def cmd_extract(args, base) -> Result:
     return Result(status="success", summary="PDF 已按页抽取到 ignored scratch。", domain=steps.DOMAIN, period=run_id, data={"text": str(written)})
 
 
+def cmd_shortlist(args, base) -> Result:
+    run_id = _run_id(args)
+    source = Path(args.manifest)
+    target = (
+        Path(args.report)
+        if args.report
+        else base.scratch / "expert-calls" / run_id / "shortlist.md"
+    )
+    try:
+        ranked = pipeline.render_shortlist(source, target)
+    except (OSError, ValueError) as error:
+        steps.record(base, run_id, "shortlist", "blocked", note=str(error))
+        return Result(
+            status="blocked",
+            summary="候选排序未生成。",
+            domain=steps.DOMAIN,
+            period=run_id,
+            missing=[str(error)],
+        )
+    counts = {tier: sum(item["tier"] == tier for item in ranked) for tier in ("A", "B", "C")}
+    steps.record(
+        base,
+        run_id,
+        "shortlist",
+        "done",
+        inputs={"manifest": source},
+        outputs={"shortlist": target},
+        result_data={"counts": counts},
+    )
+    return Result(
+        status="partial",
+        summary=(
+            f"已生成 {len(ranked)} 篇候选排序：A {counts['A']}、B {counts['B']}、"
+            f"C {counts['C']}；等待人工决定哪些进入飞书草稿。"
+        ),
+        domain=steps.DOMAIN,
+        period=run_id,
+        checks=[
+            {
+                "name": f"#{item['rank']} · {item['title']}",
+                "level": "ok" if item["tier"] == "A" else "warn",
+                "detail": f"{item['tier']} · {item['score']:.1f}/100 · {item['recommendation']}",
+            }
+            for item in ranked
+        ],
+        next_steps=["请人工选择进入飞书的访谈；选择后再校验和渲染 callout 草稿。"],
+        data={"report": str(target), "rankings": ranked},
+    )
+
+
 def cmd_validate(args, base) -> Result:
     run_id = _run_id(args)
     source = Path(args.manifest)
@@ -120,7 +170,13 @@ def register(subparsers, common) -> None:
     _add_run_id(extract)
     extract.set_defaults(func=cmd_extract)
 
-    validate = sub.add_parser("validate", help="代码校验收录 manifest", parents=[common])
+    shortlist = sub.add_parser("shortlist", help="生成人工精选候选排序", parents=[common])
+    shortlist.add_argument("--manifest", required=True)
+    shortlist.add_argument("--report", help="候选排序 Markdown；默认写 ignored scratch")
+    _add_run_id(shortlist)
+    shortlist.set_defaults(func=cmd_shortlist)
+
+    validate = sub.add_parser("validate", help="校验人工选择后的 manifest", parents=[common])
     validate.add_argument("--manifest", required=True)
     _add_run_id(validate)
     validate.set_defaults(func=cmd_validate)

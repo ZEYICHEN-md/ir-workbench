@@ -29,8 +29,9 @@
 | 沉淀这期新闻 / 回填历史情报 | `competitor-intel` | `deposit` 出打标草稿 → 人核对 → `--commit` 入库并重建档案 | 主题是关键词猜的，**须核对后**才入库 |
 | 这条访谈 / 电话会口径也存一下 | `competitor-intel` | `intel add`（表述类，须带原话与位置指针） | — |
 | BKNG 出财报了 / 做业绩总结 / 更新 Appendix | `peers-appendix` | 材料入库 → 取数建表贴图 → 门禁 → 用户写正文 | 门禁 FAIL 硬停；战略段由人写 |
-| 只提取专家访谈摘要 / 先出 Expert Call 草稿 | `expert-calls` | PDF 按页抽取 → 收录门槛与溯源校验 → 渲染 revision 1680 callout 草稿；停在草稿，不写飞书 | — |
-| 更新 Expert Call / 把专家访谈写入飞书 | `expert-calls` | 先完成草稿与精确判重；用户审阅后逐条写入、逐条回读，再生成内部情报库草稿 | **发布到飞书须明确说「发布专家访谈精选」；情报入库另行确认** |
+| 看看这些专家访谈哪些值得写 / 做 Expert Call 候选 | `expert-calls` | PDF 按页抽取 → 逐篇概述、关键数据、行业事实/洞察与局限 → 透明评分并生成 A/B/C 候选排序 | **排序只辅助，由人决定哪些进入草稿** |
+| 只提取专家访谈摘要 / 先出 Expert Call 草稿 | `expert-calls` | 先出候选排序 → 人选择 → 校验溯源 → 只为选中项渲染 revision 1680 callout 草稿；不写飞书 | — |
+| 更新 Expert Call / 把专家访谈写入飞书 | `expert-calls` | 先完成候选排序、人工选择、草稿与精确判重；用户审阅后逐条写入、逐条回读，再生成内部情报库草稿 | **发布到飞书须明确说「发布专家访谈精选」；情报入库另行确认** |
 | 帮我摘这份研报 | `sellside-research` | 读 PDF 出摘要 | — |
 | 能做什么 / 现在什么状态 / 跑不跑得起来 | Control Plane | `ir doctor` + `ir status` | — |
 | 换一份新的国内行业数据 | Control Plane | 列候选 → **用户指定** → `ir config set` | 绝不代选 |

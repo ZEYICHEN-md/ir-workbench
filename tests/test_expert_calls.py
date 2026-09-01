@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import unittest
+from copy import deepcopy
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock, patch
@@ -45,7 +46,28 @@ def record(**over):
         "inclusion_evidence": {
             "quantified_content": {"anchors": 4},
             "causal_mechanism": "渠道调整改善转化",
-            "relevant_information_gain": False,
+            "relevant_information_gain": {
+                "areas": ["global_ota_competition"],
+                "reason": "渠道效率会影响 OTA 的增长质量与利润率判断。",
+            },
+        },
+        "selection_review": {
+            "one_line_summary": "渠道调整如何影响转化、份额与获客效率。",
+            "key_insights": [
+                {
+                    "insight": "转化改善来自渠道结构变化。",
+                    "why_it_matters": "需要区分增长与渠道成本。",
+                    "anchor_refs": [1, 2],
+                }
+            ],
+            "caveats": ["仅代表该专家样本。"],
+            "scores": {
+                "ir_relevance": {"score": 5, "reason": "直接影响 OTA 增长质量判断。"},
+                "information_gain": {"score": 4, "reason": "提供多项可核对数字。"},
+                "evidence_quality": {"score": 4, "reason": "原话与位置齐全。"},
+                "causal_depth": {"score": 4, "reason": "解释渠道到转化的机制。"},
+                "freshness": {"score": 4, "reason": "访谈时间较新。"},
+            },
         },
     }
     row.update(over)
@@ -85,18 +107,26 @@ class TestManifestGate(unittest.TestCase):
         with self.assertRaisesRegex(pipeline.ManifestValidationError, "run_id"):
             pipeline.validate_manifest({"interviews": [record()]})
 
-    def test_two_of_three_evidence_passes(self):
-        payload = pipeline.validate_manifest(manifest(record()))
-        self.assertEqual(len(payload["interviews"]), 1)
-
-    def test_one_of_three_evidence_is_blocked(self):
-        row = record(inclusion_evidence={
+    def test_direct_ir_relevance_is_required_for_inclusion(self):
+        evidence = {
             "quantified_content": True,
-            "causal_mechanism": False,
+            "causal_mechanism": "渠道变化影响转化",
             "relevant_information_gain": False,
-        })
-        with self.assertRaisesRegex(pipeline.ManifestValidationError, "至少需要 2/3"):
-            pipeline.validate_manifest(manifest(row))
+        }
+        with self.assertRaisesRegex(pipeline.ManifestValidationError, "没有直接 IR 信息增量"):
+            pipeline.validate_manifest(manifest(record(inclusion_evidence=evidence)))
+
+    def test_b2b_is_not_an_independent_relevance_area(self):
+        evidence = {
+            "quantified_content": True,
+            "causal_mechanism": "分销关系影响留存",
+            "relevant_information_gain": {
+                "areas": ["b2b"],
+                "reason": "只因为访谈提到 B2B。",
+            },
+        }
+        with self.assertRaisesRegex(pipeline.ManifestValidationError, "未知相关性分类"):
+            pipeline.validate_manifest(manifest(record(inclusion_evidence=evidence)))
 
     def test_fewer_than_four_anchor_numbers_is_blocked(self):
         with self.assertRaisesRegex(pipeline.ManifestValidationError, "少于 4"):
@@ -121,6 +151,50 @@ class TestManifestGate(unittest.TestCase):
         pipeline.validate_manifest(manifest(record(), {"include": False, "skip_reason": "缺乏数字"}))
         with self.assertRaisesRegex(pipeline.ManifestValidationError, "skip_reason"):
             pipeline.validate_manifest(manifest({"include": False}))
+
+
+class TestShortlistRanking(unittest.TestCase):
+    def test_ranks_candidates_for_human_decision(self):
+        strong = record(title="高价值访谈", include=None)
+        medium = record(title="中等价值访谈", include=None)
+        medium_review = deepcopy(medium["selection_review"])
+        medium_review["scores"] = {
+            "ir_relevance": {"score": 4, "reason": "与竞对经营有关。"},
+            "information_gain": {"score": 3, "reason": "部分信息已有公开线索。"},
+            "evidence_quality": {"score": 3, "reason": "主要是专家估算。"},
+            "causal_depth": {"score": 3, "reason": "机制解释中等。"},
+            "freshness": {"score": 3, "reason": "信息略有时滞。"},
+        }
+        medium["selection_review"] = medium_review
+        ranked = pipeline.rank_candidates(manifest(medium, strong))
+        self.assertEqual([item["title"] for item in ranked], ["高价值访谈", "中等价值访谈"])
+        self.assertEqual([item["tier"] for item in ranked], ["A", "B"])
+        self.assertTrue(all(item["human_decision"] == "待决定" for item in ranked))
+
+    def test_no_direct_ir_relevance_is_forced_to_tier_c(self):
+        row = record(title="只有 B2B 操作细节", include=None)
+        row["inclusion_evidence"]["relevant_information_gain"] = False
+        row["selection_review"]["scores"]["ir_relevance"] = {
+            "score": 0,
+            "reason": "没有落到携程、跨境、OTA 竞争或 AI 分发。",
+        }
+        ranked = pipeline.rank_candidates(manifest(row))
+        self.assertEqual(ranked[0]["tier"], "C")
+        self.assertFalse(ranked[0]["eligible"])
+        self.assertIn("没有直接 IR 信息增量", ranked[0]["eligibility_reasons"])
+
+    def test_shortlist_markdown_exposes_data_insights_and_caveats(self):
+        with TemporaryDirectory() as tmp:
+            target = Path(tmp) / "shortlist.md"
+            ranked = pipeline.render_shortlist(manifest(record(include=None)), target)
+            text = target.read_text(encoding="utf-8")
+        self.assertEqual(len(ranked), 1)
+        self.assertIn("大致讲什么", text)
+        self.assertIn("关键数据", text)
+        self.assertIn("高参考意义的事实与洞察", text)
+        self.assertIn("局限与风险", text)
+        self.assertIn("评分依据", text)
+        self.assertIn("待决定", text)
 
 
 class TestPdfExtraction(unittest.TestCase):
