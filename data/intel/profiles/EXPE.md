@@ -2,7 +2,7 @@
 
 > ⚠️ **本文件是投影，不要手改。**内容由 `data/intel/entries.jsonl` 生成，手改会在下次 `ir intel rebuild` 时被覆盖。要改内容就去改 JSONL 那条记录。
 
-> 条目 13 条（主角 5 · 被提及 8）；最近 2026-08-20
+> 条目 53 条（主角 45 · 被提及 8）；最近 2026-08-20
 
 ## 动作与表述（本公司为主角）
 
@@ -14,6 +14,276 @@ Expedia 围绕 AI 重组其约 8000 人的产品与技术组织，裁掉 8 名�
 
 [原文](https://skift.com/2026/08/20/expedia-cuts-eight-executives-as-it-reorganizes-around-ai)
 
+### 2026-08-05 · 超过40%的Vrbo预订含供应商出资优惠
+
+> 类型 表述 · 主题 费率佣金与业主商户经济、供给与品类扩张 · 来源 transcript.pdf
+
+原话：「More than 40% of Vrbo bookings last quarter included partner-funded offers.」
+
+出处：transcript.pdf · 第 5 页 · CEO prepared remarks · Ariane Gorin（Ariane Gorin, CEO）
+
+2026Q2，超过40%的Vrbo预订包含合作伙伴出资的优惠。
+
+### 2026-08-05 · 世界杯对Expedia季度预订影响有限
+
+> 类型 表述 · 主题 财务表现与指引、费率佣金与业主商户经济 · 来源 transcript.pdf
+
+原话：「The impact of that on the quarter was relatively modest overall. We saw it show up more in ADR than we did in room nights.」
+
+出处：transcript.pdf · 第 13 页 · Q&A · Derek Andersen（Derek Andersen, CFO）
+
+Expedia Group称世界杯相关预订较晚进入，2026Q2整体影响较小，更多反映在ADR而非间夜。
+
+### 2026-08-05 · Expedia预订间夜同比增长6%
+
+> 类型 表述 · 主题 财务表现与指引、供给与品类扩张 · 来源 earnings-release.pdf
+
+原话：「Booked Room Nights 111.5 105.5 6%」
+
+出处：earnings-release.pdf · 第 1 页 · Financial Summary & Operating Metrics（Expedia Group earnings release）
+
+2026Q2，Expedia Group预订间夜为1.115亿，同比增长6%。
+
+### 2026-08-05 · Expedia预订机票量同比下降5%
+
+> 类型 表述 · 主题 财务表现与指引、供给与品类扩张 · 来源 earnings-release.pdf
+
+原话：「Booked Air Tickets 14.2 (5)%」
+
+出处：earnings-release.pdf · 第 3 页 · Trended Metrics · Operating metrics（Expedia Group earnings release）
+
+2026Q2，Expedia Group预订机票量为1,420万张，同比下降5%。
+
+### 2026-08-05 · Expedia预计2026Q3调整后EBITDA为15.1亿至15.6亿美元
+
+> 类型 表述 · 主题 财务表现与指引 · 来源 earnings-release.pdf
+
+原话：「Adjusted EBITDA $1.51 - $1.56B」
+
+出处：earnings-release.pdf · 第 2 页 · Business Outlook（Expedia Group earnings release）
+
+Expedia Group预计2026Q3调整后EBITDA为15.1亿至15.6亿美元。
+
+### 2026-08-05 · Expedia预计2026Q3收入46.5亿至47.5亿美元
+
+> 类型 表述 · 主题 财务表现与指引 · 来源 earnings-release.pdf
+
+原话：「Revenue $4.65 - $4.75B +5 - 8%」
+
+出处：earnings-release.pdf · 第 2 页 · Business Outlook（Expedia Group earnings release）
+
+Expedia Group预计2026Q3收入为46.5亿至47.5亿美元，同比增长5%至8%。
+
+### 2026-08-05 · Expedia预计2026Q3 Gross Bookings为322亿至328亿美元
+
+> 类型 表述 · 主题 财务表现与指引 · 来源 earnings-release.pdf
+
+原话：「Gross Bookings $32.2 - $32.8B +5 - 7%」
+
+出处：earnings-release.pdf · 第 2 页 · Business Outlook（Expedia Group earnings release）
+
+Expedia Group预计2026Q3 Gross Bookings为322亿至328亿美元，同比增长5%至7%。
+
+### 2026-08-05 · Expedia非美国销售点收入同比增长18%
+
+> 类型 表述 · 主题 财务表现与指引 · 来源 earnings-release.pdf
+
+原话：「Non-U.S. points of sale $1,745 $1,483 18%」
+
+出处：earnings-release.pdf · 第 3 页 · Trended Metrics · Revenue by geography（Expedia Group earnings release）
+
+2026Q2，Expedia Group非美国销售点收入为17.45亿美元，同比增长18%。
+
+### 2026-08-05 · Expedia通过个性化推荐提升多品类附加率
+
+> 类型 表述 · 主题 分发与流量入口、AI 产品与技术底座、费率佣金与业主商户经济 · 来源 transcript.pdf
+
+原话：「Part of what's behind the record attach rates is the personalization we're able to drive by understanding what is the next best thing to recommend to a traveler.」
+
+出处：transcript.pdf · 第 14 页至第 15 页 · Q&A · Ariane Gorin（Ariane Gorin, CEO）
+
+Expedia Group称Expedia品牌attach rate再创新高，核心机制是根据旅程起点和旅客信息推荐住宿、租车或保险等下一项产品。
+
+### 2026-08-05 · Expedia通过CarTrawler和Tiqets构建B2B一站式旅行商店
+
+> 类型 表述 · 主题 B2B 与企业差旅、供给与品类扩张 · 来源 transcript.pdf
+
+原话：「We continue building toward our vision of a one-stop travel shop for partners, and in May announced our intent to acquire CarTrawler, the leading B2B car rental and insurance platform.」
+
+出处：transcript.pdf · 第 6 页及第 8 页 · CEO prepared remarks与Q&A · Ariane Gorin（Ariane Gorin, CEO）
+
+Expedia Group宣布拟收购CarTrawler以补齐B2B租车和保险，并通过CarTrawler与已收购的Tiqets扩展B2B多业务线一站式供给。
+
+### 2026-08-05 · Expedia调整后EBITDA同比增长23%
+
+> 类型 表述 · 主题 财务表现与指引 · 来源 earnings-release.pdf
+
+原话：「Adjusted EBITDA $1,119 $908 23%」
+
+出处：earnings-release.pdf · 第 1 页 · Financial Summary & Operating Metrics（Expedia Group earnings release）
+
+2026Q2，Expedia Group调整后EBITDA为11.19亿美元，同比增长23%。
+
+### 2026-08-05 · Expedia调整后EBITDA利润率25.9%
+
+> 类型 表述 · 主题 财务表现与指引、费率佣金与业主商户经济 · 来源 earnings-release.pdf
+
+原话：「% Margin 25.9% 196 bps」
+
+出处：earnings-release.pdf · 第 4 页 · Segment P&L · Adjusted EBITDA（Expedia Group earnings release）
+
+2026Q2，Expedia Group调整后EBITDA利润率为25.9%，同比提升196个基点。
+
+### 2026-08-05 · Expedia自由现金流同比增长39%
+
+> 类型 表述 · 主题 财务表现与指引 · 来源 earnings-release.pdf
+
+原话：「Free cash flow $1,279 $921 39%」
+
+出处：earnings-release.pdf · 第 1 页 · Financial Summary & Operating Metrics（Expedia Group earnings release）
+
+2026Q2，Expedia Group自由现金流为12.79亿美元，同比增长39%。
+
+### 2026-08-05 · Expedia自然语言产品多获得逾60%旅客意图信息
+
+> 类型 表述 · 主题 AI 产品与技术底座、分发与流量入口 · 来源 transcript.pdf
+
+原话：「Those are not driving conversion right now. But what we're finding is that you get over 60% more information about traveler intent.」
+
+出处：transcript.pdf · 第 8 页 · Q&A · Ariane Gorin（Ariane Gorin, CEO）
+
+Expedia Group称Vrbo自然语言搜索、Property Expert和AI Compare当前尚未推动转化，但可多获得逾60%的旅客意图信息。
+
+### 2026-08-05 · Expedia美国销售点收入同比增长12%
+
+> 类型 表述 · 主题 财务表现与指引 · 来源 earnings-release.pdf
+
+原话：「U.S. points of sale $2,570 $2,303 12%」
+
+出处：earnings-release.pdf · 第 3 页 · Trended Metrics · Revenue by geography（Expedia Group earnings release）
+
+2026Q2，Expedia Group美国销售点收入为25.70亿美元，同比增长12%。
+
+### 2026-08-05 · Expedia活跃会员同比低个位数增长
+
+> 类型 表述 · 主题 忠诚度与会员、财务表现与指引 · 来源 transcript.pdf
+
+原话：「Active loyalty members increased low single digits with faster growth in our higher tiers.」
+
+出处：transcript.pdf · 第 5 页 · CEO prepared remarks · Ariane Gorin（Ariane Gorin, CEO）
+
+2026Q2，Expedia Group活跃忠诚会员同比低个位数增长，高等级会员增长更快。
+
+### 2026-08-05 · Expedia收入同比增长14%
+
+> 类型 表述 · 主题 财务表现与指引 · 来源 earnings-release.pdf
+
+原话：「Revenue $4,315 $3,786 14%」
+
+出处：earnings-release.pdf · 第 1 页 · Financial Summary & Operating Metrics（Expedia Group earnings release）
+
+2026Q2，Expedia Group收入为43.15亿美元，同比增长14%。
+
+### 2026-08-05 · Expedia接入Allegiant后覆盖美国全部商业航司
+
+> 类型 表述 · 主题 供给与品类扩张、分发与流量入口 · 来源 transcript.pdf
+
+原话：「In July, we became the first OTA to distribute Allegiant flights and achieve full coverage of US commercial airlines.」
+
+出处：transcript.pdf · 第 5 页 · CEO prepared remarks · Ariane Gorin（Ariane Gorin, CEO）
+
+2026年7月，Expedia Group成为首家分销Allegiant航班并覆盖美国全部商业航空公司的OTA。
+
+### 2026-08-05 · Expedia扩展AI平台合作并收购Layla
+
+> 类型 表述 · 主题 AI 产品与技术底座、分发与流量入口 · 来源 transcript.pdf
+
+原话：「We were an early adopter of ChatGPT's latest ad product and expanded our work across Google's newer AI services. And last week, we announced the acquisition of Layla.」
+
+出处：transcript.pdf · 第 6 页 · CEO prepared remarks · Ariane Gorin（Ariane Gorin, CEO）
+
+2026Q2，Expedia Group成为ChatGPT新广告产品的早期采用者并扩大与Google新AI服务合作；随后宣布收购AI对话式规划应用Layla。
+
+### 2026-08-05 · Expedia总Gross Bookings同比增长12%
+
+> 类型 表述 · 主题 财务表现与指引 · 来源 earnings-release.pdf
+
+原话：「Gross Bookings $33,928 $30,409 12%」
+
+出处：earnings-release.pdf · 第 1 页 · Financial Summary & Operating Metrics（Expedia Group earnings release）
+
+2026Q2，Expedia Group总Gross Bookings为339.28亿美元，同比增长12%。
+
+### 2026-08-05 · Expedia在Vrbo上线agentic voice
+
+> 类型 表述 · 主题 AI 产品与技术底座、费率佣金与业主商户经济 · 来源 transcript.pdf
+
+原话：「On Vrbo, we launched an agentic voice solution to support partner inquiries previously handled by human agents. Early results are promising with faster resolution and lower contact propensity.」
+
+出处：transcript.pdf · 第 6 页 · CEO prepared remarks · Ariane Gorin（Ariane Gorin, CEO）
+
+Expedia Group在Vrbo上线agentic voice处理原由人工客服处理的合作伙伴咨询；早期结果显示解决更快、联系倾向更低。
+
+### 2026-08-05 · Expedia区域间夜增速分化
+
+> 类型 表述 · 主题 财务表现与指引、供给与品类扩张 · 来源 transcript.pdf
+
+原话：「Total booked room nights were up 6% with mid-single digits in the US, low single digits in EMEA and low double digits in the rest of the world.」
+
+出处：transcript.pdf · 第 5 页 · CEO prepared remarks · Ariane Gorin（Ariane Gorin, CEO）
+
+2026Q2，Expedia美国预订间夜同比中个位数增长，EMEA低个位数增长，其余地区低双位数增长。
+
+### 2026-08-05 · Expedia五月促销参与房源预订额超过10亿美元
+
+> 类型 表述 · 主题 分发与流量入口、供给与品类扩张 · 来源 transcript.pdf
+
+原话：「Our May sale was the first campaign to exceed $1 billion in bookings for participating properties.」
+
+出处：transcript.pdf · 第 5 页 · CEO prepared remarks · Ariane Gorin（Ariane Gorin, CEO）
+
+Expedia Group五月促销活动中，参与房源的预订额首次超过10亿美元。
+
+### 2026-08-05 · Expedia上调2026全年调整后EBITDA利润率扩张指引
+
+> 类型 表述 · 主题 财务表现与指引、费率佣金与业主商户经济 · 来源 earnings-release.pdf
+
+原话：「Adjusted EBITDA margin expansion +1.5 - 1.75pts」
+
+出处：earnings-release.pdf · 第 2 页 · Business Outlook（Expedia Group earnings release）
+
+Expedia Group将2026全年调整后EBITDA利润率同比扩张指引上调至150至175个基点，此前为100至125个基点。
+
+### 2026-08-05 · Expedia上调2026全年收入指引
+
+> 类型 表述 · 主题 财务表现与指引 · 来源 earnings-release.pdf
+
+原话：「Revenue $16.05 - $16.22B +9 - 10%」
+
+出处：earnings-release.pdf · 第 2 页 · Business Outlook（Expedia Group earnings release）
+
+Expedia Group将2026全年收入指引上调至160.5亿至162.2亿美元，同比增长9%至10%。
+
+### 2026-08-05 · Expedia上调2026全年Gross Bookings指引
+
+> 类型 表述 · 主题 财务表现与指引 · 来源 earnings-release.pdf
+
+原话：「Gross Bookings $129.5 - $130.8B +8 - 9%」
+
+出处：earnings-release.pdf · 第 2 页 · Business Outlook（Expedia Group earnings release）
+
+Expedia Group将2026全年Gross Bookings指引上调至1,295亿至1,308亿美元、同比增长8%至9%；P1逐字稿将区间下限单位误写为million，故本条留待人工确认。
+
+### 2026-08-05 · Expedia上线多项AI消费者产品
+
+> 类型 表述 · 主题 AI 产品与技术底座、分发与流量入口 · 来源 transcript.pdf
+
+原话：「We launched new and updated conversational experiences, introducing natural language search on the Vrbo homepage and updating Property Expert and AI Compare in the hotel shopping flow.」
+
+出处：transcript.pdf · 第 5 页 · CEO prepared remarks · Ariane Gorin（Ariane Gorin, CEO）
+
+Expedia Group上线Vrbo自然语言搜索，并更新酒店购物流程中的Property Expert和AI Compare；个性化推荐推动Expedia品牌attach rate再创新高。
+
 ### 2026-08-05 · Expedia 加码 B2B：一站式平台对抗 Booking 整合
 
 > 类型 动作 · 主题 财务表现与指引、B2B 与企业差旅、供给与品类扩张 · 来源 Skift
@@ -21,6 +291,116 @@ Expedia 围绕 AI 重组其约 8000 人的产品与技术组织，裁掉 8 名�
 Expedia Group Q2 财报强调其 B2B 单元收入同比 +23%、服务约 7.5 万伙伴，CEO 提出把 B2B 从以酒店为主升级为覆盖体验、地面交通、机票与行程保障的「一站式」平台。近期动作包括收购体验平台 Tiqets、推进收购 CarTrawler（租车与地面交通），Rapid API 已开放机票等非酒店产品。在 Booking 整合 B2B 的背景下，Expedia 强调自身产品已就绪、迁移无扰动。
 
 [原文](https://skift.com/2026/08/05/expedia-is-investing-in-its-leading-b2b-product-as-competition-heats-up)
+
+### 2026-08-05 · Expedia B2C营销投入增幅低于预订增幅
+
+> 类型 表述 · 主题 费率佣金与业主商户经济、分发与流量入口 · 来源 transcript.pdf
+
+原话：「We grew our bookings 8% while leveraging marketing spend, which was only up 1%.」
+
+出处：transcript.pdf · 第 12 页 · Q&A · Ariane Gorin（Ariane Gorin, CEO）
+
+2026Q2，Expedia Group B2C预订同比增长8%，营销支出仅增长1%，体现营销杠杆。
+
+### 2026-08-05 · Expedia B2C约三分之二预订来自直订
+
+> 类型 表述 · 主题 分发与流量入口、费率佣金与业主商户经济 · 来源 transcript.pdf
+
+原话：「Two-thirds of our bookings in our consumer brands come direct. But of the third that is coming through paid channels...」
+
+出处：transcript.pdf · 第 8 页 · Q&A · Ariane Gorin（Ariane Gorin, CEO）
+
+Expedia Group称旗下消费者品牌约三分之二预订来自直接渠道，其余约三分之一来自付费渠道。
+
+### 2026-08-05 · Expedia B2C收入同比增长8%
+
+> 类型 表述 · 主题 财务表现与指引、分发与流量入口 · 来源 earnings-release.pdf
+
+原话：「B2C $2,677 $2,479 8%」
+
+出处：earnings-release.pdf · 第 4 页 · Segment P&L · Revenue（Expedia Group earnings release）
+
+2026Q2，Expedia Group B2C收入为26.77亿美元，同比增长8%。
+
+### 2026-08-05 · Expedia B2C Gross Bookings同比增长8%
+
+> 类型 表述 · 主题 财务表现与指引、分发与流量入口 · 来源 earnings-release.pdf
+
+原话：「B2C $23,186 $21,565 8%」
+
+出处：earnings-release.pdf · 第 4 页 · Segment P&L · Gross Bookings（Expedia Group earnings release）
+
+2026Q2，Expedia Group B2C Gross Bookings为231.86亿美元，同比增长8%。
+
+### 2026-08-05 · Expedia B2B连续20个季度双位数增长
+
+> 类型 表述 · 主题 B2B 与企业差旅、财务表现与指引 · 来源 transcript.pdf
+
+原话：「Our market-leading B2B team delivered its 20th consecutive quarter of double-digit growth.」
+
+出处：transcript.pdf · 第 5 页 · CEO prepared remarks · Ariane Gorin（Ariane Gorin, CEO）
+
+截至2026Q2，Expedia Group B2B业务已连续20个季度实现双位数增长。
+
+### 2026-08-05 · Expedia B2B调整后EBITDA利润率24.8%
+
+> 类型 表述 · 主题 财务表现与指引、B2B 与企业差旅、费率佣金与业主商户经济 · 来源 earnings-release.pdf
+
+原话：「B2B $369 $331 12%; % Margin 24.8% (258) bps」
+
+出处：earnings-release.pdf · 第 4 页 · Segment P&L · Adjusted EBITDA（Expedia Group earnings release）
+
+2026Q2，Expedia Group B2B调整后EBITDA为3.69亿美元，同比增长12%；利润率24.8%，同比下降258个基点。
+
+### 2026-08-05 · Expedia B2B收入同比增长23%
+
+> 类型 表述 · 主题 财务表现与指引、B2B 与企业差旅 · 来源 earnings-release.pdf
+
+原话：「B2B $1,493 $1,209 23%」
+
+出处：earnings-release.pdf · 第 4 页 · Segment P&L · Revenue（Expedia Group earnings release）
+
+2026Q2，Expedia Group B2B收入为14.93亿美元，同比增长23%。
+
+### 2026-08-05 · Expedia B2B合作伙伴超过7万家
+
+> 类型 表述 · 主题 B2B 与企业差旅、分发与流量入口 · 来源 transcript.pdf
+
+原话：「We have over 70,000 partners today, but looking to grow that and through lines of business to deepen our partnerships and business over time.」
+
+出处：transcript.pdf · 第 14 页 · Q&A · management（Expedia Group management）
+
+截至2026Q2电话会，Expedia Group B2B合作伙伴超过7万家，公司计划继续扩大伙伴基础并通过新增业务线深化合作。
+
+### 2026-08-05 · Expedia B2B Gross Bookings同比增长21%
+
+> 类型 表述 · 主题 财务表现与指引、B2B 与企业差旅 · 来源 earnings-release.pdf
+
+原话：「B2B $10,742 $8,844 21%」
+
+出处：earnings-release.pdf · 第 4 页 · Segment P&L · Gross Bookings（Expedia Group earnings release）
+
+2026Q2，Expedia Group B2B Gross Bookings为107.42亿美元，同比增长21%。
+
+### 2026-08-05 · Expedia AEO增长快但规模仍小
+
+> 类型 表述 · 主题 分发与流量入口、AI 产品与技术底座 · 来源 transcript.pdf
+
+原话：「Organic search traffic is stable to slightly up... AEO is one of our fastest-growing channels. And SEO has remained a bit soft, but it's stabilized over the last few quarters.」
+
+出处：transcript.pdf · 第 11 页至第 12 页 · Q&A · Ariane Gorin（Ariane Gorin, CEO）
+
+Expedia Group称自然搜索流量稳定至略增，SEO仍偏软但近几个季度趋稳；AEO是增长最快的渠道之一，但当前规模仍小。
+
+### 2026-08-05 · Expedia ADR同比增长5%
+
+> 类型 表述 · 主题 财务表现与指引、费率佣金与业主商户经济 · 来源 earnings-release.pdf
+
+原话：「Average Daily Rate (ADR) Booked $220.6 5%」
+
+出处：earnings-release.pdf · 第 3 页 · Trended Metrics · Operating metrics（Expedia Group earnings release）
+
+2026Q2，Expedia Group预订ADR为220.6美元，同比增长5%。
 
 ### 2026-07-31 · Expedia 收购 AI 行程规划 Layla，加速多智能体布局
 
@@ -45,6 +425,26 @@ Expedia 在圣何塞新办公室已从 Amazon、Netflix、Google 和 Meta 等公
 Expedia 成为 Allegiant 首个授权 OTA 合作方，双方签署 12 个月独家协议，覆盖 Allegiant 全美 566 条航线、124 个城市。Allegiant 此前约 92% 收入来自直销网站，此次试水 OTA 是为触达新休闲旅客，同时保留到期后续约、扩渠或回归直销的选项。
 
 [原文](https://skift.com/2026/07/17/allegiant-long-an-ota-holdout-signs-an-exclusive-deal-with-expedia)
+
+### 2026-05-08 · 前Expedia VP称Rapid API客户交易量近似80/20集中
+
+> 类型 表述 · 主题 B2B 与企业差旅、分发与流量入口 · **内部**
+
+原话：「If you look at the size, it's like the 80/20 rule. The biggest volume is from the biggest players, and that's generally in Rapid API.」
+
+出处：EXPE - ExpertCall_document_dated_01-09-2026.pdf · 第3页（Former Expedia Group Commercial Operations VP）
+
+前Expedia商业运营VP称，B2B Rapid API业务的交易量近似80/20分布，最大客户贡献主要交易量。该说法是集中度模式判断，并非披露精确的前20%客户贡献80%。
+
+### 2026-05-08 · 前Expedia VP估计B2C平均佣金为15%–20%
+
+> 类型 表述 · 主题 费率佣金与业主商户经济、B2B 与企业差旅 · **内部**
+
+原话：「B2C is certainly more attractive. The average commission in B2C is like 15%-20%, somewhere in that range.」
+
+出处：EXPE - ExpertCall_document_dated_01-09-2026.pdf · 第5页（Former Expedia Group Commercial Operations VP）
+
+前Expedia商业运营VP估计B2C平均佣金约15%–20%，并称Rapid API因需与伙伴分成而利润率更低。未说明酒店、地区、交易类型和统计期。
 
 ## 被提及（主角是别家，但对本公司有实质信息）
 

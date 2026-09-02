@@ -2,7 +2,7 @@
 
 > ⚠️ **本文件是投影，不要手改。**内容由 `data/intel/entries.jsonl` 生成，手改会在下次 `ir intel rebuild` 时被覆盖。要改内容就去改 JSONL 那条记录。
 
-> 条目 11 条（主角 6 · 被提及 5）；最近 2026-08-22
+> 条目 39 条（主角 34 · 被提及 5）；最近 2026-08-22
 
 ## 动作与表述（本公司为主角）
 
@@ -38,6 +38,26 @@ Booking Holdings 已开始把 Agoda、Booking.com、Priceline 各自的 B2B 业�
 
 [原文](https://skift.com/2026/08/06/booking-holdings-has-begun-merging-agoda-booking-com-and-pricelines-b2b-units-scoop)
 
+### 2026-08-05 · LLM付费与免费流量合计显著低于BKNG间夜1%
+
+> 类型 表述 · 主题 分发与流量入口、AI 产品与技术底座 · 来源 BKNG 26Q2 Broker T_E 20260805.pdf
+
+原话：「Traffic from large language models both on a paid and an unpaid basis... is still significantly below 1% of our room nights... no material change over the last few months or quarters.」
+
+出处：BKNG 26Q2 Broker T_E 20260805.pdf · 第 8 页 · Q&A · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+截至2026Q2电话会，来自大语言模型的付费与免费流量合计仍显著低于BKNG间夜的1%，最近几个月或几个季度没有明显变化。
+
+### 2026-08-05 · Google AI Overview压制SEO但BKNG直订绝对量仍增长
+
+> 类型 表述 · 主题 分发与流量入口、AI 产品与技术底座 · 来源 BKNG 26Q2 Broker T_E 20260805.pdf
+
+原话：「Changes that were made in the display at Google definitely put some pressure on SEO. Putting in that AI overview probably has done it... our direct, mid-60s, hasn't gone down at all... absolute number... had to go up.」
+
+出处：BKNG 26Q2 Broker T_E 20260805.pdf · 第 12 页 · Q&A · Glenn Fogel（Glenn Fogel, CEO）
+
+BKNG管理层认为Google展示变化、尤其AI Overview对SEO造成一定压力；但B2C直订占比仍维持mid-60%，直订预订绝对量继续增长，App占比由一年前mid-50%升至high-50%。
+
 ### 2026-08-05 · Expedia 加码 B2B：一站式平台对抗 Booking 整合
 
 > 类型 动作 · 主题 财务表现与指引、B2B 与企业差旅、供给与品类扩张 · 来源 Skift
@@ -46,6 +66,126 @@ Expedia Group Q2 财报强调其 B2B 单元收入同比 +23%、服务约 7.5 万
 
 [原文](https://skift.com/2026/08/05/expedia-is-investing-in-its-leading-b2b-product-as-competition-heats-up)
 
+### 2026-08-05 · BKNG将三套B2B业务合并为一个单元
+
+> 类型 表述 · 主题 B2B 与企业差旅、组织与人事、费率佣金与业主商户经济 · 来源 BKNG 26Q2 Broker T_E 20260805.pdf
+
+原话：「We have three brands, Agoda, Priceline, Booking, that all had separate B2B operations units... let's put it together as one unit... Omri Morgenshtern... is leading this... It's very important to be focused in a B2B business on incrementality.」
+
+出处：BKNG 26Q2 Broker T_E 20260805.pdf · 第 14 页 · Q&A · Glenn Fogel / Ewout Steenbergen（Glenn Fogel, CEO; Ewout Steenbergen, CFO）
+
+BKNG已将Agoda、Priceline和Booking原先分立的三套B2B运营单元合并为一个单元，由Agoda CEO Omri Morgenshtern牵头；管理层强调增量性，避免侵蚀单位经济更高的B2C。
+
+### 2026-08-05 · BKNG参与OpenAI CPC测试并接入Google agentic booking流量
+
+> 类型 表述 · 主题 分发与流量入口、AI 产品与技术底座 · 来源 BKNG 26Q2 Broker T_E 20260805.pdf
+
+原话：「We are part of the test group of OpenAI for CPC... Google... seeing their agentic booking which we are one of the first with them.」
+
+出处：BKNG 26Q2 Broker T_E 20260805.pdf · 第 8 页 · Q&A · Ewout Steenbergen / Glenn Fogel（Ewout Steenbergen, CFO; Glenn Fogel, CEO）
+
+BKNG是OpenAI CPC测试组成员，并称Booking是较早获得Google agentic booking流量的合作伙伴之一；管理层将其视为付费渠道多元化，同时继续强调自有直订。
+
+### 2026-08-05 · BKNG AI成本占技术支出低个位数且已呈正ROI
+
+> 类型 表述 · 主题 AI 产品与技术底座、财务表现与指引、费率佣金与业主商户经济 · 来源 BKNG 26Q2 Broker T_E 20260805.pdf
+
+原话：「We are already seeing an ROI that is positive on our AI investments... It's still at a low-single-digit level of our overall technology spend... we are having a cost aware model routing.」
+
+出处：BKNG 26Q2 Broker T_E 20260805.pdf · 第 13 页 · Q&A · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+管理层表示BKNG的AI成本仍只占整体技术支出的低个位数，尚不是该费用项目增长的主要驱动；公司层面的AI投资已经呈现正ROI，并采用成本感知模型路由。
+
+### 2026-08-04 · 替代住宿占Booking.com间夜约37%
+
+> 类型 表述 · 主题 供给与品类扩张 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Alternative accommodations represented approximately 37% of Booking.com’s room nights, similar to the second quarter of 2025.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 5 页 · Q2 Results · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+2026Q2，替代住宿约占Booking.com间夜的37%，与2025Q2相近。
+
+### 2026-08-04 · Genius L2/L3超过Booking.com活跃客户三成
+
+> 类型 表述 · 主题 忠诚度与会员 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「During the second quarter, Level 2 and Level 3 Genius members represented more than 30% of our active customer base... both up from the prior year.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 2 页 · Connected Trip and Loyalty · Glenn Fogel（Glenn Fogel, CEO）
+
+2026Q2，Booking.com Genius Level 2和Level 3会员占活跃客户超过30%，同比提升。
+
+### 2026-08-04 · Genius L2/L3贡献Booking.com高50%间夜
+
+> 类型 表述 · 主题 忠诚度与会员 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Level 2 and Level 3 Genius members... accounted for a high-50% share of room nights, both up from the prior year.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 2 页 · Connected Trip and Loyalty · Glenn Fogel（Glenn Fogel, CEO）
+
+2026Q2，Booking.com Genius Level 2和Level 3会员贡献的间夜占比处于50%高位区间，同比提升。
+
+### 2026-08-04 · Connected Trip占Booking.com总交易低双位数比例
+
+> 类型 表述 · 主题 供给与品类扩张、忠诚度与会员 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Connected Trip transactions... represented a low double-digit percentage of Booking.com's total transactions.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 2 页 · Connected Trip and Loyalty · Glenn Fogel（Glenn Fogel, CEO）
+
+2026Q2，Connected Trip交易占Booking.com总交易的比例处于低双位数区间。
+
+### 2026-08-04 · Booking美国间夜同比高个位数增长
+
+> 类型 表述 · 主题 供给与品类扩张、财务表现与指引 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「U.S. room nights grew in the high single digits, supported by healthy domestic demand. We also saw continued growth in our direct channel.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 2 页 · U.S. and Asia · Glenn Fogel（Glenn Fogel, CEO）
+
+2026Q2，Booking美国间夜同比高个位数增长，主要由健康的国内需求支持，同时直订渠道继续增长。
+
+### 2026-08-04 · Booking客服每订单成本继续双位数下降
+
+> 类型 表述 · 主题 AI 产品与技术底座、费率佣金与业主商户经济 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Customer service cost per booking continues to decrease at a double-digit rate while overall customer satisfaction remains high.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 4 页 · AI / Customer Service · Glenn Fogel（Glenn Fogel, CEO）
+
+在Voice AI覆盖大多数符合条件的入站旅客来电、并配合数字自动化和实时坐席辅助后，Booking客服每订单成本继续以双位数速度下降，同时整体客户满意度保持高位。
+
+### 2026-08-04 · Booking.com替代住宿间夜增长4%
+
+> 类型 表述 · 主题 供给与品类扩张、财务表现与指引 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Alternative accommodation room nights at Booking.com... growing 4%. This growth was slightly lower than our overall 5% room night growth due to brand and regional mix.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 5 页 · Q2 Results · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+2026Q2，Booking.com替代住宿间夜同比增长4%，低于整体5%的间夜增速，受到中东冲突及品牌和区域结构影响。
+
+### 2026-08-04 · Booking.com B2C直订占比维持mid-60%
+
+> 类型 表述 · 主题 分发与流量入口 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Over the past four quarters, our B2C direct mix remained stable in the mid-60% range, while direct room nights continued to grow.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 5 页 · Q2 Results · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+截至2026Q2过去四个季度，Booking.com B2C直订占比稳定在60%中段，同时直订间夜继续增长。
+
+### 2026-08-04 · Booking Voice AI已覆盖多数符合条件的入站旅客来电
+
+> 类型 表述 · 主题 AI 产品与技术底座、费率佣金与业主商户经济 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「We've now scaled Voice AI support across the majority of eligible inbound traveler calls while continuing to expand digital automation.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 4 页 · AI / Customer Service · Glenn Fogel（Glenn Fogel, CEO）
+
+Booking已将Voice AI支持扩展至大多数符合条件的入站旅客来电，并继续扩大数字自动化。
+
 ### 2026-08-04 · Booking Holdings Q2：AI Overviews 挤压自然流量，中东冲突拖累增长
 
 > 类型 动作 · 主题 分发与流量入口、财务表现与指引、AI 产品与技术底座 · 来源 Skift
@@ -53,6 +193,146 @@ Expedia Group Q2 财报强调其 B2B 单元收入同比 +23%、服务约 7.5 万
 Booking Holdings Q2 净利大增 118% 至 20 亿美元，但增长明显放缓：房间夜数 +5%、非标住宿 +4%、收入 +8%。CEO Glenn Fogel 承认 Google AI Overviews 对自然搜索结果造成压力，不过自然流量占比小、直营流量（约 60%+）稳定；中东冲突削弱长线航班、抬高票价，是增长减速主因。公司正规模化语音 AI 客服（单次预订成本双位数下降），并将 2027 年成本节约目标上调至 6.5 亿美元。
 
 [原文](https://skift.com/2026/08/04/booking-holdings-saw-pressure-from-googles-ai-overviews)
+
+### 2026-08-04 · Booking Connected Trip交易量低双位数增长
+
+> 类型 表述 · 主题 供给与品类扩张、忠诚度与会员 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「During the quarter, Connected Trip transactions—where travelers booked more than one travel vertical with us for the same trip—grew in the low double-digit range... these transactions continue to grow meaningfully faster than our overall transaction growth.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 2 页 · Connected Trip and Loyalty · Glenn Fogel（Glenn Fogel, CEO）
+
+2026Q2，Booking.com同一行程预订多个旅游品类的Connected Trip交易量同比低双位数增长，且继续明显快于平台整体交易增长。
+
+### 2026-08-04 · BKNG预计2026Q3间夜增长3%至5%
+
+> 类型 表述 · 主题 财务表现与指引、政策监管与宏观 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「We currently expect third quarter room nights to increase between 3% and 5%.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 6 页 · Q3 2026 Commentary · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+BKNG预计2026Q3间夜同比增长3%至5%；指引假设中东冲突对票价、运力及长途国际需求的间接影响持续至三季度。
+
+### 2026-08-04 · BKNG间夜同比增长5%
+
+> 类型 表述 · 主题 财务表现与指引、供给与品类扩张 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Room nights grew 5%, exceeding the high end of our guidance by about one percentage point. Globally, domestic room nights... grew high single digits. In contrast, international room nights increased slightly.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 4 页 · Q2 Results · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+2026Q2，BKNG间夜同比增长5%，高于指引上限约1个百分点；国内间夜高个位数增长，国际间夜仅小幅增长。
+
+### 2026-08-04 · BKNG转型计划年化节省目标上调至约6.5亿美元
+
+> 类型 表述 · 主题 组织与人事、财务表现与指引 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「We identified additional opportunities, increasing our expected annual run-rate savings from approximately $550 million to approximately $650 million.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 6 页 · Transformation Program · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+BKNG将Transformation Program预计年化节省目标从约5.5亿美元上调至约6.5亿美元。
+
+### 2026-08-04 · BKNG营销费用同比增长11%
+
+> 类型 表述 · 主题 分发与流量入口、财务表现与指引 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Marketing expense increased 11% year-over-year, modestly faster than gross bookings, driven by changes in traffic mix, incremental investments in paid marketing at attractive ROIs, and a shift of merchandising spend to performance marketing.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 5 页 · Q2 Results · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+2026Q2，BKNG营销费用同比增长11%，略快于gross bookings；原因包括流量结构变化、增加具有吸引力ROI的付费营销投入，以及将merchandising支出转向效果营销。
+
+### 2026-08-04 · BKNG移动App间夜占比维持high-50%
+
+> 类型 表述 · 主题 分发与流量入口 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「The mobile app mix of total room nights over the past four quarters remained in the high-50% range... increased year over year.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 5 页 · Q2 Results · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+截至2026Q2过去四个季度，BKNG移动App占总间夜的比例维持在50%高位区间，同比提升。
+
+### 2026-08-04 · BKNG欧洲间夜同比中个位数增长
+
+> 类型 表述 · 主题 财务表现与指引、供给与品类扩张 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Europe grew mid single digits, with domestic room nights up high single digits.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 5 页 · Q2 Results · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+2026Q2，按预订者地区计，BKNG欧洲间夜同比中个位数增长，其中国内间夜高个位数增长。
+
+### 2026-08-04 · BKNG机票量同比增长4%
+
+> 类型 表述 · 主题 供给与品类扩张、财务表现与指引 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Flight tickets increased 4% year-over-year, despite pressure from the Middle East conflict... We believe this growth continued to outpace the broader market.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 5 页 · Q2 Results · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+2026Q2，BKNG机票量同比增长4%；中东冲突导致部分国际航线运力下降、票价上升，但管理层认为增速仍高于整体市场。
+
+### 2026-08-04 · BKNG景点票交易同比双位数增长
+
+> 类型 表述 · 主题 供给与品类扩张 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「In our other travel verticals, attraction tickets grew double digits.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 5 页 · Q2 Results · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+2026Q2，BKNG景点票交易同比双位数增长。
+
+### 2026-08-04 · BKNG新增约1亿美元年化节省主要在2027年兑现
+
+> 类型 表述 · 主题 组织与人事、财务表现与指引 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「We expect the approximately $100 million of incremental annual run-rate savings to be realized primarily in 2027.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 6 页 · Transformation Program · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+转型计划新增约1亿美元年化节省预计主要在2027年兑现；电话会进一步说明新增节省主要来自采购工作流。
+
+### 2026-08-04 · BKNG推进三项面向旅客的AI产品
+
+> 类型 表述 · 主题 AI 产品与技术底座、分发与流量入口 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Beginning to roll out testing of Booking.com’s new AI-powered discovery experience... deploying the next generation of Priceline's agentic AI travel assistant, called Penny... launching Agoda’s new gallery view.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 3 页 · AI · Glenn Fogel（Glenn Fogel, CEO）
+
+2026Q2，Booking.com开始测试AI旅行发现体验，Priceline部署下一代Penny agentic AI助手，Agoda推出将酒店图片与住客评价结合的gallery view。
+
+### 2026-08-04 · BKNG固定汇率ADR同比增长约2%
+
+> 类型 表述 · 主题 财务表现与指引、费率佣金与业主商户经济 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Constant currency ADRs increased approximately 2% year over year, demonstrating continued pricing strength, primarily driven by Europe and the U.S.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 4 页 · CFO Prepared Remarks · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+2026Q2，BKNG固定汇率ADR同比增长约2%，主要由欧洲和美国推动。
+
+### 2026-08-04 · BKNG亚洲间夜同比中个位数增长
+
+> 类型 表述 · 主题 财务表现与指引、供给与品类扩张 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Asia grew mid single digits, with domestic room nights up low double digits.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 5 页 · Q2 Results · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+2026Q2，按预订者地区计，BKNG亚洲间夜同比中个位数增长，其中国内间夜低双位数增长。
+
+### 2026-08-04 · BKNG merchant gross bookings占比约73%
+
+> 类型 表述 · 主题 费率佣金与业主商户经济、财务表现与指引 · 来源 BKNG 26Q2 Prepared Remarks.pdf
+
+原话：「Our total merchant gross bookings represented approximately 73% of total gross bookings, up about four percentage points year over year.」
+
+出处：BKNG 26Q2 Prepared Remarks.pdf · 第 5 页 · Q2 Results · Ewout Steenbergen（Ewout Steenbergen, CFO）
+
+2026Q2，BKNG merchant gross bookings约占总gross bookings的73%，同比提升约4个百分点；管理层将支付平台视为Connected Trip的基础设施。
 
 ## 被提及（主角是别家，但对本公司有实质信息）
 
