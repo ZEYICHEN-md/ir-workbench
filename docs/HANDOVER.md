@@ -31,67 +31,20 @@
 
 ```mermaid
 flowchart TD
-    %% 用户层
-    subgraph UserLayer ["👤 业务用户交互层（零技术门槛）"]
-        User["IR 业务分析师 / 接手人\n（只需在对话框输入自然语言，例如：'做这周新闻精选'）"]
-    end
+    U["👤 IR 业务同事（你）<br>只需用自然语言开口"]
+    R["🧠 意图路由<br>听懂任务 · 分派到对应流程"]
+    K["⚙️ 统一执行内核（Control Plane）<br>自动编排步骤 · 记录进度 · 拦截风险操作"]
+    M["🧩 五大核心业务流水线<br>📰 新闻精选周报 ｜ 📊 行业数据看板 ｜ ✈️ 航空月报<br>🗄️ 竞对情报库 ｜ 🎙️ 专家访谈提炼"]
+    D[("📂 唯一数据权威底稿<br>行业数据 Excel ＋ 竞对情报库")]
+    O["🚀 交付渠道<br>📱 飞书 Wiki 与群卡片 ｜ 🌐 datamax.fun 看板 ｜ 📄 PDF / Word 成品"]
 
-    %% 调度与控制层
-    subgraph ControlLayer ["🧠 AI 意图路由与调度总控（Control Plane）"]
-        Router["意图路由表 (ROUTER.md)\n精准理解用户想干什么"]
-        Engine["执行与调度内核 (Workbench Engine)\n自动编排步骤 · 状态追踪 (Manifest) · 错误拦截"]
-        Doctor["健康体检 (Doctor) & 状态机 (Status)"]
-    end
-
-    %% 业务模块层
-    subgraph DomainLayer ["⚙️ 业务功能流水线 (8 大业务域)"]
-        D1["📰 新闻精选与周报 (news-digest)\n查重/导出/飞书/卡片"]
-        D2["📊 行业数据与看板 (industry-data)\nExcel底稿/变动识别/洞察生成"]
-        D3["✈️ 航空月度自动填表 (aviation-monthly)\n官网抓取/勾稽计算/回填Excel"]
-        D4["🗄️ 竞对情报库 (competitor-intel)\n按公司/主题多维检索与自动归档"]
-        D5["🎙️ 专家访谈情报 (expert-calls)\n独家事实提炼/原话页码溯源/飞书精选"]
-        D6["📈 港股与行情查询 (hk-market)"]
-        D7["📑 卖方研报轻量摘读 (sellside-research)"]
-        D8["🏢 季度 Peers 财报跟踪 (peers-appendix)"]
-    end
-
-    %% 数据权威层
-    subgraph DataLayer ["📂 唯一数据权威底稿与存储层 (Single Source of Truth)"]
-        Excel["📊 国内行业数据 Excel\n（全工作台唯一指标真源，改数只改它）"]
-        IntelDB["🗃️ 竞对与行业情报库 (JSONL)\n（按公司/主题结构化沉淀）"]
-        Snapshots["📈 投影快照与看板生成物 (JSON/HTML)"]
-    end
-
-    %% 交付物与外部平台
-    subgraph OutputLayer ["🚀 最终交付与展示渠道"]
-        Feishu["📱 飞书生态 (Wiki 知识库 / 内部群互动卡片)"]
-        Dashboard["🌐 datamax.fun (行业实时数据可视化看板)"]
-        Files["📄 本地报告成品 (PDF / HTML / Word 活文档)"]
-    end
-
-    %% 关系连线
-    User -->|"输入自然语言"| Router
-    Router --> Engine
-    Engine <--> Doctor
-    Engine -->|"分派任务"| DomainLayer
-
-    D1 <--> IntelDB
-    D1 -->|"发布"| Feishu
-    D1 -->|"生成"| Files
-
-    D2 <--> Excel
-    D2 -->|"投影生成"| Snapshots
-    Snapshots -->|"发布"| Dashboard
-
-    D3 -->|"自动核对并回填"| Excel
-
-    D4 <--> IntelDB
-
-    D5 -->|"提取事实入库"| IntelDB
-    D5 -->|"精选发布"| Feishu
-
-    D6 & D7 & D8 -.-> User
+    U --> R --> K --> M
+    M <--> D
+    M --> O
+    O -. "🔒 任何对外发布必须先经你明确确认" .-> U
 ```
+
+> 另有三个轻量查询能力（港股行情、研报摘读、季度财报跟踪）按需随问随用，不占用日常流程，故未画入上图。
 
 ---
 
