@@ -152,8 +152,8 @@ DOMAINS: dict[str, Domain] = {
         period_kind="run_id",
         summary="访谈 PDF → 先生成内部情报草稿供核对入库；独立排序后再由人选择飞书 callout。",
         origin="database_matain/.cursor/skills/expert-call-pipeline",
-        validation_state="partial",
-        validation_note="真实批次已完成飞书回读、A 类 11 条入库和 B 类 8 条待核；批准稿另有 6 条 B 类尚未完成最终处置对账。",
+        validation_state="validated",
+        validation_note="真实批次已完成飞书回读；34 条情报已全量分流为 A 类 11 条正式入库、B 类 14 条待核、9 条剔除。",
     ),
     "sellside-research": Domain(
         key="sellside-research",

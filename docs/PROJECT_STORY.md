@@ -14,12 +14,12 @@
 - **平台层**：统一编排内核、Agent 读取的自然语言路由规则、配置、状态记录和基础门禁已经实现。
   另有一层跨域「有什么在等你说话」的汇总，把被门禁停住的动作显式摆出来。
 - **业务域**：7 个域挂上统一入口。`industry-data`、`aviation-monthly`、`news-digest`、
-  `competitor-intel` 与 `hk-market` 已完成真实业务验收；`expert-calls` 的真实批次已完成飞书回读、
-  A 类 11 条入库和 B 类 8 条待核，但批准稿另有 6 条 B 类尚未完成最终处置对账，因此仍为
-  `partial`；`sellside-research` 已完成真实抽取与摘读。`peers-appendix` 已退役。
+  `competitor-intel`、`hk-market` 与 `expert-calls` 已完成真实业务验收；`expert-calls` 的真实批次已完成
+  飞书回读，34 条情报全量分流为 A 类 11 条正式入库、B 类 14 条待核、9 条剔除；
+  `sellside-research` 已完成真实抽取与摘读。`peers-appendix` 已退役。
 - **真实运行**：行业数据最新完成至 `2026-08-22` 并上线；航空 2026 年 7 月正式写入两份权威 Excel，45/45 校验通过；W4 新闻与情报库全链完成，新闻 7/7、情报 2/2。
 - **对外交付**：唯一对外交付模块 `news-digest` 已用 `2026-08-W4` 完成日期审计、导出、台账、情报沉淀与飞书发布；去重台账 68 条 / 9 期，情报库 56 条 / 6 期。
-- **专家访谈**：模块现已把公司情报库设为首要沉淀方向，任何访谈都可独立生成带原话和页码的内部情报草稿，是否入选飞书不影响情报价值；正式入库仍须人工确认。飞书作为第二条展示分支，`20260901-190000` 已发布 3 条并回读；情报分支 11 条 A 类已入正式库、8 条 B 类已进待核池。当前缺口不是等待下一批，而是批准汇总中另外 6 条 B 类没有最终处置记录。
+- **专家访谈**：模块现已把公司情报库设为首要沉淀方向，任何访谈都可独立生成带原话和页码的内部情报草稿，是否入选飞书不影响情报价值；正式入库仍须人工确认。飞书作为第二条展示分支，`20260901-190000` 已发布 3 条并回读；情报分支 A 类 11 条已入正式库、B 类 14 条已进待核池，9 条剔除有批准清单，34 条全部完成处置。
 - **交接与分发**：zip、更新通道、操作手册和公开作品集导出尚未完成，且按当前优先级不先做。
 
 因此，当前版本是“统一内核已落地、七个域挂上入口、多数完成真实任务验收”，不是“完整工作台已上线”。Peers Appendix 已退役。
@@ -156,7 +156,7 @@ modules/<domain>/       shared data/
 | `aviation-monthly` | 民航局与三大航月度数据写入 | **已迁入，2026 年 7 月真实写入，45/45 校验通过** |
 | `news-digest` | 唯一对外交付：旅行行业新闻精选 | **已迁入，2026-08-W4 真实全链验收完成** |
 | `competitor-intel` | 按公司和主题检索竞对动态 | **已迁入，W4 情报沉淀与档案重建完成** |
-| `expert-calls` | 专家访谈情报采集与飞书精选 | **真实双分支均已运行；11 条 A 入库、8 条 B 待核，另有 6 条批准 B 待最终处置对账** |
+| `expert-calls` | 专家访谈情报采集与飞书精选 | **真实双分支验收完成；11 条 A 正式入库、14 条 B 待核、9 条剔除** |
 | `hk-market` | 行情、南向、港美成交占比 | **已迁入，2026-09-02 真实查询验收** |
 | `sellside-research` | 卖方研报按需摘读 | **已迁入，UBS 抽取与摘读已验收** |
 | `peers-appendix` | 财报总结与季度 Appendix | **已退役；不迁入，旧仓冻结** |
@@ -187,7 +187,7 @@ modules/<domain>/       shared data/
 
 ### 迁移以真实任务验收
 
-每个域遵循“复制、改路径、真实任务验证、删旧”。本地 smoke test 只能证明代码能运行，不能证明真实新增、入库、飞书写入和线上部署都正常。`expert-calls` 已用 7 篇真实访谈实际走过情报与飞书两条分支：11 条 A 类已入正式库、8 条 B 类已进待核池、3 条精选已发布回读。它仍为 `partial`，不是因为缺真实运行，而是批准汇总中的另外 6 条 B 类没有最终处置记录；验收不能用 mock 代替，也不能忽略全量分流对账。
+每个域遵循“复制、改路径、真实任务验证、删旧”。本地 smoke test 只能证明代码能运行，不能证明真实新增、入库、飞书写入和线上部署都正常。`expert-calls` 已用 7 篇真实访谈完成双分支验收：11 条 A 类进入正式库、14 条 B 类进入待核池、9 条剔除，3 条精选发布回读；34 条草稿全量分流且逐 ID 对账无缺口。
 ## 几个能讲清工程价值的真实案例
 
 1. **自动化写错了文件，但没有报错。**航空管道仍指向 Travel Pulse 里停止维护的旧 Excel，真实维护的是另一个项目中的新 Excel。整合后工作簿由统一配置显式锁定，不再靠调用者传路径。
@@ -210,13 +210,12 @@ modules/<domain>/       shared data/
 6. 用户明确要求发布后，飞书“旅业资讯库”撤旧换新、历史周报目录追加 W4，并回读确认 6 期 = 6 附件 = 6 目录行；
 7. 新闻 manifest 7/7、情报库 2/2 完成。
 
-这个例子同时覆盖自然语言入口、编辑门禁、跨域状态联动、可恢复写入和飞书回读。专家访谈复用了同样原则：7 篇真实访谈已经完成候选排序、人工选择、11 条 A 类正式入库、8 条 B 类待核、3 条 callout 发布与回读。当前尚未闭环的是批准汇总中另外 6 条 B 类的最终处置，不是两条分支都没有真实验收。
+这个例子同时覆盖自然语言入口、编辑门禁、跨域状态联动、可恢复写入和飞书回读。专家访谈复用了同样原则：7 篇真实访谈已经完成候选排序、人工选择、11 条 A 类正式入库、14 条 B 类待核、9 条剔除、3 条 callout 发布与回读，34 条草稿全部完成处置。
 
 ## 后续计划
 
-1. **收口专家访谈本批处置差异**：由用户确认原编号 5、6、11、18、19、25 是进入待核池还是改列剔除；按既有门禁执行后逐 ID 对账，再评估升级为 `validated`。
-2. **补强情报分流留痕**：后续批次强制 `A + B + 剔除 = 草稿总数`，并让批准产物保留三组完整 ID 与剔除原因，避免缺席被误当成剔除。
-3. **分发工程暂缓**：首次安装 zip、operator runbook 与公开作品集导出等到业务域迁移更稳定后再做。
+1. **保持情报分流留痕**：后续批次继续强制 `A + B + 剔除 = 草稿总数`，并让批准产物保留三组完整 ID 与剔除原因，避免缺席被误当成剔除。
+2. **分发工程暂缓**：首次安装 zip、operator runbook 与公开作品集导出等到业务域迁移更稳定后再做。
 
 ## 你在这个项目里做了什么
 
@@ -274,14 +273,14 @@ AI 负责摸查代码与资料、提出备选方案、生成 Control Plane 和�
 
 - 主导面向非技术 IR 同事的 Agent 自动化工作台设计与分阶段验收，并借助 AI 辅助工程，将 3 个分散项目整合为统一自然语言入口、共享数据层、执行内核与 7 个在运行业务域；另明确退役不适合自动化的 Peers Appendix。
 - 裁决 Excel 单一数据权威、每期任务记录、四态结果语义和高风险操作确认门禁，使周度/月度流程能够续跑、核对和交接。
-- 推进 7 个在运行业务域接入统一工作台；其中 5 个完整域通过真实业务验收，卖方研报按轻量边界验收，专家访谈实际走通情报与飞书双分支并识别出 6 条待处置审计差异。
+- 推进 7 个在运行业务域接入统一工作台；其中 6 个完整域通过真实业务验收，卖方研报按轻量边界验收，专家访谈完成 34 条情报全量分流与飞书发布回读。
 - 建立并验收 Windows 编码、LF 换行、行业看板字节级等价性、Excel 结构、新闻事件日期和飞书逐条回读检查，降低静默读错、错文件写入、重复发布和溯源缺失风险。
 
 ### English
 
 - Led the product design and staged acceptance of an agent-operated IR automation workbench for non-technical users, using AI-assisted engineering to consolidate three fragmented projects into one natural-language entry point, a shared data layer, a control plane, and seven active domains while explicitly retiring the unsuitable Peers Appendix workflow.
 - Defined the Excel source-of-truth model, manifest-based run tracking, four explicit outcome states, and human approval gates for authoritative writes and external publishing.
-- Integrated seven active domains into the shared workbench; five full domains passed real-workflow acceptance, sell-side research was accepted within its lightweight boundary, and expert calls exercised both intelligence and Lark branches while surfacing six unresolved disposition records.
+- Integrated seven active domains into the shared workbench; six full domains passed real-workflow acceptance, sell-side research was accepted within its lightweight boundary, and expert calls completed full disposition of 34 intelligence items plus Lark publication and read-back.
 - Established acceptance checks for Windows-safe encoding, LF normalization, byte-level dashboard projections, workbook layouts, event-date auditing, and read-after-write document publishing to reduce silent data and release failures.
 
 ## 英文项目名与一句话介绍

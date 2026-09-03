@@ -248,7 +248,7 @@ class TestStatusIntegration(unittest.TestCase):
             self.assertTrue(industry["health_loaded"])
             self.assertEqual(industry["validation_state"], "validated")
             self.assertFalse(rows["expert-calls"]["module_present"])
-            self.assertEqual(rows["expert-calls"]["validation_state"], "partial")
+            self.assertEqual(rows["expert-calls"]["validation_state"], "validated")
             self.assertEqual(rows["sellside-research"]["validation_state"], "lightweight")
 
     def test_status_exposes_component_import_failure(self):

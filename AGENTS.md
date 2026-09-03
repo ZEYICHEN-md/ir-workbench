@@ -52,9 +52,9 @@ ir domains     # 有哪些域、哪些已迁入
 ## 迁移中
 
 工作台正在整合三个旧项目，当前 **7** 个域挂在统一入口。`industry-data`、
-`aviation-monthly`、`news-digest`、`competitor-intel`、`hk-market` 已完成真实业务验收；
-`expert-calls` 的真实批次已完成飞书回读、A 类 11 条入库和 B 类 8 条待核，但批准稿另有
-6 条 B 类尚未完成最终处置对账，因此仍为 `partial`；`sellside-research` 抽取与摘读层已用真实研报验收。
+`aviation-monthly`、`news-digest`、`competitor-intel`、`hk-market`、`expert-calls` 已完成真实业务验收；
+`expert-calls` 的 `20260901-190000` 批次已完成飞书回读，并将 34 条情报全量分流为 A 类 11 条正式入库、
+B 类 14 条待核、9 条剔除；`sellside-research` 抽取与摘读层已用真实研报验收。
 `peers-appendix` 已退役：季度
 Appendix / 业绩总结不走自动化，查库用情报库。进度见 [docs/MIGRATION.md](docs/MIGRATION.md)。
 

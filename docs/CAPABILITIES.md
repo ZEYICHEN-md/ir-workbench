@@ -4,10 +4,9 @@
 > 你只需要说自然语言，Agent 负责其余部分。
 >
 > **迁移期提示（2026-09-03）**：目前 **7** 个域挂上统一入口。
-> `industry-data`、`aviation-monthly`、`news-digest`、`competitor-intel`、`hk-market` 已完成真实业务验收；
-> `expert-calls` 的真实批次已完成飞书回读、A 类 11 条入库和 B 类 8 条待核，但批准稿另有
-> 6 条 B 类尚未完成最终处置对账，因此仍为 `partial`；`sellside-research` 已完成真实抽取与摘读。
-> `peers-appendix` 已退役。
+> `industry-data`、`aviation-monthly`、`news-digest`、`competitor-intel`、`hk-market`、`expert-calls`
+> 已完成真实业务验收；`expert-calls` 的 34 条情报已全量分流为 A 类 11 条正式入库、B 类 14 条待核、
+> 9 条剔除。`sellside-research` 已完成真实抽取与摘读；`peers-appendix` 已退役。
 > 实时进度以 `docs/MIGRATION.md` 为准。
 
 ## 怎么用
