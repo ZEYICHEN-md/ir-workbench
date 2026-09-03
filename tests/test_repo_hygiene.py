@@ -126,6 +126,22 @@ class TestDomainRegistryMatchesDisk(unittest.TestCase):
         for key in domains.DOMAINS:
             self.assertEqual(paths.module(key).name, key.replace("-", "_"))
 
+    def test_registered_domains_have_loadable_cli_and_health_contracts(self):
+        from workbench import domain_state, domains
+        from workbench.paths import Paths
+
+        paths = Paths(ROOT)
+        failures = []
+        for definition in domains.DOMAINS.values():
+            runtime = domain_state.probe(paths, definition)
+            if not runtime.module_present or not runtime.cli_loaded or not runtime.health_loaded:
+                failures.append(
+                    f"{definition.key}: module={runtime.module_present}, "
+                    f"cli={runtime.cli_loaded} ({runtime.cli_error}), "
+                    f"health={runtime.health_loaded} ({runtime.health_error})"
+                )
+        self.assertEqual(failures, [], "域运行时契约失败：\n" + "\n".join(failures))
+
 
 if __name__ == "__main__":
     unittest.main()

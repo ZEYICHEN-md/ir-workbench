@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from . import domains, manifest, pending
+from . import domain_state, domains, manifest, pending
 from .paths import Paths
 from .result import Result
 
@@ -31,30 +31,56 @@ def run(paths: Paths, domain: str | None = None) -> Result:
 
     for key in keys:
         definition = domains.get(key)
-        migrated = paths.module(key).is_dir()
-        periods = manifest.list_periods(paths, key)
+        runtime = domain_state.probe(paths, definition)
+        runtime_ready = runtime.module_present and runtime.cli_loaded and runtime.health_loaded
+        periods = manifest.list_periods(paths, key) if runtime.module_present else []
         row: dict = {
             "domain": key,
             "name": definition.zh,
             "facing": definition.facing,
             "cadence": definition.cadence,
-            "migrated": migrated,
+            "module_present": runtime.module_present,
+            "cli_loaded": runtime.cli_loaded,
+            "health_loaded": runtime.health_loaded,
+            "runtime_ready": runtime_ready,
+            # 兼容旧 JSON 消费方；不再用它推断可运行或已验收。
+            "migrated": runtime.module_present,
+            "validation_state": definition.validation_state,
+            "validation_note": definition.validation_note,
             "periods": len(periods),
             "latest": periods[0] if periods else None,
         }
 
-        if not migrated:
-            row["state"] = "未迁入"
-            checks.append({"name": definition.zh, "level": "warn", "detail": "尚未迁入工作台"})
+        if not runtime_ready:
+            row["state"] = "运行时未就绪"
+            gaps = []
+            if not runtime.module_present:
+                gaps.append("模块目录缺失")
+            if not runtime.cli_loaded:
+                gaps.append(runtime.cli_error or "CLI 未加载")
+            if not runtime.health_loaded:
+                gaps.append(runtime.health_error or "health 未加载")
+            checks.append({"name": definition.zh, "level": "fail", "detail": "；".join(gaps)})
         elif not periods:
-            row["state"] = "就绪，还没跑过"
-            checks.append({"name": definition.zh, "level": "ok", "detail": "就绪，还没跑过"})
+            if definition.validation_state == "lightweight":
+                row["state"] = "轻量能力（按设计不建运行记录）"
+            else:
+                row["state"] = "就绪，还没跑过"
+            level = "warn" if definition.validation_state == "partial" else "ok"
+            checks.append(
+                {
+                    "name": definition.zh,
+                    "level": level,
+                    "detail": f"{row['state']} · {definition.validation_note}",
+                }
+            )
         else:
             current = manifest.Manifest(paths, key, periods[0])
             steps = current.load()["steps"]
-            done = sum(1 for s in steps.values() if s.get("state") in {"done", "skipped"})
-            stuck = [n for n, s in steps.items() if s.get("state") in {"blocked", "failed"}]
-            row["state"] = f"{periods[0]}：{done}/{len(steps)} 步完成" if steps else f"{periods[0]}：已开期"
+            done = sum(1 for step in steps.values() if step.get("state") in {"done", "skipped"})
+            stuck = [name for name, step in steps.items() if step.get("state") in {"blocked", "failed"}]
+            run_state = f"{periods[0]}：{done}/{len(steps)} 步完成" if steps else f"{periods[0]}：已开期"
+            row["state"] = run_state
             row["stuck"] = stuck
             if stuck:
                 checks.append(
@@ -66,45 +92,62 @@ def run(paths: Paths, domain: str | None = None) -> Result:
                 )
                 warnings.append(f"{definition.zh} 的 {periods[0]} 有步骤卡住，需要处理。")
             else:
-                checks.append({"name": definition.zh, "level": "ok", "detail": row["state"]})
+                level = "warn" if definition.validation_state == "partial" else "ok"
+                validation = {
+                    "validated": "完整验收",
+                    "partial": "部分验收",
+                    "lightweight": "轻量能力",
+                    "unvalidated": "尚未验收",
+                }[definition.validation_state]
+                checks.append(
+                    {
+                        "name": definition.zh,
+                        "level": level,
+                        "detail": f"{run_state} · {validation}：{definition.validation_note}",
+                    }
+                )
         rows.append(row)
 
-    pending_migration = [r["name"] for r in rows if not r["migrated"]]
-    stuck_any = any(r.get("stuck") for r in rows)
+    runtime_gaps = [row["name"] for row in rows if not row["runtime_ready"]]
+    partial_validation = [row["name"] for row in rows if row["validation_state"] in {"partial", "unvalidated"}]
+    stuck_any = any(row.get("stuck") for row in rows)
 
     # 「有什么在等我」——放在最前面。
-    # 门禁把动作停在半路是对的，但停住之后没有出口，动作就会沉进待办里
-    # （航空 7 月的写入就这样搁了十几轮）。见 pending.py。
     waiting = pending.collect(paths)
     if waiting:
         checks = pending.as_checks(waiting) + checks
 
-    blocked_waiting = [w for w in waiting if w.kind == "卡住"]
-    confirm_waiting = [w for w in waiting if w.kind == "等确认"]
+    blocked_waiting = [item for item in waiting if item.kind == "卡住"]
+    confirm_waiting = [item for item in waiting if item.kind == "等确认"]
     for item in confirm_waiting:
         if item.phrase:
             warnings.append(f"要继续「{item.step_zh}」，跟我说「{item.phrase}」。")
 
     if blocked_waiting or stuck_any:
-        status, summary = "partial", f"有 {len(blocked_waiting)} 处卡住，需要处理。"
+        result_status, summary = "partial", f"有 {len(blocked_waiting)} 处卡住，需要处理。"
     elif confirm_waiting:
-        status = "partial"
+        result_status = "partial"
         summary = f"有 {len(confirm_waiting)} 件事在等你说话。"
-    elif pending_migration:
-        status = "partial"
-        summary = f"{len(rows) - len(pending_migration)}/{len(rows)} 个域已迁入工作台。"
+    elif runtime_gaps:
+        result_status = "partial"
+        summary = f"{len(rows) - len(runtime_gaps)}/{len(rows)} 个域运行时就绪。"
+    elif partial_validation:
+        result_status = "partial"
+        summary = f"运行时全部就绪；{len(partial_validation)} 个域仍是部分验收。"
     else:
-        status, summary = "success", f"{len(rows)} 个域全部就位。"
+        result_status, summary = "success", f"{len(rows)} 个域运行时就绪且完成既定验收。"
 
     next_steps = []
     for item in confirm_waiting:
         need = f"说「{item.phrase}」" if item.phrase else (item.gate or "确认")
         next_steps.append(f"{item.domain_zh} · {item.period_label} 的「{item.step_zh}」：{need}")
-    if pending_migration:
-        next_steps.append("待迁入：" + "、".join(pending_migration) + "（按 docs/MIGRATION.md 的顺序推进）")
+    if runtime_gaps:
+        next_steps.append("修复运行时未就绪域：" + "、".join(runtime_gaps))
+    if partial_validation:
+        next_steps.append("待完成真实业务验收：" + "、".join(partial_validation))
 
     return Result(
-        status=status,
+        status=result_status,
         summary=summary,
         checks=checks,
         warnings=warnings,
@@ -113,13 +156,13 @@ def run(paths: Paths, domain: str | None = None) -> Result:
             "domains": rows,
             "waiting": [
                 {
-                    "domain": w.domain,
-                    "period": w.period,
-                    "step": w.step,
-                    "kind": w.kind,
-                    "phrase": w.phrase,
+                    "domain": item.domain,
+                    "period": item.period,
+                    "step": item.step,
+                    "kind": item.kind,
+                    "phrase": item.phrase,
                 }
-                for w in waiting
+                for item in waiting
             ],
         },
     )

@@ -435,3 +435,16 @@
 
 **落在**：删除 `modules/peers_appendix/` 与 `tests/test_peers_appendix.py`；
 `workbench/domains.py`、`router/ROUTER.md`、`docs/MIGRATION.md` 第 5 步
+
+### 域“就位”如何判，飞书发布如何授权（2026-09-03）
+
+**结论**：目录存在、CLI 可加载、health 可加载、真实业务验收分别报告，不再压成一个 `migrated`。
+生成或导出完成也不等于允许发布；Agent须先单独说明要把本期精选写入哪两份飞书文档并询问，
+用户在这个明确问题下回复“OK / 可以 / 确认”等肯定答复即可放行，不要求固定口令。
+
+**理由**：专家访谈最近一次 run 的 6/6 只能证明该次运行完成，不能覆盖仍未闭环的情报分支；
+卖方研报按设计不建 manifest，也不能因此长期显示成“还没跑过”。发布侧则要服从 `AGENTS.md`
+的最高层禁令，不能让模块文档用“自动执行”绕过。
+
+**落在**：**ADR 0008**、`workbench/domain_state.py`、`workbench/status.py`、
+`modules/news_digest/steps.py`。

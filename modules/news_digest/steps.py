@@ -57,9 +57,9 @@ STEPS: tuple[Step, ...] = (
         "publish",
         "发布到飞书",
         True,
-        "对外发布，须用户明确要求",
+        "发布前须单独说明目标并获得用户肯定确认",
         "照 modules/news_digest/references/feishu-publish.md 走 lark-cli",
-        phrase="发到飞书",
+        phrase="发布本期新闻精选到飞书 Wiki",
     ),
 )
 

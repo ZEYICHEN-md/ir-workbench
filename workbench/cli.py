@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 
 from . import doctor as doctor_mod
+from . import domain_state
 from . import domains as domains_mod
 from . import status as status_mod
 from .config import WORKBOOK_KEYS, Config
@@ -55,6 +56,8 @@ def _cmd_status(args, paths: Paths) -> int:
 def _cmd_domains(args, paths: Paths) -> int:
     rows = []
     for definition in domains_mod.DOMAINS.values():
+        runtime = domain_state.probe(paths, definition)
+        ready = runtime.module_present and runtime.cli_loaded and runtime.health_loaded
         rows.append(
             {
                 "key": definition.key,
@@ -64,20 +67,42 @@ def _cmd_domains(args, paths: Paths) -> int:
                 "period_example": definition.period_example,
                 "summary": definition.summary,
                 "origin": definition.origin,
-                "migrated": paths.module(definition.key).is_dir(),
+                "module_present": runtime.module_present,
+                "cli_loaded": runtime.cli_loaded,
+                "health_loaded": runtime.health_loaded,
+                "runtime_ready": ready,
+                # 兼容旧 JSON 消费方；新代码应读取上面四个明确字段。
+                "migrated": runtime.module_present,
+                "validation_state": definition.validation_state,
+                "validation_note": definition.validation_note,
             }
         )
+    runtime_ready = sum(row["runtime_ready"] for row in rows)
+    validated = sum(row["validation_state"] == "validated" for row in rows)
+    partial = sum(row["validation_state"] == "partial" for row in rows)
+    lightweight = sum(row["validation_state"] == "lightweight" for row in rows)
+    checks = []
+    for row in rows:
+        if not row["runtime_ready"]:
+            level = "fail"
+            detail = (
+                f"运行时未就绪：目录={row['module_present']}、CLI={row['cli_loaded']}、"
+                f"health={row['health_loaded']}"
+            )
+        elif row["validation_state"] == "partial":
+            level, detail = "warn", f"部分验收：{row['validation_note']}"
+        elif row["validation_state"] == "lightweight":
+            level, detail = "ok", f"轻量能力：{row['validation_note']}"
+        else:
+            level, detail = "ok", row["validation_note"]
+        checks.append({"name": f"{row['name']}（{row['facing']}·{row['cadence']}）", "level": level, "detail": detail})
     result = Result(
-        status="success",
-        summary=f"工作台共 {len(rows)} 个域（对外 {len(domains_mod.EXTERNAL_DOMAINS)}，内部 {len(domains_mod.INTERNAL_DOMAINS)}）。",
-        checks=[
-            {
-                "name": f"{r['name']}（{r['facing']}·{r['cadence']}）",
-                "level": "ok" if r["migrated"] else "warn",
-                "detail": r["summary"] if r["migrated"] else f"未迁入 · 来源 {r['origin']}",
-            }
-            for r in rows
-        ],
+        status="success" if runtime_ready == len(rows) and not partial else "partial",
+        summary=(
+            f"共 {len(rows)} 个域：运行时就绪 {runtime_ready}/{len(rows)}；"
+            f"完整验收 {validated}、部分验收 {partial}、轻量能力 {lightweight}。"
+        ),
+        checks=checks,
         data={"domains": rows},
     )
     return _emit(result, args)
@@ -136,23 +161,11 @@ def _cmd_config_set(args, paths: Paths) -> int:
 
 
 def _register_domain_commands(sub) -> None:
-    """挂载已迁入的域命令。未迁入的域自然不出现，不留空壳入口。"""
-    import importlib
-
-    # 已迁入的域各自注册；未迁入的自然不出现，不留空壳入口。
-    # 导入失败（缺可选依赖等）只跳过该域，不影响其余命令可用。
-    for module_name in (
-        "modules.industry_data.cli",
-        "modules.aviation_monthly.cli",
-        "modules.news_digest.cli",
-        "modules.competitor_intel.cli",
-        "modules.expert_calls.cli",
-        "modules.hk_market.cli",
-        "modules.sellside_research.cli",
-    ):
+    """从域注册表挂载可加载的 CLI；装载故障由 status/doctor 显式报告。"""
+    for definition in domains_mod.DOMAINS.values():
         try:
-            module = importlib.import_module(module_name)
-        except ImportError:
+            module = domain_state.load_cli(definition)
+        except domain_state.DomainLoadError:
             continue
         module.register(sub, COMMON)
 

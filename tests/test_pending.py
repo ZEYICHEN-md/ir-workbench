@@ -16,6 +16,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from workbench import pending, status
 from workbench.paths import Paths
@@ -218,6 +219,51 @@ class TestStatusIntegration(unittest.TestCase):
             data = status.run(paths).data
             self.assertTrue(any(w["step"] == "commit" and w["phrase"] == "写入"
                                 for w in data["waiting"]))
+
+    def test_news_publish_status_offers_unambiguous_recovery_phrase(self):
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            paths.module("news-digest").mkdir(parents=True)
+            seed(
+                paths,
+                "news-digest",
+                "2026-08-W4",
+                {
+                    "recall": "done", "draft": "done", "validate": "done",
+                    "export": "done", "log": "done", "deposit": "done",
+                    "publish": "pending",
+                },
+            )
+            waiting = [item for item in pending.collect(paths) if item.step == "publish"]
+            self.assertEqual(len(waiting), 1)
+            self.assertEqual(waiting[0].phrase, "发布本期新闻精选到飞书 Wiki")
+
+    def test_status_separates_runtime_and_business_validation_axes(self):
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            rows = {row["domain"]: row for row in status.run(paths).data["domains"]}
+            industry = rows["industry-data"]
+            self.assertTrue(industry["module_present"])
+            self.assertTrue(industry["cli_loaded"])
+            self.assertTrue(industry["health_loaded"])
+            self.assertEqual(industry["validation_state"], "validated")
+            self.assertFalse(rows["expert-calls"]["module_present"])
+            self.assertEqual(rows["expert-calls"]["validation_state"], "partial")
+            self.assertEqual(rows["sellside-research"]["validation_state"], "lightweight")
+
+    def test_status_exposes_component_import_failure(self):
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            with patch(
+                "workbench.domain_state.importlib.import_module",
+                side_effect=ImportError("synthetic import failure"),
+            ):
+                rows = {row["domain"]: row for row in status.run(paths).data["domains"]}
+            industry = rows["industry-data"]
+            self.assertTrue(industry["module_present"])
+            self.assertFalse(industry["cli_loaded"])
+            self.assertFalse(industry["health_loaded"])
+            self.assertFalse(industry["runtime_ready"])
 
 
 if __name__ == "__main__":

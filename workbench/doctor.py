@@ -9,7 +9,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 
-from . import domains
+from . import domain_state, domains
 from .config import WORKBOOK_KEYS, Config
 from .paths import Paths
 from .result import Result
@@ -18,21 +18,22 @@ MIN_PYTHON = (3, 14)
 
 
 def _domain_checks(paths: Paths) -> dict[str, list[dict]]:
-    """收集已迁入各域的健康检查。
-
-    约定：`modules/<包>/health.py` 暴露 `checks(base) -> list[dict]`。
-    没有这个文件的域跳过——不强制每个域都实现。
-    """
-    import importlib
-
+    """收集各域健康检查；缺失或导入失败本身就是显式故障。"""
     collected: dict[str, list[dict]] = {}
-    for key in domains.DOMAINS:
-        if not paths.module(key).is_dir():
+    for definition in domains.DOMAINS.values():
+        if not paths.module(definition.key).is_dir():
             continue
-        module_name = f"modules.{key.replace('-', '_')}.health"
         try:
-            health = importlib.import_module(module_name)
-        except ImportError:
+            health = domain_state.load_health(definition)
+        except domain_state.DomainLoadError as error:
+            collected[definition.key] = [
+                {
+                    "name": "健康检查装载",
+                    "level": "fail",
+                    "detail": str(error),
+                    "advice": f"这是 {definition.key} 的模块装载问题，需要维护人处理。",
+                }
+            ]
             continue
         try:
             rows = health.checks(paths)
@@ -42,11 +43,11 @@ def _domain_checks(paths: Paths) -> dict[str, list[dict]]:
                     "name": "健康检查",
                     "level": "fail",
                     "detail": f"检查本身出错：{type(error).__name__}: {error}",
-                    "advice": f"这是 {module_name} 的 bug，需要维护人看。",
+                    "advice": f"这是 {health.__name__} 的 bug，需要维护人看。",
                 }
             ]
         if rows:
-            collected[key] = rows
+            collected[definition.key] = rows
     return collected
 
 #: 已迁入域必需的依赖。缺了对应能力就跑不了，所以报 fail 而不是 warn。
@@ -123,20 +124,44 @@ def run(paths: Paths, *, verbose: bool = False) -> Result:
     else:
         checks.append({"name": "目录骨架", "level": "ok", "detail": f"{len(paths.required_dirs)} 个目录齐全"})
 
-    # 3. 模块目录
-    absent_modules = [d for d in domains.DOMAINS if not paths.module(d).is_dir()]
-    if absent_modules:
+    # 3. 域运行时：目录、CLI 与 health 分开核对，禁止目录存在即报“已迁入”。
+    runtime_states = {
+        definition.key: domain_state.probe(paths, definition)
+        for definition in domains.DOMAINS.values()
+    }
+    absent_domains = []
+    load_errors = []
+    for key, state in runtime_states.items():
+        if not state.module_present:
+            absent_domains.append(domains.get(key).zh)
+        elif not state.cli_loaded:
+            load_errors.append(f"{domains.get(key).zh}：{state.cli_error}")
+        elif not state.health_loaded:
+            load_errors.append(f"{domains.get(key).zh}：{state.health_error}")
+    if load_errors:
+        checks.append({"name": "域运行时", "level": "fail", "detail": "；".join(load_errors)})
+        missing.extend(load_errors)
+        next_steps.append("请维护人修复上述域的模块导入错误，再重新做环境检查。")
+    elif absent_domains:
         checks.append(
             {
-                "name": "模块",
+                "name": "域运行时",
                 "level": "warn",
-                "detail": f"{len(domains.DOMAINS) - len(absent_modules)}/{len(domains.DOMAINS)} 已就位，"
-                + "尚未迁入：" + "、".join(domains.get(d).zh for d in absent_modules),
+                "detail": (
+                    f"{len(domains.DOMAINS) - len(absent_domains)}/{len(domains.DOMAINS)} 个域就绪；"
+                    "尚未安装：" + "、".join(absent_domains)
+                ),
             }
         )
-        warnings.append("部分模块还没迁进工作台，相关能力暂不可用（迁移进行中，属正常）。")
+        warnings.append("部分域模块尚未安装；Control Plane 可用，相关业务能力暂不可用。")
     else:
-        checks.append({"name": "模块", "level": "ok", "detail": f"{len(domains.DOMAINS)} 个模块全部就位"})
+        checks.append(
+            {
+                "name": "域运行时",
+                "level": "ok",
+                "detail": f"{len(domains.DOMAINS)} 个域的目录、CLI 与 health 全部就绪",
+            }
+        )
 
     # 4. 工作簿配置（绝不代选）
     config = Config(paths)

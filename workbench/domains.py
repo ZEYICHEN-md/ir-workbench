@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 Facing = Literal["external", "internal"]
+ValidationState = Literal["validated", "partial", "lightweight", "unvalidated"]
 PeriodKind = Literal[
     "month_week", "data_date", "year_month", "fiscal_quarter", "query_date", "run_id", "none"
 ]
@@ -71,6 +72,9 @@ class Domain:
     summary: str
     #: 迁移来源，供 docs/MIGRATION.md 与 doctor 核对
     origin: str
+    #: 真实业务验收状态；与目录存在、CLI/health 能否导入分别报告（ADR 0008）。
+    validation_state: ValidationState
+    validation_note: str
 
     @property
     def period_example(self) -> str:
@@ -93,6 +97,8 @@ DOMAINS: dict[str, Domain] = {
         period_kind="month_week",
         summary="唯一对外交付物。写完自动沉淀进竞对情报库。",
         origin="0703_Travel_Pulse/travel-weekly-report（新闻章）",
+        validation_state="validated",
+        validation_note="已完成一期真实采编、导出、沉淀与授权后发布验收。",
     ),
     "industry-data": Domain(
         key="industry-data",
@@ -102,6 +108,8 @@ DOMAINS: dict[str, Domain] = {
         period_kind="data_date",
         summary="指标底稿 Excel → 指标快照 → 看板 / 飞书投影 / 洞察。",
         origin="database_matain",
+        validation_state="validated",
+        validation_note="已完成真实周度更新、上线与回滚验收。",
     ),
     "aviation-monthly": Domain(
         key="aviation-monthly",
@@ -111,6 +119,8 @@ DOMAINS: dict[str, Domain] = {
         period_kind="year_month",
         summary="民航局与三大航月度数据校验后写入指标底稿四个目标格。",
         origin="0703_Travel_Pulse/aviation-monthly-data-pipeline",
+        validation_state="validated",
+        validation_note="已完成真实月份官方数据写入与下游重建验收。",
     ),
     "hk-market": Domain(
         key="hk-market",
@@ -120,6 +130,8 @@ DOMAINS: dict[str, Domain] = {
         period_kind="query_date",
         summary="行情、南向持股、港美成交额占比（FY 口径）。内部查询，不对外。",
         origin="0703_Travel_Pulse/hk-volume-ratio + travel-weekly-report/scripts",
+        validation_state="validated",
+        validation_note="三类真实查询均已完成验收。",
     ),
     "competitor-intel": Domain(
         key="competitor-intel",
@@ -129,6 +141,8 @@ DOMAINS: dict[str, Domain] = {
         period_kind="month_week",
         summary="按公司与主题累积 peers 动态。三条采集通道：新闻、财报口径、专家访谈。",
         origin="新建（ADR 0002）",
+        validation_state="validated",
+        validation_note="周度、季度与专家访谈通道均已有真实数据验收。",
     ),
     "expert-calls": Domain(
         key="expert-calls",
@@ -138,6 +152,8 @@ DOMAINS: dict[str, Domain] = {
         period_kind="run_id",
         summary="访谈 PDF → 先生成内部情报草稿供核对入库；独立排序后再由人选择飞书 callout。",
         origin="database_matain/.cursor/skills/expert-call-pipeline",
+        validation_state="partial",
+        validation_note="真实批次已完成飞书回读、A 类 11 条入库和 B 类 8 条待核；批准稿另有 6 条 B 类尚未完成最终处置对账。",
     ),
     "sellside-research": Domain(
         key="sellside-research",
@@ -147,6 +163,8 @@ DOMAINS: dict[str, Domain] = {
         period_kind="none",
         summary="研报 PDF 摘读。轻量能力，不建持久档案（ADR 0004）。",
         origin="0703_Travel_Pulse/inputs 研报处理",
+        validation_state="lightweight",
+        validation_note="真实研报已验收；按 ADR 0004 有意不建 manifest 或跨期档案。",
     ),
 }
 
