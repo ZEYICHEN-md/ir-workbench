@@ -32,6 +32,8 @@ CarTrawler 的收购」对 EXPE 是实质信息，必须能在 EXPE 的检索结
 from __future__ import annotations
 
 import hashlib
+import json
+import math
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -51,12 +53,25 @@ CHANNEL_ZH = {
     "expert-call": "专家访谈",
     "manual": "手工补录",
 }
+EVIDENCE_TYPES = {
+    "company_reported", "internal_actual", "platform_observation", "operational_estimate",
+    "external_estimate", "personal_guess", "forecast", "interviewer_led",
+}
+SOURCE_PROXIMITIES = {
+    "direct_management", "direct_owner", "direct_team", "adjacent_function", "external_observer",
+}
+CONFIDENCE_LEVELS = {"high", "medium", "low"}
+QUARTERLY_SOURCE_TYPES = {
+    "regulatory-filing", "company-ir", "third-party-transcript", "derived",
+}
+SOURCE_AUTHORITIES = {"P0", "P1", "P2"}
 
 #: URL 里对「是不是同一条」毫无意义的追踪参数。归一时剥掉。
 _TRACKING = re.compile(
     r"^(utm_|ref$|ref_|from$|source$|spm$|share|fbclid$|gclid$|_ga$)", re.I
 )
 _DATE = re.compile(r"^20\d{2}-\d{2}-\d{2}$")
+_METRIC_KEY = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 
 
 class EntryError(ValueError):
@@ -84,45 +99,125 @@ def _slug(text: str) -> str:
 
 
 def make_id(date: str, url: str | None, title: str) -> str:
-    """确定性 id = 日期 + （URL 归一后 或 标题）的指纹。
-
-    有 URL 就用 URL：同一条新闻被两个期次分别沉淀（例「延续上期」）时，标题会改写，
-    URL 不会。用标题会让它变成两条。
-    """
+    """确定性 id = 日期 + （URL 归一后 或 标题）的指纹。"""
     basis = normalize_url(url) or title
     return f"{date.replace('-', '')}-{_slug(basis)}"
+
+
+def make_entry_id(entry: "Entry") -> str:
+    """普通条目沿用旧 id；数据主张加入来源、口径和值，避免同一 PDF 多指标碰撞。"""
+    if not entry.claim:
+        return make_id(entry.date, entry.url, entry.title)
+    source = normalize_url(entry.url) or entry.quote_where or entry.media or entry.title
+    keys = ("metric_key", "scope", "period", "value", "unit", "basis")
+    signature = json.dumps(
+        {key: entry.claim.get(key) for key in keys},
+        ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str,
+    )
+    return f"{entry.date.replace('-', '')}-{_slug(f'{source}|{signature}')}"
+
+
+def _finite_number(value: Any) -> bool:
+    return not isinstance(value, bool) and isinstance(value, (int, float)) and math.isfinite(value)
+
+
+def _normalize_claim(raw: dict[str, Any] | None) -> dict[str, Any] | None:
+    """校验可独立检索的数据主张；冲突状态由 Store 相对当前库动态计算。"""
+    if raw is None:
+        return None
+    if not isinstance(raw, dict):
+        raise EntryError("claim 必须是 object")
+    required = {
+        "metric_key", "scope", "period", "value", "unit", "evidence_type",
+        "source_proximity", "confidence", "confidence_reasons",
+    }
+    missing = [key for key in required if key not in raw]
+    if missing:
+        raise EntryError("claim 缺字段：" + "、".join(sorted(missing)))
+    metric_key = str(raw["metric_key"]).strip().lower()
+    if not _METRIC_KEY.fullmatch(metric_key):
+        raise EntryError("claim.metric_key 必须是稳定 ASCII slug")
+    scope = raw["scope"]
+    if not isinstance(scope, dict) or not scope:
+        raise EntryError("claim.scope 必须是非空 object")
+    normalized_scope: dict[str, str] = {}
+    for key, value in sorted(scope.items()):
+        if not isinstance(key, str) or not key.strip() or not isinstance(value, str) or not value.strip():
+            raise EntryError("claim.scope 的键和值必须是非空字符串")
+        normalized_scope[key.strip()] = value.strip()
+    period = raw["period"]
+    unit = raw["unit"]
+    if not isinstance(period, str) or not period.strip():
+        raise EntryError("claim.period 必须说明数据期；不知道时也要明确写 unknown")
+    if not isinstance(unit, str) or not unit.strip():
+        raise EntryError("claim.unit 不能为空")
+    value = raw["value"]
+    valid_range = (
+        isinstance(value, list) and len(value) == 2
+        and all(_finite_number(item) for item in value) and value[0] <= value[1]
+    )
+    if not (_finite_number(value) or valid_range or isinstance(value, str) and value.strip()):
+        raise EntryError("claim.value 只能是有限数字、[下限, 上限]或非空原始值")
+    evidence_type = raw["evidence_type"]
+    source_proximity = raw["source_proximity"]
+    confidence = raw["confidence"]
+    if evidence_type not in EVIDENCE_TYPES:
+        raise EntryError("claim.evidence_type 不在受控分类中")
+    if source_proximity not in SOURCE_PROXIMITIES:
+        raise EntryError("claim.source_proximity 不在受控分类中")
+    if confidence not in CONFIDENCE_LEVELS:
+        raise EntryError("claim.confidence 只能是 high/medium/low")
+    reasons = raw["confidence_reasons"]
+    if not isinstance(reasons, list) or not reasons or not all(
+        isinstance(reason, str) and reason.strip() for reason in reasons
+    ):
+        raise EntryError("claim.confidence_reasons 必须是非空字符串数组")
+    basis = raw.get("basis")
+    if basis is not None and (not isinstance(basis, str) or not basis.strip()):
+        raise EntryError("claim.basis 如提供必须是非空字符串")
+    tolerance = raw.get("tolerance", 0)
+    if not _finite_number(tolerance) or tolerance < 0:
+        raise EntryError("claim.tolerance 必须是非负有限数字")
+    return {
+        "metric_key": metric_key,
+        "scope": normalized_scope,
+        "period": period.strip(),
+        "value": value.strip() if isinstance(value, str) else value,
+        "unit": unit.strip().lower(),
+        "basis": basis.strip() if isinstance(basis, str) else None,
+        "tolerance": tolerance,
+        "evidence_type": evidence_type,
+        "source_proximity": source_proximity,
+        "confidence": confidence,
+        "confidence_reasons": [reason.strip() for reason in reasons],
+    }
 
 
 @dataclass
 class Entry:
     kind: Kind
-    date: str                       # 事件日期，YYYY-MM-DD
+    date: str
     title: str
     body: str
-    companies: list[str] = field(default_factory=list)   # 主角
-    mentions: list[str] = field(default_factory=list)    # 仅被提及
-    #: **受控**主题，10 个固定值。只为跨公司横切比较存在，不许自由造词。
+    companies: list[str] = field(default_factory=list)
+    mentions: list[str] = field(default_factory=list)
     topics: list[str] = field(default_factory=list)
-    #: **自由**事件标签，不限词表。捕捉受控主题装不下的具体性：
-    #: `AEO`、`交换费`、`减值`、`agentic预订`、`GEO`、`独家分销`……
-    #:
-    #: 为什么要分两层：固定 10 个主题确实装不下事件本身的具体性，但把主题也放开会让
-    #: 横切失效——同一件事在 Booking 下记「分发」、在 Expedia 下记「流量入口」，
-    #: 「peers 在这个主题上都做了什么」就查不全了。所以**主题受控用于比较，标签自由用于检索**。
-    #: 标签只做归一化（去空白、小写化保留原形），不做词表校验。
     tags: list[str] = field(default_factory=list)
     media: str | None = None
     url: str | None = None
     title_en: str | None = None
-    quote: str | None = None        # statement 必填：原话
-    quote_where: str | None = None  # statement 必填：位置指针
+    quote: str | None = None
+    quote_where: str | None = None
     speaker: str | None = None
     sensitivity: Sensitivity = "shareable"
     channel: Channel = "weekly"
-    period: str | None = None       # 采集期次（周度 = month_week 键）
+    period: str | None = None       # 采集期次；数据期在 claim.period
+    source_type: str | None = None
+    source_authority: str | None = None
+    source_path: str | None = None
     note: str | None = None
-    #: 主题被人核过。`ir intel retag` 会跳过这些条目——否则人改完，下一次按关键词
-    #: 重算就把它算回去了，而且不会有任何提示。
+    claim: dict[str, Any] | None = None
+    review_flags: list[str] = field(default_factory=list)
     topics_reviewed: bool = False
     id: str | None = None
     added: str | None = None
@@ -142,8 +237,13 @@ class Entry:
         }
         if self.tags:
             out["tags"] = self.tags
-        for key in ("media", "url", "title_en", "quote", "quote_where",
-                    "speaker", "period", "note", "topics_reviewed", "added"):
+        if self.review_flags:
+            out["review_flags"] = self.review_flags
+        for key in (
+            "media", "url", "title_en", "quote", "quote_where", "speaker",
+            "period", "source_type", "source_authority", "source_path", "note", "claim",
+            "topics_reviewed", "added",
+        ):
             value = getattr(self, key)
             if value:
                 out[key] = value
@@ -170,11 +270,7 @@ def normalize(
     *,
     registry: dict[str, str] | None = None,
 ) -> tuple[Entry, list[str]]:
-    """校验并补齐。返回 (条目, 需要登记进其他桶的公司原名)。
-
-    公司名归一到受控键；不在前两层的返回给调用方去登记——**不在这里直接写注册表**，
-    因为 dry-run 也要走同一条校验路径，而 dry-run 不该产生副作用。
-    """
+    """校验并补齐。返回 (条目, 需要登记进其他桶的公司原名)。"""
     if entry.kind not in ("action", "statement"):
         raise EntryError(f"kind 只能是 action 或 statement，收到 {entry.kind!r}")
     if not _DATE.match(entry.date or ""):
@@ -183,9 +279,6 @@ def normalize(
         raise EntryError("title 不能为空")
     if not (entry.body or "").strip():
         raise EntryError("body 不能为空")
-
-    # 入库门槛（ADR 0002 §3）：已发生的事实 + 有可核对来源 + 有明确日期。
-    # 日期上面已查；来源这里查。表述类的「来源」是位置指针，不是 URL。
     if entry.kind == "statement":
         if not (entry.quote or "").strip():
             raise EntryError("表述类必须带原话（quote），否则无法回原文核对")
@@ -197,30 +290,48 @@ def normalize(
     elif not (entry.url or entry.media):
         raise EntryError("动作类必须有可核对来源（url 或 media 至少给一个）")
 
+    if entry.channel == "quarterly":
+        if entry.kind != "statement":
+            raise EntryError("季度通道只收表述类条目（statement）")
+        if not (entry.period or "").strip():
+            raise EntryError("季度通道必须填写 period，如 26Q2")
+        if entry.source_type not in QUARTERLY_SOURCE_TYPES:
+            raise EntryError(
+                "季度通道 source_type 必须是 regulatory-filing/company-ir/"
+                "third-party-transcript/derived"
+            )
+        if entry.source_authority not in SOURCE_AUTHORITIES:
+            raise EntryError("季度通道 source_authority 必须是 P0/P1/P2")
+        source_path = (entry.source_path or "").strip().replace("\\", "/")
+        if not source_path or source_path.startswith("/") or re.match(r"^[A-Za-z]:", source_path):
+            raise EntryError("季度通道 source_path 必须是工作区内相对路径")
+        if ".." in source_path.split("/"):
+            raise EntryError("季度通道 source_path 不得越出工作区")
+        if not entry.topics_reviewed:
+            raise EntryError("季度通道 topics 必须人工核过，并标 topics_reviewed=true")
+        entry.period = entry.period.strip()
+        entry.source_path = source_path
+
     unregistered: list[str] = []
     entry.companies = _resolve_list(entry.companies, unregistered)
     entry.mentions = _resolve_list(entry.mentions, unregistered)
-    # 同一家既是主角又被提及时，只留主角——否则档案与索引会各记一次。
-    entry.mentions = [k for k in entry.mentions if k not in entry.companies]
-
-    entry.topics = _dedupe([vocab.resolve_topic(t) for t in entry.topics])
-    # 自由标签只归一化不校验：它存在的意义就是装受控词表装不下的东西，
-    # 一旦也要过词表就退化成第二套主题了。
-    entry.tags = _dedupe([t.strip() for t in (entry.tags or []) if t and t.strip()])
+    entry.mentions = [key for key in entry.mentions if key not in entry.companies]
+    entry.topics = _dedupe([vocab.resolve_topic(topic) for topic in entry.topics])
+    entry.tags = _dedupe([tag.strip() for tag in (entry.tags or []) if tag and tag.strip()])
+    entry.review_flags = _dedupe([
+        flag.strip() for flag in (entry.review_flags or []) if flag and flag.strip()
+    ])
     if not entry.topics:
         raise EntryError(
             "至少要有一个主题——没有主题的条目查不到，也就等于没入库。可选：\n  "
-            + "、".join(f"{t.key}（{t.zh}）" for t in vocab.TOPICS)
+            + "、".join(f"{topic.key}（{topic.zh}）" for topic in vocab.TOPICS)
         )
-
-    # TCOM 默认内部级（ADR 0002 §9），不进公开作品集仓。
-    # 专家访谈不论涉及哪家公司都含非公开研究语境，通道级强制 internal；
-    # 调用方即使传 shareable 也会在归一化时被覆盖。
     if "TCOM" in entry.all_companies or entry.channel == "expert-call":
         entry.sensitivity = "internal"
 
+    entry.claim = _normalize_claim(entry.claim)
     entry.url = normalize_url(entry.url)
-    entry.id = entry.id or make_id(entry.date, entry.url, entry.title)
+    entry.id = entry.id or make_entry_id(entry)
     entry.added = entry.added or datetime.now(timezone.utc).astimezone().isoformat(
         timespec="seconds"
     )

@@ -7,8 +7,8 @@ name = "ir-workbench"
 version = "0.1.0"
 description = "携程 IR 部门 AI 自动化工作台"
 requires-python = ">=3.14"
-# 只列**已迁入的域**真正需要的包。装完这些就能跑 industry-data 与 aviation-monthly，
-# 也能跑全部回归测试——所以 CI 只要 `pip install -e .`，不需要另列一份清单。
+# 只列**已迁入的域**真正需要的包。装完即可运行全部域并跑全量回归测试，
+# 所以 CI 只要 `pip install -e .`，不需要另列一份清单。
 #
 # 曾经把未迁入域的依赖（pandas / akshare / yfinance / playwright）也放在这里，后果是
 # 安装很重，于是 CI 改用 `--no-deps` 再手动补几个包，依赖清单就有了两份。实际结果是
@@ -21,15 +21,17 @@ dependencies = [
   "pdfplumber==0.11.10",
   "openpyxl==3.1.5",
   "pywin32==312; platform_system == 'Windows'",
+  "pandas==3.0.4",
+  "akshare==1.18.64",
+  "yfinance==1.5.1",
+  "python-docx==1.2.0",
+  "lxml==6.1.1",
+  "pillow==12.3.0",
 ]
 
 [project.optional-dependencies]
-# 未迁入域会用到的包。对应域迁进来时，把它需要的那几行移进上面的 dependencies。
+# 非核心、缺失时仍有降级路径的包。
 pending = [
-  "python-docx==1.2.0",   # peers-appendix：Word 活文档
-  "pandas==3.0.4",        # hk-market
-  "akshare==1.18.64",     # hk-market：南向持股
-  "yfinance==1.5.1",      # hk-market：行情
   # news-digest 已迁入，但 PDF 导出留在这里：playwright 装完还要另跑
   # `playwright install chromium` 下载浏览器，把它放主依赖会让首次安装变得很重，
   # 而缺它只影响 PDF（HTML 照常出）。news_digest/health.py 会明确提示这一点。

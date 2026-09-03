@@ -21,10 +21,10 @@ from pathlib import Path
 from workbench.fileio import write_text
 from workbench.result import Result
 
-from . import backfill, profiles, query, steps, vocab  # noqa: F401 —— backfill 供 retag 用
-from .entry import KIND_ZH, Entry, normalize
+from . import backfill, profiles, query, quarterly, steps, vocab  # noqa: F401 —— backfill 供 retag 用
+from .entry import KIND_ZH, Entry, EntryError, normalize
 from .steps import DOMAIN
-from .store import Store
+from .store import DeferredRecord, Store
 
 #: 新闻精选成品的文件名前缀。`--dir` 按它 glob。
 DIGEST_PREFIX = "旅行行业新闻精选"
@@ -289,6 +289,176 @@ def _tagging_rows(trace: list[dict]) -> list[dict]:
 
 # --- 手工入库（季度通道 / 专家访谈通道）---
 
+_CLAIM_LABELS = {
+    "new": "新增数据",
+    "corroborating": "佐证既有数据",
+    "conflicting": "数值冲突",
+    "different_scope": "疑似口径不同",
+}
+
+
+def _claim_brief(ref: dict) -> str:
+    claim = ref.get("claim") or {}
+    scope = json.dumps(claim.get("scope", {}), ensure_ascii=False, sort_keys=True)
+    source = ref.get("quote_where") or ref.get("media") or "未标位置"
+    pool = {"formal": "正式库", "deferred": "待核池", "batch": "本批"}.get(
+        ref.get("pool"), ref.get("pool") or "候选"
+    )
+    return (
+        f"[{pool}] {claim.get('metric_key')}={claim.get('value')} {claim.get('unit')} · "
+        f"数据期 {claim.get('period')} · scope {scope} · basis {claim.get('basis') or '未说明'}"
+        f" · {ref.get('date')} · {source}"
+    )
+
+
+def _claim_checks(outcome) -> list[dict]:
+    counts = outcome.counts
+    rows = [{
+        "name": "数据主张审查",
+        "level": "warn" if counts["claim_conflicting"] or counts["claim_different_scope"] else "ok",
+        "detail": (
+            f"新增 {counts['claim_new']} · 佐证 {counts['claim_corroborating']} · "
+            f"冲突 {counts['claim_conflicting']} · 疑似口径不同 {counts['claim_different_scope']}"
+        ),
+    }]
+    for review in outcome.claim_reviews:
+        if review.classification not in {"conflicting", "different_scope"}:
+            continue
+        candidate = _claim_brief(review.candidate)
+        existing = "；".join(_claim_brief(match) for match in review.matches[:3])
+        rows.append({
+            "name": f"第 {review.index} 条 · {_CLAIM_LABELS[review.classification]}",
+            "level": "warn",
+            "detail": f"新：{candidate}；已有：{existing}",
+        })
+    return rows
+
+
+def _quarterly_claim_checks(outcome, exception_indexes: list[int]) -> list[dict]:
+    """季度官方披露中，已完整声明scope的地区拆分不是异常。"""
+    exceptions = set(exception_indexes)
+    explicit_scope = sum(
+        review.classification == "different_scope" and review.index not in exceptions
+        for review in outcome.claim_reviews
+    )
+    unresolved = [review for review in outcome.claim_reviews if review.index in exceptions]
+    rows = [{
+        "name": "数据主张审查",
+        "level": "warn" if unresolved else "ok",
+        "detail": (
+            f"新增 {outcome.counts['claim_new']} · 佐证 {outcome.counts['claim_corroborating']} · "
+            f"明确分层口径 {explicit_scope} · 异常待审核 {len(unresolved)}"
+        ),
+    }]
+    for review in unresolved:
+        rows.append({
+            "name": f"第 {review.index} 条 · {_CLAIM_LABELS[review.classification]}",
+            "level": "warn",
+            "detail": f"新：{_claim_brief(review.candidate)}；已有："
+            + "；".join(_claim_brief(match) for match in review.matches[:3]),
+        })
+    return rows
+
+
+def cmd_quarterly(args, base) -> Result:
+    """季度材料默认自动沉淀正常项；只有异常项保留人工门禁。"""
+    store = Store(base)
+    try:
+        if args.commit:
+            _, outcome = quarterly.commit(base, args.company, args.period, store)
+            written = profiles.rebuild(base, store.load())
+            return Result(
+                status="success",
+                summary=f"异常季度条目确认入库 {len(outcome.added)} 条，档案重建 {len(written)} 份。",
+                domain=DOMAIN,
+                period=args.period,
+                checks=[{
+                    "name": "同一审核草稿", "level": "ok",
+                    "detail": f"新增 {len(outcome.added)} · 已存在 {len(outcome.skipped)}",
+                }, *_claim_checks(outcome)],
+                data={"counts": outcome.counts},
+            )
+
+        missing = []
+        if not args.source_pack:
+            missing.append("--source-pack 季度材料目录")
+        if not args.file:
+            missing.append("--file Agent 候选 JSON")
+        if missing:
+            return Result(
+                status="blocked", summary="季度处理缺少输入。", domain=DOMAIN,
+                period=args.period, missing=missing,
+            )
+        plan = quarterly.prepare(
+            base, args.company, args.period, Path(args.source_pack), Path(args.file), store,
+            auto_commit=not args.dry_run,
+        )
+    except (quarterly.QuarterlyError, OSError, json.JSONDecodeError) as exc:
+        return Result(
+            status="blocked",
+            summary="季度材料或候选条目未通过校验。",
+            domain=DOMAIN,
+            period=args.period,
+            checks=[{"name": "季度门禁", "level": "fail", "detail": str(exc)}],
+        )
+
+    authority_counts = {
+        level: sum(row["source_authority"] == level for row in plan.manifest["files"])
+        for level in ("P0", "P1", "P2")
+    }
+    auto_added = len(plan.auto_outcome.added) if plan.auto_outcome else 0
+    if plan.auto_outcome:
+        written = profiles.rebuild(base, store.load())
+        status = "partial" if plan.exception_indexes else "success"
+        summary = (
+            f"季度正常项自动入库 {auto_added} 条；"
+            f"异常待审核 {len(plan.exception_indexes)} 条。"
+        )
+        next_steps = (
+            ["只需核对 review.md 中标为“异常待审核”的条目。"]
+            if plan.exception_indexes else []
+        )
+    else:
+        status = "partial"
+        summary = (
+            f"季度 dry-run：{len(plan.outcome.added)} 条可入，"
+            f"其中异常 {len(plan.exception_indexes)} 条；正式库未写入。"
+        )
+        next_steps = ["去掉 --dry-run 后，正常项将自动入库，异常项仍保留人工门禁。"]
+
+    return Result(
+        status=status,
+        summary=summary,
+        domain=DOMAIN,
+        period=args.period,
+        checks=[
+            {
+                "name": "材料 manifest", "level": "ok",
+                "detail": (
+                    f"{len(plan.manifest['files'])} 个文件 · "
+                    f"P0 {authority_counts['P0']} / P1 {authority_counts['P1']} / "
+                    f"P2 {authority_counts['P2']}"
+                ),
+            },
+            {
+                "name": "候选校验",
+                "level": "warn" if plan.exception_indexes else "ok",
+                "detail": (
+                    f"可入 {len(plan.outcome.added)} · 已存在 {len(plan.outcome.skipped)} · "
+                    f"异常 {len(plan.exception_indexes)} · 被拒 {len(plan.outcome.rejected)}"
+                ),
+            },
+            *_quarterly_claim_checks(plan.outcome, plan.exception_indexes),
+        ],
+        next_steps=next_steps,
+        data={
+            "manifest": str(plan.manifest_path), "draft": str(plan.draft_path),
+            "review": str(plan.review_path), "counts": plan.outcome.counts,
+            "auto_added": auto_added, "exception_indexes": plan.exception_indexes,
+            "claim_reviews": [review.to_dict() for review in plan.outcome.claim_reviews],
+        },
+    )
+
 
 def cmd_add(args, base) -> Result:
     path = Path(args.file)
@@ -305,18 +475,29 @@ def cmd_add(args, base) -> Result:
             "name": "校验",
             "level": "fail" if outcome.rejected else "ok",
             "detail": f"可入 {len(outcome.added)} · 已存在 {len(outcome.skipped)} · 被拒 {len(outcome.rejected)}",
-        }
+        },
+        *_claim_checks(outcome),
     ]
     for index, reason in outcome.rejected[:10]:
         checks.append({"name": f"第 {index} 条", "level": "fail", "detail": reason.split("\n")[0]})
 
+    review_data = [review.to_dict() for review in outcome.claim_reviews]
+    has_unresolved = any(
+        review.classification in {"conflicting", "different_scope"}
+        for review in outcome.claim_reviews
+    )
     if not args.commit:
+        next_steps = []
+        if has_unresolved:
+            next_steps.append("先人工核对冲突与疑似口径不同项；系统不会覆盖旧值或自动选一个。")
+        next_steps.append("确认后才可加 --commit 追加入库；原有主张不会被覆盖。")
         return Result(
             status="partial",
             summary=f"预演：{len(outcome.added)} 条可入库，**未写入**。",
             domain=DOMAIN,
             checks=checks,
-            next_steps=["确认后加 --commit 入库。"],
+            next_steps=next_steps,
+            data={"counts": outcome.counts, "claim_reviews": review_data},
         )
 
     written = profiles.rebuild(base, store.load())
@@ -325,7 +506,123 @@ def cmd_add(args, base) -> Result:
         summary=f"入库 {len(outcome.added)} 条，档案重建 {len(written)} 份。",
         domain=DOMAIN,
         checks=checks,
-        data={"counts": outcome.counts},
+        data={"counts": outcome.counts, "claim_reviews": review_data},
+    )
+
+
+def cmd_defer(args, base) -> Result:
+    """把人工选定的 B 类条目放入跨批次待核池；默认无副作用。"""
+    path = Path(args.file)
+    if not path.is_file():
+        return Result(status="blocked", summary="找不到待核条目文件。", domain=DOMAIN, missing=[str(path)])
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        rows = payload if isinstance(payload, list) else payload.get("records", [])
+        if isinstance(payload, dict) and payload.get("source"):
+            source_path = Path(payload["source"])
+            if not source_path.is_absolute():
+                source_path = path.parent / source_path
+            source_payload = json.loads(source_path.read_text(encoding="utf-8"))
+            source_entries = source_payload.get("entries", [])
+            expanded = []
+            for row in rows:
+                if "entry" in row:
+                    expanded.append(row)
+                    continue
+                index = row.get("entry_index")
+                if not isinstance(index, int) or index < 1 or index > len(source_entries):
+                    raise EntryError(f"entry_index {index!r} 超出源草稿范围")
+                expanded.append({**row, "entry": source_entries[index - 1]})
+            rows = expanded
+        records = [DeferredRecord.from_dict(row) for row in rows]
+    except (OSError, json.JSONDecodeError, TypeError, EntryError) as exc:
+        return Result(status="blocked", summary="待核条目文件无法解析。", domain=DOMAIN, missing=[str(exc)])
+    if not records:
+        return Result(status="blocked", summary="待核条目文件里没有 records。", domain=DOMAIN)
+
+    store = Store(base)
+    outcome = store.defer(records, commit=args.commit)
+    checks = [
+        {
+            "name": "校验",
+            "level": "fail" if outcome.rejected else "ok",
+            "detail": f"可加入 {len(outcome.added)} · 已存在 {len(outcome.skipped)} · 被拒 {len(outcome.rejected)}",
+        },
+        *_claim_checks(outcome),
+    ]
+    for index, reason in outcome.rejected[:10]:
+        checks.append({"name": f"第 {index} 条", "level": "fail", "detail": reason.split("\n")[0]})
+
+    review_data = [review.to_dict() for review in outcome.claim_reviews]
+    if not args.commit:
+        return Result(
+            status="partial",
+            summary=f"预演：{len(outcome.added)} 条可进入待核池，**未写入**。",
+            domain=DOMAIN,
+            checks=checks,
+            next_steps=["人工确认后才可加 --commit；待核项不会进入公司、主题或档案查询。"],
+            data={"counts": outcome.counts, "claim_reviews": review_data},
+        )
+    return Result(
+        status="partial" if outcome.rejected else "success",
+        summary=f"待核池新增 {len(outcome.added)} 条；正式情报库未改动。",
+        domain=DOMAIN,
+        checks=checks,
+        data={
+            "counts": outcome.counts,
+            "claim_reviews": review_data,
+            "deferred_file": str(store.deferred_file),
+        },
+    )
+
+
+def cmd_promote(args, base) -> Result:
+    """人工转正唯一入口；先预演，明确确认后才写正式库。"""
+    store = Store(base)
+    try:
+        promotion = store.promote(args.id, commit=args.commit)
+    except EntryError as exc:
+        return Result(status="blocked", summary="无法唯一定位待核记录。", domain=DOMAIN, missing=[str(exc)])
+
+    record = promotion.record
+    outcome = promotion.add_outcome
+    checks = [
+        {"name": "候选", "level": "ok", "detail": f"{record.entry.title}（{record.entry.id}）"},
+        {"name": "暂缓原因", "level": "warn", "detail": "；".join(record.defer_reasons)},
+        {"name": "转正条件", "level": "warn", "detail": "；".join(record.promotion_requirements)},
+        *_claim_checks(outcome),
+    ]
+    for index, reason in outcome.rejected[:10]:
+        checks.append({"name": f"校验第 {index} 条", "level": "fail", "detail": reason.split("\n")[0]})
+
+    review_data = [review.to_dict() for review in outcome.claim_reviews]
+    if not args.commit:
+        return Result(
+            status="partial",
+            summary="转正预演完成，**未写正式库、未移出待核池**。",
+            domain=DOMAIN,
+            checks=checks,
+            next_steps=["核对补证与冲突后，只有人工明确确认才可带 --commit 转正。"],
+            data={"claim_reviews": review_data, "entry": record.entry.to_dict()},
+        )
+
+    if outcome.rejected or not promotion.removed:
+        return Result(
+            status="failed",
+            summary="转正未完成，待核记录仍保留。",
+            domain=DOMAIN,
+            checks=checks,
+            data={"claim_reviews": review_data},
+        )
+    written = profiles.rebuild(base, store.load())
+    detail = "正式库原已存在，本次清理待核副本" if promotion.already_formal else "追加正式库并移出待核池"
+    checks.append({"name": "转正", "level": "ok", "detail": detail})
+    return Result(
+        status="success",
+        summary=f"已转正 1 条，档案重建 {len(written)} 份。",
+        domain=DOMAIN,
+        checks=checks,
+        data={"claim_reviews": review_data, "profiles": [str(path) for path in written]},
     )
 
 
@@ -591,10 +888,13 @@ def _unexpected_gaps(info: dict) -> list[str]:
 def cmd_status(args, base) -> Result:
     store = Store(base)
     entries = store.load()
+    deferred = store.load_deferred()
     info = query.stats(entries)
+    info["deferred"] = len(deferred)
     registry = store.registry()
     checks = [
-        {"name": "条目总数", "level": "ok", "detail": str(info["total"])},
+        {"name": "正式条目总数", "level": "ok", "detail": str(info["total"])},
+        {"name": "待核池", "level": "warn" if deferred else "ok", "detail": f"{len(deferred)} 条（不进入正式查询）"},
         {
             "name": "两类条目",
             "level": "ok",
@@ -648,10 +948,35 @@ def register(subparsers, common) -> None:
     p_dep.add_argument("--commit", action="store_true", help="读草稿入库（须用户确认）")
     p_dep.set_defaults(func=cmd_deposit)
 
-    p_add = sub.add_parser("add", help="从 JSON 手工入库（季度通道 / 专家访谈通道）", parents=[common])
+    p_add = sub.add_parser("add", help="从 JSON 手工入库（专家访谈 / 兼容入口）", parents=[common])
     p_add.add_argument("--file", required=True)
     p_add.add_argument("--commit", action="store_true")
     p_add.set_defaults(func=cmd_add)
+
+    p_quarterly = sub.add_parser(
+        "quarterly", help="季度原件校验：正常项自动入库，异常项单独审核", parents=[common]
+    )
+    p_quarterly.add_argument("--company", required=True, help="公司 ticker，如 BKNG")
+    p_quarterly.add_argument("--period", required=True, help="季度键，如 26Q2")
+    p_quarterly.add_argument("--source-pack", help="只读季度原件目录；首次处理必填")
+    p_quarterly.add_argument("--file", help="Agent 候选 JSON；首次处理必填")
+    p_quarterly.add_argument(
+        "--dry-run", action="store_true", help="只生成 manifest/draft/review，不自动入库"
+    )
+    p_quarterly.add_argument(
+        "--commit", action="store_true", help="人工确认异常项后，读取同一 draft 入库"
+    )
+    p_quarterly.set_defaults(func=cmd_quarterly)
+
+    p_def = sub.add_parser("defer", help="把人工选定的 B 类条目放入跨批次待核池", parents=[common])
+    p_def.add_argument("--file", required=True)
+    p_def.add_argument("--commit", action="store_true", help="写入待核池（须人工确认）")
+    p_def.set_defaults(func=cmd_defer)
+
+    p_pro = sub.add_parser("promote", help="把一条待核情报人工转入正式库", parents=[common])
+    p_pro.add_argument("--id", required=True, help="待核条目 id，或唯一标题片段")
+    p_pro.add_argument("--commit", action="store_true", help="正式转正（须人工确认）")
+    p_pro.set_defaults(func=cmd_promote)
 
     p_co = sub.add_parser("company", help="按公司纵切检索", parents=[common])
     p_co.add_argument("company")

@@ -19,8 +19,15 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from modules.competitor_intel import backfill, profiles, query, vocab
-from modules.competitor_intel.entry import Entry, EntryError, make_id, normalize, normalize_url
-from modules.competitor_intel.store import Store
+from modules.competitor_intel.entry import (
+    Entry,
+    EntryError,
+    make_entry_id,
+    make_id,
+    normalize,
+    normalize_url,
+)
+from modules.competitor_intel.store import DeferredRecord, Store
 from workbench.paths import Paths
 
 
@@ -520,6 +527,311 @@ class TestHealth(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             paths = make_root(tmp)
             self.assertEqual(health.checks(paths)[0]["level"], "warn")
+
+    def test_deferred_pool_parse_error_names_its_line(self):
+        from modules.competitor_intel import health
+
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            store = Store(paths)
+            store.add([action()], commit=True)
+            store.deferred_file.write_text("{not json}\n", encoding="utf-8")
+            rows = {row["name"]: row for row in health.checks(paths)}
+            self.assertEqual(rows["情报库待核池"]["level"], "fail")
+            self.assertIn("第 1 行", rows["情报库待核池"]["detail"])
+
+
+def claim(**over) -> dict:
+    payload = {
+        "metric_key": "revenue",
+        "scope": {"geo": "global", "segment": "all"},
+        "period": "26Q2",
+        "value": 4120,
+        "unit": "usd_mn",
+        "basis": "company_reported",
+        "tolerance": 1,
+        "evidence_type": "company_reported",
+        "source_proximity": "direct_management",
+        "confidence": "high",
+        "confidence_reasons": ["earnings release page 2"],
+    }
+    payload.update(over)
+    return payload
+
+
+def claimed(**over) -> Entry:
+    extras = dict(over)
+    extras.setdefault("url", "https://ir.example.com/expe-26q2")
+    extras.setdefault("claim", claim())
+    return action(**extras)
+
+
+class TestClaimIdentity(unittest.TestCase):
+    def test_same_pdf_two_metrics_get_distinct_ids(self):
+        url = "https://ir.example.com/expe-26q2.pdf"
+        revenue = claimed(title="收入", url=url, claim=claim(metric_key="revenue"))
+        nights = claimed(title="间夜", url=url, claim=claim(metric_key="nights"))
+        self.assertNotEqual(make_entry_id(revenue), make_entry_id(nights))
+
+    def test_bad_metric_key_is_rejected(self):
+        with self.assertRaisesRegex(EntryError, "metric_key"):
+            normalize(claimed(claim=claim(metric_key="收入同比")))
+
+
+class TestClaimReview(unittest.TestCase):
+    def test_four_classifications_and_pool_labels(self):
+        with TemporaryDirectory() as tmp:
+            store = Store(make_root(tmp))
+            store.add([claimed(title="正式库收入")], commit=True)
+            store.defer(
+                [
+                    DeferredRecord(
+                        origin_run_id="20260901-190000",
+                        defer_reasons=["待第二来源"],
+                        promotion_requirements=["补官方页码"],
+                        priority="high",
+                        entry=claimed(
+                            title="待核收入",
+                            url="https://broker.example.com/note",
+                            claim=claim(value=4120),
+                        ),
+                    )
+                ],
+                commit=True,
+            )
+            outcome = store.add(
+                [
+                    claimed(
+                        title="新指标",
+                        url="https://ir.example.com/a",
+                        claim=claim(metric_key="nights", value=12.3, unit="mn"),
+                    ),
+                    claimed(
+                        title="佐证收入",
+                        url="https://ir.example.com/b",
+                        claim=claim(value=4120.4),
+                    ),
+                    claimed(
+                        title="冲突收入",
+                        url="https://ir.example.com/c",
+                        claim=claim(value=3800),
+                    ),
+                    claimed(
+                        title="口径不同",
+                        url="https://ir.example.com/d",
+                        claim=claim(scope={"geo": "us", "segment": "lodging"}),
+                    ),
+                ],
+                commit=False,
+            )
+            by_title = {
+                review.candidate["title"]: review
+                for review in outcome.claim_reviews
+            }
+            self.assertEqual(by_title["新指标"].classification, "new")
+            self.assertEqual(by_title["佐证收入"].classification, "corroborating")
+            self.assertEqual(by_title["冲突收入"].classification, "conflicting")
+            self.assertEqual(by_title["口径不同"].classification, "different_scope")
+            self.assertIn("formal", {match["pool"] for match in by_title["佐证收入"].matches})
+            self.assertTrue(
+                {"formal", "deferred"}
+                & {match["pool"] for match in by_title["冲突收入"].matches}
+            )
+
+
+class TestDeferPromote(unittest.TestCase):
+    def test_defer_is_idempotent_and_skips_formal(self):
+        with TemporaryDirectory() as tmp:
+            store = Store(make_root(tmp))
+            formal = claimed(title="已在正式库", url="https://ir.example.com/formal")
+            store.add([formal], commit=True)
+            pending = DeferredRecord(
+                origin_run_id="20260901-190000",
+                defer_reasons=["上下文不足"],
+                promotion_requirements=["补第二来源"],
+                priority="medium",
+                entry=claimed(title="待核一条", url="https://ir.example.com/b-class"),
+            )
+            first = store.defer([pending], commit=True)
+            again = store.defer([pending], commit=True)
+            skip_formal = store.defer(
+                [
+                    DeferredRecord(
+                        origin_run_id="20260901-190000",
+                        defer_reasons=["已转正"],
+                        promotion_requirements=["无需"],
+                        priority="low",
+                        entry=claimed(
+                            title="已在正式库",
+                            url="https://ir.example.com/formal",
+                        ),
+                    )
+                ],
+                commit=True,
+            )
+            self.assertEqual(len(first.added), 1)
+            self.assertEqual((len(again.added), len(again.skipped)), (0, 1))
+            self.assertEqual(len(skip_formal.skipped), 1)
+            self.assertEqual(len(store.load_deferred()), 1)
+            self.assertEqual(len(store.load()), 1)
+
+    def test_promote_dry_run_then_commit_and_interrupt_recovery(self):
+        with TemporaryDirectory() as tmp:
+            store = Store(make_root(tmp))
+            record = DeferredRecord(
+                origin_run_id="20260901-190000",
+                defer_reasons=["待核"],
+                promotion_requirements=["人确认"],
+                priority="high",
+                entry=claimed(title="可转正", url="https://ir.example.com/promote"),
+            )
+            store.defer([record], commit=True)
+            target_id = store.load_deferred()[0].entry.id
+            preview = store.promote(target_id, commit=False)
+            self.assertFalse(preview.removed)
+            self.assertEqual(len(store.load()), 0)
+            self.assertEqual(len(store.load_deferred()), 1)
+
+            store._append([store.load_deferred()[0].entry])
+            replay = store.promote(target_id, commit=True)
+            self.assertTrue(replay.already_formal)
+            self.assertTrue(replay.removed)
+            self.assertEqual(len(store.load()), 1)
+            self.assertEqual(len(store.load_deferred()), 0)
+
+            store.defer(
+                [
+                    DeferredRecord(
+                        origin_run_id="20260901-190001",
+                        defer_reasons=["另一条"],
+                        promotion_requirements=["人确认"],
+                        priority="medium",
+                        entry=claimed(
+                            title="第二条转正",
+                            url="https://ir.example.com/promote-2",
+                        ),
+                    )
+                ],
+                commit=True,
+            )
+            second_id = store.load_deferred()[0].entry.id
+            done = store.promote(second_id, commit=True)
+            self.assertTrue(done.removed)
+            self.assertFalse(done.already_formal)
+            self.assertEqual(len(store.load()), 2)
+            self.assertEqual(len(store.load_deferred()), 0)
+
+
+def _quarterly_pack(paths: Paths) -> Path:
+    pack = paths.root / "inputs" / "peers-appendix" / "EXPE" / "26Q2"
+    pack.mkdir(parents=True)
+    (pack / "earnings-release.pdf").write_bytes(b"%PDF-1.4 fixture")
+    (pack / "notes.txt").write_text("derived notes", encoding="utf-8")
+    return pack
+
+
+def _quarterly_row(paths: Paths, **over) -> dict:
+    rel = (
+        Path("inputs") / "peers-appendix" / "EXPE" / "26Q2" / "earnings-release.pdf"
+    ).as_posix()
+    row = {
+        "kind": "statement",
+        "date": "2026-08-07",
+        "title": "Expedia 26Q2 收入",
+        "body": "公司披露收入 41.2 亿美元。",
+        "companies": ["EXPE"],
+        "topics": ["distribution"],
+        "topics_reviewed": True,
+        "channel": "quarterly",
+        "period": "26Q2",
+        "source_type": "company-ir",
+        "source_authority": "P0",
+        "source_path": rel,
+        "quote": "Revenue was $4.12 billion.",
+        "quote_where": "earnings-release.pdf 第 2 页",
+        "media": "Expedia IR",
+        "claim": claim(),
+    }
+    row.update(over)
+    return row
+
+
+class TestQuarterlyIngest(unittest.TestCase):
+    def test_prepare_classifies_and_auto_commits_only_normals(self):
+        from modules.competitor_intel import quarterly
+
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            pack = _quarterly_pack(paths)
+            candidates = paths.root / "scratch" / "candidates.json"
+            candidates.parent.mkdir(parents=True, exist_ok=True)
+            candidates.write_text(
+                json.dumps(
+                    [
+                        _quarterly_row(paths),
+                        _quarterly_row(
+                            paths,
+                            title="低置信度待审",
+                            quote="Gross bookings were [indiscernible].",
+                            claim=claim(metric_key="gbv", value=20, confidence="low"),
+                            review_flags=["transcription-gap"],
+                        ),
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            store = Store(paths)
+            plan = quarterly.prepare(
+                paths, "EXPE", "26Q2", pack, candidates, store, auto_commit=True
+            )
+            authorities = {
+                row["pack_path"]: row["source_authority"]
+                for row in plan.manifest["files"]
+            }
+            self.assertEqual(authorities["earnings-release.pdf"], "P0")
+            self.assertEqual(authorities["notes.txt"], "P2")
+            self.assertEqual(plan.exception_indexes, [2])
+            self.assertEqual(len(store.load()), 1)
+            self.assertIn("低置信度待审", plan.draft_path.read_text(encoding="utf-8"))
+            self.assertNotIn(
+                "低置信度待审",
+                json.dumps([entry.to_dict() for entry in store.load()], ensure_ascii=False),
+            )
+
+    def test_commit_writes_exceptions_only_and_stops_on_digest_change(self):
+        from modules.competitor_intel import quarterly
+
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            pack = _quarterly_pack(paths)
+            candidates = paths.root / "scratch" / "candidates.json"
+            candidates.parent.mkdir(parents=True, exist_ok=True)
+            candidates.write_text(
+                json.dumps(
+                    [
+                        _quarterly_row(paths),
+                        _quarterly_row(
+                            paths,
+                            title="异常项",
+                            claim=claim(metric_key="gbv", value=20, confidence="low"),
+                            review_flags=["needs-review"],
+                        ),
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            store = Store(paths)
+            quarterly.prepare(
+                paths, "EXPE", "26Q2", pack, candidates, store, auto_commit=True
+            )
+            self.assertEqual(len(store.load()), 1)
+            draft, outcome = quarterly.commit(paths, "EXPE", "26Q2", store)
+            self.assertEqual(len(outcome.added), 1)
+            self.assertEqual(len(store.load()), 2)
+            self.assertTrue(draft["committed"])
+            (pack / "earnings-release.pdf").write_bytes(b"%PDF-1.4 changed")
+            with self.assertRaisesRegex(quarterly.QuarterlyError, "发生变化"):
+                quarterly.commit(paths, "EXPE", "26Q2", store)
 
 
 if __name__ == "__main__":

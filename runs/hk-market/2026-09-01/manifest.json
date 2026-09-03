@@ -1,0 +1,30 @@
+{
+  "domain": "hk-market",
+  "period": "2026-09-01",
+  "created": "2026-09-02T22:45:34+08:00",
+  "updated": "2026-09-02T22:45:52+08:00",
+  "steps": {
+    "southbound": {
+      "state": "done",
+      "at": "2026-09-02T22:45:52+08:00"
+    }
+  },
+  "inputs": {},
+  "outputs": {
+    "southbound": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\hk-market\\2026-09-01\\southbound.json",
+      "sha256": "e6dc9bf22f39a2b0beb65dd884e4f7510662f8b3135971fb1f5dcb5eccb95f02",
+      "at": "2026-09-02T22:45:52+08:00"
+    }
+  },
+  "notes": [
+    {
+      "at": "2026-09-02T22:45:34+08:00",
+      "text": "来源：港交所 CCASS 沪港通及深港通持股纪录；扫描 1 个实际披露日。"
+    },
+    {
+      "at": "2026-09-02T22:45:52+08:00",
+      "text": "来源：港交所 CCASS 沪港通及深港通持股纪录；扫描 1 个实际披露日。"
+    }
+  ]
+}

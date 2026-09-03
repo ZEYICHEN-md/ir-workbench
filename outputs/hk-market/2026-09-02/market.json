@@ -1,0 +1,52 @@
+{
+  "as_of": "2026-09-02",
+  "indices": {
+    "恒生指数 HSI": {
+      "this_week_days": [
+        "2026-08-31",
+        "2026-09-01",
+        "2026-09-02"
+      ],
+      "prev_week_last": "2026-08-28",
+      "close_this": 25311.21,
+      "close_prev": 25584.79,
+      "wow_pct": -1.07,
+      "turnover_this_yi": 7702.5,
+      "turnover_prev_yi": 12647.8,
+      "turnover_avg_yi": 2567.5,
+      "turnover_wow_pct": -39.1
+    },
+    "恒生科技 HSTECH": {
+      "this_week_days": [
+        "2026-08-31",
+        "2026-09-01",
+        "2026-09-02"
+      ],
+      "prev_week_last": "2026-08-28",
+      "close_this": 4517.16,
+      "close_prev": 4605.15,
+      "wow_pct": -1.91,
+      "turnover_this_yi": 2015.9,
+      "turnover_prev_yi": 3300.4,
+      "turnover_avg_yi": 672.0,
+      "turnover_wow_pct": -38.9
+    }
+  },
+  "ctrip": {
+    "this_week_days": [
+      "2026-08-31",
+      "2026-09-01",
+      "2026-09-02"
+    ],
+    "prev_week_last": "2026-08-28",
+    "close_this": 343.8,
+    "close_prev": 348.8,
+    "wow_pct": -1.43,
+    "turnover_this_yi": 33.4,
+    "turnover_prev_yi": 34.5,
+    "turnover_avg_yi": 11.1,
+    "turnover_wow_pct": -3.1
+  },
+  "ctrip_source": "akshare-新浪（成交额）",
+  "index_source": "akshare 新浪指数日线 amount（指数成分股成交额，非全市场成交额）"
+}

@@ -47,6 +47,27 @@ def checks(base: Paths) -> list[dict]:
         {"name": "情报库真源", "level": "ok", "detail": f"{len(entries)} 条，可解析"}
     )
 
+    if store.deferred_file.is_file():
+        try:
+            deferred = store.load_deferred()
+        except EntryError as error:
+            rows.append(
+                {
+                    "name": "情报库待核池",
+                    "level": "fail",
+                    "detail": str(error),
+                    "advice": "JSONL 有坏行。上面写了是第几行，去 data/intel/deferred.jsonl 修那一行。",
+                }
+            )
+        else:
+            rows.append(
+                {
+                    "name": "情报库待核池",
+                    "level": "ok",
+                    "detail": f"{len(deferred)} 条待核，可解析",
+                }
+            )
+
     # 投影是否落后于真源
     profile_dir = profiles.profiles_dir(base)
     missing = [

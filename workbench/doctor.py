@@ -57,16 +57,20 @@ REQUIRED_DEPS: dict[str, str] = {
     "requests": "抓取官方数据与 RSS",
     "bs4": "解析公告页面与新闻精选导出",
     "markdown": "新闻精选导出 HTML",
+    "pandas": "港股行情与成交额聚合",
+    "akshare": "港股指数、行情与成交额",
+    "yfinance": "美股成交额与港股回退行情",
+    "docx": "Peers 业绩总结与 Appendix Word 文档",
+    "lxml": "Peers Word XML 门禁与定点替换",
+    "PIL": "Peers 图表导出与缩放",
 }
 
 #: 未迁入域会用到的依赖。现在缺是正常的（那些域还没搬进来），所以只提示。
 #: 对应域迁入时，把它移到 REQUIRED_DEPS，并把包移进 pyproject 的 dependencies。
 PENDING_DEPS: dict[str, str] = {
-    "docx": "读写 Word（Peers Appendix，尚未迁入）",
     # playwright 例外：news-digest 已迁入，但它装完还要另跑 `playwright install chromium`
     # 下载浏览器，放必需会让首次安装很重；缺它只影响 PDF，HTML 照常出。
     "playwright": "导出 PDF（新闻精选，可选）",
-    "pandas": "港股数据（尚未迁入）",
 }
 
 

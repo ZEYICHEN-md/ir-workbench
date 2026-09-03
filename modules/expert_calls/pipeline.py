@@ -779,7 +779,12 @@ def prepare_intelligence_entries(payload: dict[str, Any]) -> list[dict[str, Any]
         row = deepcopy(raw)
         row["channel"] = "expert-call"
         row["sensitivity"] = "internal"
-        entry, _unregistered = normalize(Entry.from_dict(row))
+        try:
+            entry, _unregistered = normalize(Entry.from_dict(row))
+        except Exception as error:  # schema/词表错误要指出具体是第几条
+            raise ManifestValidationError(
+                f"第 {index} 条 intel entry 不合规：{error}"
+            ) from error
         prepared.append(entry.to_dict())
     return prepared
 

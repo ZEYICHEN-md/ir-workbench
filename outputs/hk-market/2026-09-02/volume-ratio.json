@@ -1,0 +1,60 @@
+{
+  "as_of": "2026-09-02",
+  "start": "2025-01-01",
+  "end_exclusive": "2026-09-03",
+  "usd_hkd": 7.78,
+  "threshold": 55.0,
+  "regulatory_basis": "latest_complete_fiscal_year",
+  "trend_windows": [
+    "L12M",
+    "latest_quarter",
+    "latest_month"
+  ],
+  "summaries": {
+    "携程": {
+      "FY_label": "25FY",
+      "FY": 45.262280562809934,
+      "L12M": 48.715639634247005,
+      "latest_quarter": 51.50009854026957,
+      "latest_month": 71.04820553452934,
+      "latest_period": "2026-09",
+      "regulatory_status": "距阈值 9.74pp",
+      "hk_source": "yfinance（Volume×Close 近似）",
+      "us_source": "yfinance（Volume×日内高低价中点，近似 VWAP）"
+    },
+    "华住": {
+      "FY_label": "25FY",
+      "FY": 10.47463062864242,
+      "L12M": 10.931027025256599,
+      "latest_quarter": 13.41658308785931,
+      "latest_month": 12.565591622541433,
+      "latest_period": "2026-09",
+      "regulatory_status": "距阈值 44.53pp",
+      "hk_source": "yfinance（Volume×Close 近似）",
+      "us_source": "yfinance（Volume×日内高低价中点，近似 VWAP）"
+    },
+    "网易": {
+      "FY_label": "25FY",
+      "FY": 57.80670088494073,
+      "L12M": 63.03572143928179,
+      "latest_quarter": 67.61487459372147,
+      "latest_month": 76.1143093108383,
+      "latest_period": "2026-09",
+      "regulatory_status": "已达/超过阈值（+2.81pp）",
+      "hk_source": "yfinance（Volume×Close 近似）",
+      "us_source": "yfinance（Volume×日内高低价中点，近似 VWAP）"
+    },
+    "百度": {
+      "FY_label": "25FY",
+      "FY": 28.65328271209946,
+      "L12M": 35.64568849914072,
+      "latest_quarter": 35.7427258836951,
+      "latest_month": 56.622754758247765,
+      "latest_period": "2026-09",
+      "regulatory_status": "距阈值 26.35pp",
+      "hk_source": "yfinance（Volume×Close 近似）",
+      "us_source": "yfinance（Volume×日内高低价中点，近似 VWAP）"
+    }
+  },
+  "failed": []
+}

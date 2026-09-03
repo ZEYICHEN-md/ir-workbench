@@ -1,0 +1,44 @@
+{
+  "domain": "hk-market",
+  "period": "2026-09-02",
+  "created": "2026-09-02T22:45:15+08:00",
+  "updated": "2026-09-02T22:46:10+08:00",
+  "steps": {
+    "market": {
+      "state": "done",
+      "at": "2026-09-02T22:45:15+08:00"
+    },
+    "volume-ratio": {
+      "state": "done",
+      "at": "2026-09-02T22:46:10+08:00"
+    }
+  },
+  "inputs": {},
+  "outputs": {
+    "market": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\hk-market\\2026-09-02\\market.json",
+      "sha256": "b1a1998c9dc49026caa322623cf3dc88b165ae42668654c8664f4920b959adf7",
+      "at": "2026-09-02T22:45:15+08:00"
+    },
+    "volume-ratio": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\hk-market\\2026-09-02\\volume-ratio.json",
+      "sha256": "da0746404857d2c7e711bb098b4000e4e692755bd9623755335b169e9502da05",
+      "at": "2026-09-02T22:46:10+08:00"
+    },
+    "volume-ratio-csv": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\hk-market\\2026-09-02\\volume-ratio.csv",
+      "sha256": "060d851154935bb968708bb3e6cf06ad98e0bbc6e97cd35fb164333e26c8e83e",
+      "at": "2026-09-02T22:46:10+08:00"
+    }
+  },
+  "notes": [
+    {
+      "at": "2026-09-02T22:45:15+08:00",
+      "text": "周涨跌 close-to-close；指数 amount 为新浪指数口径，非港股全市场成交额。"
+    },
+    {
+      "at": "2026-09-02T22:46:10+08:00",
+      "text": "监管状态仅按最近完整 FY；L12M、季度、月度只作趋势。美股成交额为近似值。"
+    }
+  ]
+}

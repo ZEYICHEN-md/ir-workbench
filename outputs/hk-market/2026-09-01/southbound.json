@@ -1,0 +1,158 @@
+{
+  "as_of": "2026/09/01",
+  "prev": null,
+  "month_start": "2026/09/01",
+  "trading_days": [
+    "2026/09/01"
+  ],
+  "source_url": "https://www3.hkexnews.hk/sdw/search/mutualmarket_c.aspx?t=hk",
+  "stocks": {
+    "9961": {
+      "name": "携程集团",
+      "code": 9961,
+      "missing": true
+    },
+    "780": {
+      "name": "同程旅行",
+      "code": 780,
+      "latest": 9.38,
+      "prev": null,
+      "day_change_pp": null,
+      "month_start_pct": 9.38,
+      "month_change_pp": 0.0,
+      "month_high": 9.38,
+      "month_high_date": "2026/09/01",
+      "month_low": 9.38,
+      "month_low_date": "2026/09/01",
+      "alerts": [
+        "低于10%"
+      ]
+    },
+    "1179": {
+      "name": "华住集团",
+      "code": 1179,
+      "missing": true
+    },
+    "3690": {
+      "name": "美团",
+      "code": 3690,
+      "latest": 19.01,
+      "prev": null,
+      "day_change_pp": null,
+      "month_start_pct": 19.01,
+      "month_change_pp": 0.0,
+      "month_high": 19.01,
+      "month_high_date": "2026/09/01",
+      "month_low": 19.01,
+      "month_low_date": "2026/09/01",
+      "alerts": []
+    },
+    "9988": {
+      "name": "阿里巴巴",
+      "code": 9988,
+      "latest": 10.05,
+      "prev": null,
+      "day_change_pp": null,
+      "month_start_pct": 10.05,
+      "month_change_pp": 0.0,
+      "month_high": 10.05,
+      "month_high_date": "2026/09/01",
+      "month_low": 10.05,
+      "month_low_date": "2026/09/01",
+      "alerts": []
+    },
+    "700": {
+      "name": "腾讯",
+      "code": 700,
+      "latest": 11.8,
+      "prev": null,
+      "day_change_pp": null,
+      "month_start_pct": 11.8,
+      "month_change_pp": 0.0,
+      "month_high": 11.8,
+      "month_high_date": "2026/09/01",
+      "month_low": 11.8,
+      "month_low_date": "2026/09/01",
+      "alerts": []
+    },
+    "9618": {
+      "name": "京东",
+      "code": 9618,
+      "latest": 0.05,
+      "prev": null,
+      "day_change_pp": null,
+      "month_start_pct": 0.05,
+      "month_change_pp": 0.0,
+      "month_high": 0.05,
+      "month_high_date": "2026/09/01",
+      "month_low": 0.05,
+      "month_low_date": "2026/09/01",
+      "alerts": [
+        "低于10%"
+      ]
+    },
+    "1024": {
+      "name": "快手",
+      "code": 1024,
+      "latest": 20.11,
+      "prev": null,
+      "day_change_pp": null,
+      "month_start_pct": 20.11,
+      "month_change_pp": 0.0,
+      "month_high": 20.11,
+      "month_high_date": "2026/09/01",
+      "month_low": 20.11,
+      "month_low_date": "2026/09/01",
+      "alerts": []
+    },
+    "9999": {
+      "name": "网易",
+      "code": 9999,
+      "latest": 1.72,
+      "prev": null,
+      "day_change_pp": null,
+      "month_start_pct": 1.72,
+      "month_change_pp": 0.0,
+      "month_high": 1.72,
+      "month_high_date": "2026/09/01",
+      "month_low": 1.72,
+      "month_low_date": "2026/09/01",
+      "alerts": [
+        "低于10%"
+      ]
+    },
+    "9888": {
+      "name": "百度",
+      "code": 9888,
+      "missing": true
+    },
+    "1810": {
+      "name": "小米集团",
+      "code": 1810,
+      "latest": 19.36,
+      "prev": null,
+      "day_change_pp": null,
+      "month_start_pct": 19.36,
+      "month_change_pp": 0.0,
+      "month_high": 19.36,
+      "month_high_date": "2026/09/01",
+      "month_low": 19.36,
+      "month_low_date": "2026/09/01",
+      "alerts": []
+    },
+    "9626": {
+      "name": "哔哩哔哩",
+      "code": 9626,
+      "latest": 20.6,
+      "prev": null,
+      "day_change_pp": null,
+      "month_start_pct": 20.6,
+      "month_change_pp": 0.0,
+      "month_high": 20.6,
+      "month_high_date": "2026/09/01",
+      "month_low": 20.6,
+      "month_low_date": "2026/09/01",
+      "alerts": []
+    }
+  }
+}

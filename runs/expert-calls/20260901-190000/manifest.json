@@ -2,7 +2,7 @@
   "domain": "expert-calls",
   "period": "20260901-190000",
   "created": "2026-09-01T17:30:45+08:00",
-  "updated": "2026-09-01T17:44:36+08:00",
+  "updated": "2026-09-02T12:44:37+08:00",
   "steps": {
     "extract": {
       "state": "done",
@@ -10,14 +10,14 @@
     },
     "intel-draft": {
       "state": "done",
-      "at": "2026-09-01T17:40:47+08:00",
+      "at": "2026-09-01T19:51:04+08:00",
       "result": {
-        "entries": 13
+        "entries": 34
       }
     },
     "shortlist": {
       "state": "done",
-      "at": "2026-09-01T17:44:36+08:00",
+      "at": "2026-09-01T18:50:34+08:00",
       "result": {
         "counts": {
           "A": 1,
@@ -27,20 +27,34 @@
       }
     },
     "validate": {
-      "state": "pending"
+      "state": "done",
+      "at": "2026-09-02T12:44:37+08:00",
+      "result": {
+        "included": 3
+      }
     },
     "render": {
-      "state": "pending"
+      "state": "done",
+      "at": "2026-09-02T12:44:37+08:00"
     },
     "publish": {
-      "state": "pending"
+      "state": "done",
+      "at": "2026-09-02T12:40:48+08:00",
+      "note": "飞书发布完成 3 条。",
+      "result": {
+        "written_block_ids": [
+          "doxcnzRMhVdwEKlRn7FXaGTHAsC",
+          "doxcnZFpViZmUNef2R9HVwH89lf",
+          "doxcnKDUZPzkKySotoXpkeh0NPg"
+        ]
+      }
     }
   },
   "inputs": {
     "manifest": {
       "path": "scratch\\expert-calls\\20260901-190000\\candidates-with-intel.json",
-      "sha256": "c23cec86f072eb3ac641443489e9e902780c10e98d53c05007517fe4cf23f41b",
-      "at": "2026-09-01T17:44:36+08:00"
+      "sha256": "f1fdc2df249184deff630dfb136957c9fe52b1ed15fe7686a647ae11add9beaa",
+      "at": "2026-09-02T12:44:37+08:00"
     },
     "pdf:ABNB - ExpertCall_document_dated_01-09-2026.pdf": {
       "path": "test_expert_calls\\ABNB - ExpertCall_document_dated_01-09-2026.pdf",
@@ -81,8 +95,8 @@
   "outputs": {
     "intel-draft": {
       "path": "scratch\\expert-calls\\20260901-190000\\intel-draft.json",
-      "sha256": "5c381340d0b5162ae8242c95de979e1499510166994c81bfd2b101578123c74c",
-      "at": "2026-09-01T17:40:47+08:00"
+      "sha256": "c37c88e62921ec34cd09b8a8132be8ad229a41f32901758f4eba50474690b851",
+      "at": "2026-09-01T19:51:04+08:00"
     },
     "text:ABNB - ExpertCall_document_dated_01-09-2026.txt": {
       "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\expert-calls\\20260901-190000\\ABNB - ExpertCall_document_dated_01-09-2026.txt",
@@ -121,8 +135,23 @@
     },
     "shortlist": {
       "path": "scratch\\expert-calls\\20260901-190000\\shortlist.md",
-      "sha256": "fd6f556409271426f85834abb6893a971e4ca7e1392713a28bc38ef0131c1e96",
-      "at": "2026-09-01T17:44:36+08:00"
+      "sha256": "a1e92f4791a1501ee49ad7076a76d4a59eebf25aa4e60a41c3b59e1893027ca8",
+      "at": "2026-09-01T18:50:34+08:00"
+    },
+    "callout-1": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\expert-calls\\20260901-190000\\callouts\\01_callout.xml",
+      "sha256": "400388d888a33752d5d703ad8d4fc8b3ac359291109f2a490a45919673fcda36",
+      "at": "2026-09-02T12:44:37+08:00"
+    },
+    "callout-2": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\expert-calls\\20260901-190000\\callouts\\05_callout.xml",
+      "sha256": "603e7ef4e24354d46e736255e779ba1d652d43dcd55e620a80d045593fb8ad19",
+      "at": "2026-09-02T12:44:37+08:00"
+    },
+    "callout-3": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\scratch\\expert-calls\\20260901-190000\\callouts\\07_callout.xml",
+      "sha256": "81dd8f80680c9667c43d8b01b6df2b7d54effae1750ae5b3df14a578d25b4f37",
+      "at": "2026-09-02T12:44:37+08:00"
     }
   },
   "notes": [],

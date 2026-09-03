@@ -90,6 +90,19 @@
           "quote": "合成原话：样本转化率约为 10%。",
           "quote_where": "synthetic.pdf · 第 1 页第 2 段",
           "speaker": "匿名平台前业务负责人（合成固定件）",
+          "claim": {
+            "metric_key": "synthetic_channel_conversion_rate",
+            "scope": {"company": "ABNB", "geography": "synthetic", "segment": "sample-channel"},
+            "period": "2026-06",
+            "value": 10,
+            "unit": "percent",
+            "basis": "completed bookings / qualified sessions",
+            "tolerance": 0.1,
+            "evidence_type": "internal_actual",
+            "source_proximity": "direct_owner",
+            "confidence": "medium",
+            "confidence_reasons": ["合成示例有明确口径", "仅用于演示，不能用于真实判断"]
+          },
           "channel": "expert-call",
           "sensitivity": "internal"
         }

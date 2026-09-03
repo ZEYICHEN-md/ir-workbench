@@ -340,7 +340,7 @@
 这是迁移时点的覆盖事实；2026-08-W4 后 TCEL 与 FLIGGY 已有周度条目。2026-09-02 已把
 美团 26Q2 财报与电话会按季度通道入库。名单不动；若连续多期有公开动作仍无周度条目，才判采集漏项。
 
-### 🔄 第 3.5 步：`expert-calls`（2026-09-01 代码迁入，待情报与飞书双分支真实验收）
+### 🔄 第 3.5 步：`expert-calls`（2026-09-01 代码迁入；飞书分支已验收，情报分支部分完成）
 
 紧跟情报库之后，因为它是第三条采集通道（ADR 0005）。已完成：
 
@@ -353,18 +353,51 @@
 - [x] 专家访谈与公司情报库解耦：本地解析后先从所有访谈生成情报草稿，不受飞书 `include` 影响；所有条目强制 `internal` 并保留专家原话与位置，人工确认后走既有 `intel add` 入库
 - [x] 飞书发布成为独立展示分支；默认 dry-run，按精确标题/PDF 链接判重，逐条写后回读并用新 block id 串行插入；发布成功不生成或提交情报草稿
 - [x] 合成固定件回归测试，不使用真实访谈材料、不访问飞书
-- [ ] **真实业务验收（情报分支）**：待下一批真实访谈完成情报草稿人工核对、`intel add` 预演、明确确认入库和公司档案重建核对
-- [ ] **真实业务验收（飞书分支）**：待人工选中真实访谈后，完成摘要审阅、明确发布确认和飞书写后回读；未获确认前不写线上
+- [x] **真实业务验收（飞书分支）**：`20260901-190000` 已写入飞书 3 条并回读，manifest 记录 3 个 block id
+- [ ] **真实业务验收（情报分支）**：同批已正式入库 A 类、B 类进入 `deferred.jsonl`；其余草稿条目尚未全部入正式库或待核池。下一批真实访谈仍须完成草稿核对、预演、明确确认入库和公司档案重建
 
-代码迁移已使该域计入 `ir domains` 的 5/8；但在情报入库和飞书发布两个分支分别走完真实输入前，状态必须保留“待真实验收”，不能把在线版式回读、候选排序或 mock 测试包装成真实业务切换。
+飞书分支已完成首次真实验收。情报分支不能把部分入库包装成整批切换完成。
 
-### ⬜ 第 4 步：`hk-market` / `sellside-research`
+### ✅ 第 4 步：`hk-market` / `sellside-research`（2026-09-02 迁入并完成真实只读验收）
 
-港股全套（行情 + 南向 + 成交占比）现在散在 `hk-volume-ratio/` 与 `travel-weekly-report/scripts/` 两处，合并为一个模块。
+**hk-market**
 
-### ⬜ 第 5 步：`peers-appendix`
+- [x] 把散在 `hk-volume-ratio/`、`ccass_southbound.py`、`hk_market_pulse.py` 的三类查询合并到
+      `modules/hk_market/`，删除独立 CLI，唯一入口为 `ir hk-market ...`
+- [x] 行情、南向、成交占比按需独立运行；manifest 只记实际执行项，不制造「另外两项没跑」的假待办
+- [x] 港交所 CCASS 按实际持股日期去重，月初节假日回退到上月的数据不混入本月
+- [x] 55% 监管状态只读**数据齐全的最近完整 FY**；缺一个月即显示数据不足，L12M/季度不得替代
+- [x] akshare 闭区间与 yfinance 半开区间统一，防止历史 as-of 查询多吃一天
+- [x] Windows Python 3.14 的 WMI 卡死兼容：只在模块内禁用 `platform` WMI 快路径，
+      真实栈定位与取舍记入 `DECISIONS.md`
+- [x] **真实查询验收**（2026-09-02）：恒指/恒科/携程周行情成功；CCASS 返回实际日期
+      2026-09-01，12 家中 9 家有数据、3 家明确报缺；四只双重挂牌标的成交占比均成功，
+      25FY 为携程 45.26%、华住 10.47%、网易 57.81%、百度 28.65%
 
-放最后，**等下个财报季之前做，不在季中动**。迁移前必须先解决下面三件事。
+**sellside-research**
+
+- [x] 新建 `modules/sellside_research/` 与唯一入口 `ir sellside extract`
+- [x] PDF 按页抽取并保留 PDF 查看器页码；扫描件/全空文本 hard block
+- [x] SKILL 把公司披露事实、分析师判断、预测与估值变化分开，关键数字强制标页码
+- [x] 落实 ADR 0004：不建索引、不进竞对情报库、不产生跨期 manifest
+- [x] 按页抽取物含第三方大段原文，`outputs/sellside-research/**` 整体 Git 忽略
+- [x] **真实输入验收（抽取层）**：UBS China hotel first read 13/13 页抽取成功，共 109,717 字符
+- [x] **真实输入验收（摘读层）**：UBS 酒店 first read 已按事实/观点/预测/估值变化分开摘读并回核第 1 页关键数字；图表未可靠抽取的值未写成确定数据。产物不进 Git
+
+### 🔄 第 5 步：`peers-appendix`（2026-09-03 代码迁入，待真季度验收）
+
+- [x] 权威源裁定为仓内 `peers_rs_update/scripts/earnings_summary/`；本机过期 skill 副本不迁
+- [x] 新建 `modules/peers_appendix/`，唯一入口 `ir peers ...`；运行时不导入冻结旧仓
+- [x] 五件过时脚本不迁：`render_expe_finance_texts.py`、`audit_expe_alignment.py`、
+      `verify_abnb_26q2_numbers.py`、`verify_abnb_26q2_ops_finance.py`、`_cleanup_wip_layout.py`
+- [x] 未知步骤硬报错，不再静默跳过
+- [x] 按公司路由图表与 Word；ABNB/BKNG 无人工 `chart_map.json` 时嵌图 hard block，
+      绝不套用 EXPE 的 image3–8
+- [x] 战略段必须 `confirmed_by_human: true`；四道 must-pass 门禁保留
+- [ ] **真实季度验收**：尚未用 EXPE/BKNG 当季真包走完 Excel COM 与 Word 成品。
+      下个财报季之前用拷贝材料跑通，不在季中改旧仓
+
+放最后，**不在季中回改冻结旧仓**。下面仍保留迁移前审计，供对照。
 
 ## `peers-appendix` 迁移前置问题
 

@@ -22,6 +22,10 @@ inputs/**
 outputs/**/*.html
 outputs/**/*.pdf
 
+# 卖方研报按页抽取会包含大段受版权/合规约束的原文，只服务当次内部摘读。
+# 不建持久层（ADR 0004），也绝不能误进公开作品集导出。
+outputs/sellside-research/**
+
 # Python
 __pycache__/
 *.py[cod]

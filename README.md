@@ -42,16 +42,17 @@
 
 ## 迁移状态
 
-工作台正在把三个旧项目整合进来。当前 **5/8** 个域已迁入；前四个已完成真实业务验收，
-`expert-calls` 已完成代码迁移和 7 篇真实访谈候选排序只读验证，现已把公司情报库设为首要沉淀方向并与飞书精选解耦；情报入库与飞书发布两个分支均待首次真实验收。
+工作台正在把三个旧项目整合进来。当前 **8/8** 个域已挂上统一入口；前五个已完成真实业务验收，
+`expert-calls` 飞书发布已完成首次真实验收、情报入库仍待下一批访谈核对，
+`sellside-research` 已完成真实抽取与摘读，`peers-appendix` 代码已迁入、待下个财季真包验收。
 
 - [x] 骨架 + Control Plane（`ir doctor` / `ir status` / Windows CI）
 - [x] `industry-data`（含指标底稿归位与真实上线）
 - [x] `aviation-monthly`（含 2026 年 7 月真实写入）
 - [x] `news-digest` + `competitor-intel`（含 2026-08-W4 真实验收）
-- [x] `expert-calls`（情报优先采集 + 独立飞书候选排序与 revision 1680 模板；两个分支均待首次真实验收）
-- [ ] `hk-market` / `sellside-research`
-- [ ] `peers-appendix`
+- [x] `expert-calls`（情报优先采集 + 独立飞书精选；飞书分支已验收，情报分支待下一批）
+- [x] `hk-market` / `sellside-research`（2026-09-02 真实只读验收）
+- [ ] `peers-appendix`（代码已迁入，待真季度 COM/Word 验收）
 
 顺序与理由见 [docs/adr/0003-single-repo-and-module-layout.md](docs/adr/0003-single-repo-and-module-layout.md)。
 

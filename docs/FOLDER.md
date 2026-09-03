@@ -59,7 +59,7 @@ IR_workbench/
 |---|---|---|
 | `data/workbooks/` | 作为编辑面的 Excel | 快照、脚本输出、导出草稿 |
 | `data/canonical/` | 指标快照、洞察底稿 | Excel、scratch dump、密钥 |
-| `data/intel/` | 情报库 JSONL 真源 | 财报原件（归 `peers-appendix` 的 `companies/`） |
+| `data/intel/` | 情报库 JSONL 真源 | 财报原件（归 `inputs/peers-appendix/<TICKER>/<YYQn>/`） |
 | `inputs/<域>/<周期>/` | 只服务这一期的原件 | 长期数据、交付物 |
 | `outputs/<域>/<周期>/` | 交付成品 | 中间产物 |
 | `runs/<域>/<周期>/` | manifest（机器写，一般不手改） | 交付物 |
@@ -81,6 +81,10 @@ IR_workbench/
 2. **周期键按域定义，不强行统一。**周报期次 / 数据截至日 / 年月 / 财季各不相同，
    见 `workbench/domains.py`。
 3. **`data/` 在模块之外。**Excel 和情报库都跨域，放进任何一个模块就又变成一处私有一处复制。
+4. **Peers 在域内多一层公司键。**`inputs/peers-appendix/<TICKER>/<YYQn>/` 放当季原件、
+   人工核过的 snapshot/fill/texts 与公司模板；对应产物在
+   `outputs/peers-appendix/<TICKER>/<YYQn>/`。季度 manifest 仍只有一份，步骤键用
+   `TICKER:step` 隔开各公司。
 
 ## 改本约定时
 

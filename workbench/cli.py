@@ -147,6 +147,9 @@ def _register_domain_commands(sub) -> None:
         "modules.news_digest.cli",
         "modules.competitor_intel.cli",
         "modules.expert_calls.cli",
+        "modules.hk_market.cli",
+        "modules.sellside_research.cli",
+        "modules.peers_appendix.cli",
     ):
         try:
             module = importlib.import_module(module_name)

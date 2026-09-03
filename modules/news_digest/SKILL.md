@@ -205,5 +205,5 @@ Wiki 路径要点：
 | `extract_news_digest.py` | 从五章周报里切出精选。五章停用，且近三期精选本就是直接写的 |
 | `fetch_airline_inputs.py` | 写入早已停用，只剩只读诊断；航空归 `aviation-monthly` |
 | `read_industry_data.py` / `read_airline_data.py` | 归 `industry-data` |
-| `ccass_southbound.py` / `hk_market_pulse.py` | 归 `hk-market`（第 4 步） |
+| `ccass_southbound.py` / `hk_market_pulse.py` | 已迁入 `hk-market`；这里不再跑 |
 | `report-template.md` 五部分骨架 | 已停用，往期成品只作归档 |

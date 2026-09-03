@@ -3,10 +3,10 @@
 > 面向部门同事与接手人：工作台能做什么、怎么开口、产出在哪。
 > 你只需要说自然语言，Agent 负责其余部分。
 >
-> **迁移期提示（2026-09-01）**：目前 **5/8** 个域已迁入新架构。
-> `industry-data`、`aviation-monthly`、`news-digest` 与 `competitor-intel` 已完成真实业务验收；
-> `expert-calls` 已完成代码迁移、线上版式回读、回归测试和 7 篇真实访谈候选排序只读验证，并已把公司情报采集与飞书精选解耦，待两个分支分别做首次真实验收。
-> `hk-market`、`sellside-research`、`peers-appendix` 尚未迁入，暂不能从统一入口运行。
+> **迁移期提示（2026-09-03）**：目前 **8/8** 个域已挂上统一入口。
+> `industry-data`、`aviation-monthly`、`news-digest`、`competitor-intel`、`hk-market` 已完成真实业务验收；
+> `expert-calls` 飞书发布分支已完成首次真实验收，情报入库分支仍待下一批访谈核对；
+> `sellside-research` 已完成真实抽取与摘读；`peers-appendix` 代码已迁入，待下个财季真包做 COM/Word 验收。
 > 实时进度以 `docs/MIGRATION.md` 为准。
 
 ## 怎么用

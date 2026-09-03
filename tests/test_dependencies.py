@@ -24,6 +24,7 @@ IMPORT_NAME = {
     "beautifulsoup4": "bs4",
     "python-docx": "docx",
     "pywin32": "win32com",
+    "pillow": "PIL",
 }
 
 #: 不参与 doctor 自检的包及原因。

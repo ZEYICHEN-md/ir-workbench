@@ -51,11 +51,11 @@ ir domains     # 有哪些域、哪些已迁入
 
 ## 迁移中
 
-工作台正在整合三个旧项目，当前 **5/8** 个域已迁入新架构。`industry-data`、
-`aviation-monthly`、`news-digest` 与 `competitor-intel` 均已完成真实业务验收；
-`expert-calls` 已完成代码迁移、线上 revision 1680 版式回读、回归测试和 7 篇真实访谈候选排序只读验证；现已把公司情报库设为首要沉淀方向并与飞书精选解耦，待情报入库和飞书发布两个分支分别完成首次真实验收。
-其余未迁入域相关能力暂不可用，`ir domains` 会显示。进度与顺序见
-[docs/MIGRATION.md](docs/MIGRATION.md)。
+工作台正在整合三个旧项目，当前 **8/8** 个域已挂上统一入口。`industry-data`、
+`aviation-monthly`、`news-digest`、`competitor-intel`、`hk-market` 已完成真实业务验收；
+`expert-calls` 飞书发布分支已完成首次真实验收，情报入库分支仍待下一批访谈走完核对；
+`sellside-research` 抽取与摘读层已用真实研报验收；`peers-appendix` 代码已迁入，
+尚未拿当季真包做 COM/Word 验收。进度见 [docs/MIGRATION.md](docs/MIGRATION.md)。
 
 `database_matain` / `0703_Travel_Pulse` / `peers_rs_update` 三个旧文件夹里的流程**已停用或待迁**，
 不要在那里面跑（`database_matain` 已有显式停用标记）。
