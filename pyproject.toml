@@ -24,9 +24,6 @@ dependencies = [
   "pandas==3.0.4",
   "akshare==1.18.64",
   "yfinance==1.5.1",
-  "python-docx==1.2.0",
-  "lxml==6.1.1",
-  "pillow==12.3.0",
 ]
 
 [project.optional-dependencies]

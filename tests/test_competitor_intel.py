@@ -723,7 +723,7 @@ class TestDeferPromote(unittest.TestCase):
 
 
 def _quarterly_pack(paths: Paths) -> Path:
-    pack = paths.root / "inputs" / "peers-appendix" / "EXPE" / "26Q2"
+    pack = paths.root / "inputs" / "intel-quarterly" / "EXPE" / "26Q2"
     pack.mkdir(parents=True)
     (pack / "earnings-release.pdf").write_bytes(b"%PDF-1.4 fixture")
     (pack / "notes.txt").write_text("derived notes", encoding="utf-8")
@@ -732,7 +732,7 @@ def _quarterly_pack(paths: Paths) -> Path:
 
 def _quarterly_row(paths: Paths, **over) -> dict:
     rel = (
-        Path("inputs") / "peers-appendix" / "EXPE" / "26Q2" / "earnings-release.pdf"
+        Path("inputs") / "intel-quarterly" / "EXPE" / "26Q2" / "earnings-release.pdf"
     ).as_posix()
     row = {
         "kind": "statement",

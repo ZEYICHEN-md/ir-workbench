@@ -60,9 +60,6 @@ REQUIRED_DEPS: dict[str, str] = {
     "pandas": "港股行情与成交额聚合",
     "akshare": "港股指数、行情与成交额",
     "yfinance": "美股成交额与港股回退行情",
-    "docx": "Peers 业绩总结与 Appendix Word 文档",
-    "lxml": "Peers Word XML 门禁与定点替换",
-    "PIL": "Peers 图表导出与缩放",
 }
 
 #: 未迁入域会用到的依赖。现在缺是正常的（那些域还没搬进来），所以只提示。

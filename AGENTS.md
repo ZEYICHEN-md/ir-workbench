@@ -51,11 +51,11 @@ ir domains     # 有哪些域、哪些已迁入
 
 ## 迁移中
 
-工作台正在整合三个旧项目，当前 **8/8** 个域已挂上统一入口。`industry-data`、
+工作台正在整合三个旧项目，当前 **7** 个域挂在统一入口。`industry-data`、
 `aviation-monthly`、`news-digest`、`competitor-intel`、`hk-market` 已完成真实业务验收；
 `expert-calls` 飞书发布分支已完成首次真实验收，情报入库分支仍待下一批访谈走完核对；
-`sellside-research` 抽取与摘读层已用真实研报验收；`peers-appendix` 代码已迁入，
-尚未拿当季真包做 COM/Word 验收。进度见 [docs/MIGRATION.md](docs/MIGRATION.md)。
+`sellside-research` 抽取与摘读层已用真实研报验收。`peers-appendix` 已退役：季度
+Appendix / 业绩总结不走自动化，查库用情报库。进度见 [docs/MIGRATION.md](docs/MIGRATION.md)。
 
 `database_matain` / `0703_Travel_Pulse` / `peers_rs_update` 三个旧文件夹里的流程**已停用或待迁**，
 不要在那里面跑（`database_matain` 已有显式停用标记）。

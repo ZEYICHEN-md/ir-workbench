@@ -26,7 +26,6 @@ Airline Data_MMDD.xlsx        # 航空月度底表
 | `news-digest` | 周报期次 | `2026年8月第2周` |
 | `industry-data` | 数据截至日 | `2026-08-08` |
 | `aviation-monthly` | 年月 | `202607` |
-| `peers-appendix` | 财季 | `26Q2` |
 
 ## 交付物（`outputs/<域>/<周期>/`）
 

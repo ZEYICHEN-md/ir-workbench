@@ -142,9 +142,10 @@
 
 ## 修正（2026-09-03）：季度原件目录跟随 Appendix 迁入
 
-`peers-appendix` 代码迁入后，**新季度**原件放 `inputs/peers-appendix/<TICKER>/<YYQn>/`。
-历史包仍可只读指向冻结的 `peers_rs_update/companies/<TICKER>/<YYQn>/`，不复制、不回改旧仓。
-情报库继续只存引用与 SHA-256，不把 PDF 搬进 `data/intel/`。
+`peers-appendix` 已退役。**新季度**原件放 `inputs/intel-quarterly/<TICKER>/<YYQn>/`，
+或用户指定的其它工作区内目录。历史包仍可只读指向冻结的
+`peers_rs_update/companies/<TICKER>/<YYQn>/`，不复制、不回改旧仓。
+情报库继续只存引用与 SHA-256，不把 PDF 搬进 `data/intel/`。不恢复 Appendix 自动化流水线。
 
 ## 相关
 

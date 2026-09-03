@@ -2,6 +2,9 @@
 
 > **增补（2026-08-22）**：模块数由七增至八——`expert-calls` 见 [ADR 0005](0005-expert-calls-module.md)。
 > 同时确认季度行业展望简报为一次性产物，不设模块（见 `docs/DECISIONS.md` Q27）。
+>
+> **增补（2026-09-03）**：`peers-appendix` 退役，模块数回到七。Appendix / 业绩总结由人写，
+> 季度检索走 `competitor-intel`。旧仓冻结，工作台不保留该域代码或 CLI。见 `docs/DECISIONS.md`。
 
 - 状态：**Accepted**（2026-08-22）
 - 日期：2026-08-22
@@ -37,7 +40,7 @@
 | `hk-market` | 内部查询 | 按需 | Travel_Pulse `hk-volume-ratio` + `hk_market_pulse.py` + `ccass_southbound.py` |
 | `competitor-intel` | 内部 | 周 / 季 / 按访谈 | 新建，见 ADR 0002 |
 | `expert-calls` | 内部 | 按访谈到达 | database_matain `.cursor/skills/expert-call-pipeline`，见 ADR 0005 |
-| `peers-appendix` | 内部 | 季 | peers_rs_update 全部 |
+| ~~`peers-appendix`~~ | 内部 | 季 | **2026-09-03 退役**，见文首增补 |
 | `sellside-research` | 内部查询 | 按需 | Travel_Pulse `inputs/` 研报处理，轻量化 |
 
 对外交付物只有 `news-digest` 一个。其余七个是内部能力。
@@ -54,7 +57,7 @@
 | `industry-data` | 数据截至日 | `2026-08-08` | 数据截至 2026-08-08 |
 | `aviation-monthly` | 年月 | `202607` | 2026年7月 |
 | `competitor-intel` | 月内周次（周度）+ 财季（季度） | `2026-08-W2` / `26Q3` | — |
-| `peers-appendix` | 财季 | `26Q2` | 2026 Q2 |
+| ~~`peers-appendix`~~ | 财季 | `26Q2` | 2026-09-03 退役 |
 | `hk-market` | 查询日 | `2026-08-22` | — |
 | `sellside-research` | 无 | — | — |
 

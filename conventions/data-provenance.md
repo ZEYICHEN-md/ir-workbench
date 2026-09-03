@@ -30,8 +30,7 @@
 | `news-digest` | 每条附中英标题 + 媒体 + 日期 + URL 表 |
 | `industry-data` | 快照 `meta.sourceExcel` 记底稿文件名，`meta.dataUpdate` 记数据截至日；读表列位契约见 `modules/industry_data/SKILL.md` |
 | `aviation-monthly` | 每个官方输入格加批注：`Source: [公告标题], [日期], PDF第N页「表名」表「行名」行, [URL]`；manifest 记输入 SHA-256 |
-| `competitor-intel` | 每条 entry 必须有来源 + 日期；表述类条目存原话引用 + 位置指针 |
-| `peers-appendix` | 数字须来自 filings 或 transcripts；broker 仅交叉验证 |
+| `competitor-intel` | 每条 entry 必须有来源 + 日期；表述类条目存原话引用 + 位置指针；季度条目还要 PDF 页码 |
 
 ## 系统层面的保障
 

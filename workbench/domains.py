@@ -1,4 +1,4 @@
-"""八个域的注册表。
+"""七个域的注册表。
 
 这是 ADR 0003 的可执行版本：域的划分、对外/内部定位、节奏与周期键语义
 都在这里定义一次，其余代码不得另行硬编码域名。
@@ -129,15 +129,6 @@ DOMAINS: dict[str, Domain] = {
         period_kind="month_week",
         summary="按公司与主题累积 peers 动态。三条采集通道：新闻、财报口径、专家访谈。",
         origin="新建（ADR 0002）",
-    ),
-    "peers-appendix": Domain(
-        key="peers-appendix",
-        zh="Peers 业绩总结与 Appendix",
-        facing="internal",
-        cadence="每季",
-        period_kind="fiscal_quarter",
-        summary="财报后跟踪研究，产出业绩总结与季度 Appendix 活文档。",
-        origin="peers_rs_update",
     ),
     "expert-calls": Domain(
         key="expert-calls",

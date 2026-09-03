@@ -29,7 +29,7 @@
 |---|---|---|
 | `0703_Travel_Pulse` | `ZEYICHEN-md/Travel_Pulse` | 拆成 `news-digest` / `aviation-monthly` / `hk-market` / `sellside-research`；CLI 内核升为 `workbench/` |
 | `database_matain` | `ZEYICHEN-md/database_matain` | 整体 → `industry-data` |
-| `peers_rs_update` | `ZEYICHEN-md/ota-peers-appendix` | 整体 → `peers-appendix` |
+| `peers_rs_update` | `ZEYICHEN-md/ota-peers-appendix` | **不迁入**。2026-09-03 裁定退役：Appendix / 业绩总结由人写，季度检索走情报库；旧仓冻结保留 |
 
 冻结后三个仓保留在 GitHub 作为历史，不再更新。
 
@@ -384,20 +384,14 @@
 - [x] **真实输入验收（抽取层）**：UBS China hotel first read 13/13 页抽取成功，共 109,717 字符
 - [x] **真实输入验收（摘读层）**：UBS 酒店 first read 已按事实/观点/预测/估值变化分开摘读并回核第 1 页关键数字；图表未可靠抽取的值未写成确定数据。产物不进 Git
 
-### 🔄 第 5 步：`peers-appendix`（2026-09-03 代码迁入，待真季度验收）
+### ⬛ 第 5 步：`peers-appendix`（2026-09-03 退役，不迁入）
 
-- [x] 权威源裁定为仓内 `peers_rs_update/scripts/earnings_summary/`；本机过期 skill 副本不迁
-- [x] 新建 `modules/peers_appendix/`，唯一入口 `ir peers ...`；运行时不导入冻结旧仓
-- [x] 五件过时脚本不迁：`render_expe_finance_texts.py`、`audit_expe_alignment.py`、
-      `verify_abnb_26q2_numbers.py`、`verify_abnb_26q2_ops_finance.py`、`_cleanup_wip_layout.py`
-- [x] 未知步骤硬报错，不再静默跳过
-- [x] 按公司路由图表与 Word；ABNB/BKNG 无人工 `chart_map.json` 时嵌图 hard block，
-      绝不套用 EXPE 的 image3–8
-- [x] 战略段必须 `confirmed_by_human: true`；四道 must-pass 门禁保留
-- [ ] **真实季度验收**：尚未用 EXPE/BKNG 当季真包走完 Excel COM 与 Word 成品。
-      下个财报季之前用拷贝材料跑通，不在季中改旧仓
+- [x] 使用者确认：季度 Appendix / 业绩总结不适合做成工作台流水线
+- [x] 从域注册表、CLI、功能清单和路由表移除；`modules/peers_appendix/` 与对应测试删除
+- [x] 季度「这家做了什么 / 电话会怎么说」改走 `competitor-intel`
+- [x] 旧仓 `peers_rs_update` 继续冻结，不回改、不作为工作台入口
 
-放最后，**不在季中回改冻结旧仓**。下面仍保留迁移前审计，供对照。
+下面仍保留迁移前审计，说明当初为什么难迁、以及为什么后来决定不迁。
 
 ## `peers-appendix` 迁移前置问题
 

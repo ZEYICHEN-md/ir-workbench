@@ -325,7 +325,7 @@ class TestPeriodKeys(unittest.TestCase):
     def test_fiscal_quarter_label(self):
         from workbench import domains
 
-        self.assertEqual(domains.get("peers-appendix").label("26Q2"), "2026 Q2")
+        self.assertEqual(domains.period_label("fiscal_quarter", "26Q2"), "2026 Q2")
 
 
 class TestStepMachine(unittest.TestCase):

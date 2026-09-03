@@ -423,3 +423,15 @@
 精简内核保住四道 must-pass 和人工门禁；COM/Word 真季度验收仍欠，不能把「命令能跑」写成迁完。
 
 **落在**：`modules/peers_appendix/`、`docs/MIGRATION.md` 第 5 步
+
+### 要不要保留已迁入但未验收的 Peers 代码（2026-09-03）
+
+**结论**：**退役并删除工作台实现。** 不留 `ir peers`，不留空模块。旧仓 `peers_rs_update` 冻结保留。
+
+**理由**：判断全在人身上，机器卡在每家公司不同的 Excel COM、图位和 Word 锚点，一年只用四次。
+留一套没做过真季度验收的代码，比没有更坏——`ir domains` 会假装这个能力还在。
+季度检索已经由情报库覆盖；真要回头，去冻结旧仓，不要在工作台留第二套入口。
+同日稍早「精简内核迁入」的结论就此作废。
+
+**落在**：删除 `modules/peers_appendix/` 与 `tests/test_peers_appendix.py`；
+`workbench/domains.py`、`router/ROUTER.md`、`docs/MIGRATION.md` 第 5 步
