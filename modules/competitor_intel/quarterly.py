@@ -16,6 +16,7 @@ from typing import Any
 
 from workbench.fileio import write_text_atomic
 
+from . import vocab
 from .entry import Entry
 from .store import AddOutcome, Store
 
@@ -49,7 +50,7 @@ def _sha256(path: Path) -> str:
 
 def _classify(path: Path) -> tuple[str, str]:
     name = path.name.lower()
-    if "10-q" in name or "8-k" in name:
+    if "10-q" in name or "8-k" in name or "rns" in name:
         return "regulatory-filing", "P0"
     if path.suffix.lower() == ".txt":
         return "derived", "P2"
@@ -79,7 +80,8 @@ def scan_source_pack(base, company: str, period: str, source_pack: Path) -> dict
         pack.relative_to(root)
     except ValueError as exc:
         raise QuarterlyError("季度材料目录必须位于当前工作区内") from exc
-    if pack.name.upper() != period.upper() or pack.parent.name.upper() != company.upper():
+    pack_company = vocab.resolve_company(pack.parent.name) or pack.parent.name.upper()
+    if pack.name.upper() != period.upper() or pack_company != company.upper():
         raise QuarterlyError(
             f"材料目录应以 <公司>/<期次> 结尾；收到 {pack.parent.name}/{pack.name}"
         )

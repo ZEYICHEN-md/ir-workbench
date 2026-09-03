@@ -757,6 +757,32 @@ def _quarterly_row(paths: Paths, **over) -> dict:
 
 
 class TestQuarterlyIngest(unittest.TestCase):
+    def test_rns_is_regulatory_filing_p0(self):
+        from modules.competitor_intel import quarterly
+
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            pack = paths.root / "inputs" / "intel-quarterly" / "IHG" / "H1 2026"
+            pack.mkdir(parents=True)
+            (pack / "IHG H1 2026 Interim Results RNS.pdf").write_bytes(b"%PDF-1.4 synthetic")
+            manifest = quarterly.scan_source_pack(paths, "IHG", "H1 2026", pack)
+            source = manifest["files"][0]
+            self.assertEqual(source["source_type"], "regulatory-filing")
+            self.assertEqual(source["source_authority"], "P0")
+
+    def test_atour_directory_alias_matches_atat_but_not_other_company(self):
+        from modules.competitor_intel import quarterly
+
+        with TemporaryDirectory() as tmp:
+            paths = make_root(tmp)
+            pack = paths.root / "inputs" / "intel-quarterly" / "Atour" / "26Q2"
+            pack.mkdir(parents=True)
+            (pack / "Atour 26Q2 Presentation.pdf").write_bytes(b"%PDF-1.4 synthetic")
+            manifest = quarterly.scan_source_pack(paths, "ATAT", "26Q2", pack)
+            self.assertEqual(manifest["company"], "ATAT")
+            with self.assertRaisesRegex(quarterly.QuarterlyError, "<公司>/<期次>"):
+                quarterly.scan_source_pack(paths, "EXPE", "26Q2", pack)
+
     def test_prepare_classifies_and_auto_commits_only_normals(self):
         from modules.competitor_intel import quarterly
 
