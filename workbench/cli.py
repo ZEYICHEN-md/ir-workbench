@@ -80,6 +80,7 @@ def _cmd_domains(args, paths: Paths) -> int:
     runtime_ready = sum(row["runtime_ready"] for row in rows)
     validated = sum(row["validation_state"] == "validated" for row in rows)
     partial = sum(row["validation_state"] == "partial" for row in rows)
+    unvalidated = sum(row["validation_state"] == "unvalidated" for row in rows)
     lightweight = sum(row["validation_state"] == "lightweight" for row in rows)
     checks = []
     for row in rows:
@@ -91,16 +92,18 @@ def _cmd_domains(args, paths: Paths) -> int:
             )
         elif row["validation_state"] == "partial":
             level, detail = "warn", f"部分验收：{row['validation_note']}"
+        elif row["validation_state"] == "unvalidated":
+            level, detail = "warn", f"尚未验收：{row['validation_note']}"
         elif row["validation_state"] == "lightweight":
             level, detail = "ok", f"轻量能力：{row['validation_note']}"
         else:
             level, detail = "ok", row["validation_note"]
         checks.append({"name": f"{row['name']}（{row['facing']}·{row['cadence']}）", "level": level, "detail": detail})
     result = Result(
-        status="success" if runtime_ready == len(rows) and not partial else "partial",
+        status="success" if runtime_ready == len(rows) and not partial and not unvalidated else "partial",
         summary=(
             f"共 {len(rows)} 个域：运行时就绪 {runtime_ready}/{len(rows)}；"
-            f"完整验收 {validated}、部分验收 {partial}、轻量能力 {lightweight}。"
+            f"完整验收 {validated}、部分验收 {partial}、尚未验收 {unvalidated}、轻量能力 {lightweight}。"
         ),
         checks=checks,
         data={"domains": rows},

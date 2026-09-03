@@ -26,6 +26,9 @@ outputs/**/*.pdf
 # 不建持久层（ADR 0004），也绝不能误进公开作品集导出。
 outputs/sellside-research/**
 
+# Peers Model 运行副本含完整财务 Excel 与 PDF 抽取原文，只留在本机。
+outputs/peers-model/
+
 # Python
 __pycache__/
 *.py[cod]

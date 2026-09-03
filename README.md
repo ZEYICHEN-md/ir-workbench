@@ -20,7 +20,7 @@
 
 不确定能做什么时，问一句「**工作台现在能做什么 / 什么状态**」。
 
-## 七个域
+## 八个域
 
 | 域 | 面向 | 节奏 |
 |---|---|---|
@@ -30,6 +30,7 @@
 | 港股市场数据 | 内部查询 | 按需 |
 | 竞对情报库 | 内部 | 每周 / 每季 / 按访谈 |
 | 专家访谈情报与精选 | 内部 | 按访谈到达 |
+| Peers 财务模型维护 | 内部 | 每季 / 半年 / 年度 |
 | 卖方研报摘读 | 内部查询 | 按需 |
 
 对外交付物只有新闻精选一个。
@@ -41,9 +42,10 @@
 
 ## 迁移状态
 
-工作台正在把三个旧项目整合进来。当前 **7** 个域挂上统一入口；前五个已完成真实业务验收，
+工作台正在把三个旧项目整合进来。当前 **8** 个域挂上统一入口；前五个已完成真实业务验收，
 `expert-calls` 飞书发布已完成首次真实验收、情报入库仍待下一批访谈核对，
-`sellside-research` 已完成真实抽取与摘读。`peers-appendix` 已退役，不迁入。
+`sellside-research` 已完成真实抽取与摘读。`peers-model` 做 Model / Charts 机械维护；
+`peers-appendix` 写作流水线仍退役。
 
 - [x] 骨架 + Control Plane（`ir doctor` / `ir status` / Windows CI）
 - [x] `industry-data`（含指标底稿归位与真实上线）
@@ -51,7 +53,8 @@
 - [x] `news-digest` + `competitor-intel`（含 2026-08-W4 真实验收）
 - [x] `expert-calls`（情报优先采集 + 独立飞书精选；飞书分支已验收，情报分支待下一批）
 - [x] `hk-market` / `sellside-research`（2026-09-02 真实只读验收）
-- [x] `peers-appendix` **退役**（不维护自动化流水线；旧仓冻结）
+- [x] `peers-appendix` **退役**（不维护 Word Appendix 流水线；旧仓冻结）
+- [x] `peers-model`（PDF → Model / Charts 机械更新；权威文件只出副本）
 
 顺序与理由见 [docs/adr/0003-single-repo-and-module-layout.md](docs/adr/0003-single-repo-and-module-layout.md)。
 

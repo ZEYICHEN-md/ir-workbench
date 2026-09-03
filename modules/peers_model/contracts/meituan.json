@@ -1,0 +1,11 @@
+{
+  "company": "MEITUAN", "workbook_key": "peers_meituan",
+  "sheets": [
+    {"name": "Key Financial Data", "header_row": 3, "kinds": ["quarter", "half", "year"],
+     "require_previous_by_kind": {"half": false, "year": false}},
+    {"name": "Segment Reporting", "header_row": 3, "kinds": ["half", "year"],
+     "require_previous_by_kind": {"half": false, "year": false}},
+    {"name": "New Segment Reporting", "header_row": 2, "kinds": ["quarter"]}
+  ],
+  "chart_sheets": {"quarter": ["charts"], "half": [], "year": ["charts"]}
+}

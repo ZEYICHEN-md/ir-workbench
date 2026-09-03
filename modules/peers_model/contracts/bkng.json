@@ -1,0 +1,5 @@
+{
+  "company": "BKNG", "workbook_key": "peers_abe",
+  "sheets": [{"name": "BKNG", "header_row": 4, "kinds": ["quarter", "year"]}],
+  "chart_sheets": {"quarter": ["BKNG Quarterly Charts"], "year": []}
+}

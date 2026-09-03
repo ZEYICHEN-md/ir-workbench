@@ -20,6 +20,7 @@ SKIP_DIRS = {
     "__pycache__",
     "scratch",
     "_tmp",
+    "outputs",
     "dist",
     "build",
     ".venv",
@@ -28,6 +29,8 @@ SKIP_DIRS = {
     "0703_Travel_Pulse",
     "database_matain",
     "peers_rs_update",
+    # 旧仓脚本的只读摘录，不进运行入口，也不按本仓 LF 约束改写。
+    "peers_model_scripts",
 }
 
 

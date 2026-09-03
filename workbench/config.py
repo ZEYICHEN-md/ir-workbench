@@ -17,6 +17,9 @@ from .paths import Paths
 WORKBOOK_KEYS: dict[str, str] = {
     "industry": "国内行业数据 Excel —— 指标底稿，唯一人工编辑面（ADR 0001）",
     "airline": "Airline Data Excel —— 航空月度底表，pipeline 读写",
+    "peers_abe": "BKNG / EXPE / ABNB 共用 Model —— peers-model 只输出更新副本",
+    "peers_meituan": "美团独立 Model —— peers-model 只输出更新副本",
+    "peers_tcel": "同程独立 Model —— peers-model 只输出更新副本",
 }
 
 DEFAULTS: dict[str, Any] = {
@@ -96,8 +99,17 @@ class Config:
 
     def candidates(self, key: str) -> list[Path]:
         """列出候选工作簿供**用户**选择。不排序暗示优先级，不代选。"""
-        patterns = {"industry": "*国内行业数据*.xls*", "airline": "*Airline*Data*.xls*"}
-        pattern = patterns.get(key)
-        if not pattern or not self.paths.workbooks.is_dir():
+        specs = {
+            "industry": (self.paths.workbooks, "*国内行业数据*.xls*"),
+            "airline": (self.paths.workbooks, "*Airline*Data*.xls*"),
+            "peers_abe": (self.paths.root / "peers_rs_update" / "deliverables" / "models",
+                          "peers data comparison*.xls*"),
+            "peers_meituan": (self.paths.root / "peers_rs_update" / "deliverables" / "models",
+                              "Meituan*.xls*"),
+            "peers_tcel": (self.paths.root / "peers_rs_update" / "deliverables" / "models",
+                           "Tongcheng*Model*.xls*"),
+        }
+        folder, pattern = specs.get(key, (None, None))
+        if folder is None or pattern is None or not folder.is_dir():
             return []
-        return sorted(p for p in self.paths.workbooks.glob(pattern) if not p.name.startswith("~$"))
+        return sorted(p for p in folder.glob(pattern) if not p.name.startswith("~$"))

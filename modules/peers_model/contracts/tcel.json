@@ -1,0 +1,9 @@
+{
+  "company": "TCEL", "workbook_key": "peers_tcel",
+  "sheets": [
+    {"name": "Tongchengelong", "header_row": 2, "kinds": ["quarter", "half", "year"],
+     "require_previous_by_kind": {"half": false, "year": false}},
+    {"name": "Sheet6", "header_row": 10, "kinds": ["quarter"], "optional": true}
+  ],
+  "chart_sheets": {"quarter": ["TCEL charts"], "half": [], "year": []}
+}

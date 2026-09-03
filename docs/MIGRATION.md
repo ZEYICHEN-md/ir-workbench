@@ -63,7 +63,7 @@
 
 - `workbench/` —— `paths` / `config` / `doctor` / `status` / `manifest` / `result` / `domains` / `cli`
 - 四态结果语义：`success` / `partial` / `blocked` / `failed`，含退出码映射
-- 域注册表：最初规划八个域；2026-09-03 裁定 `peers-appendix` 退役后，当前七个域的定位、节奏、周期键与验收状态在 `workbench/domains.py` 定义一次
+- 域注册表：最初规划八个域；`peers-appendix` 退役后由 `peers-model` 补回第八个域。定位、节奏、周期键与验收状态在 `workbench/domains.py` 定义一次
 - manifest 索引 = 域 + 周期键，含输入输出 SHA-256 留痕
 - 工作簿显式配置，`config candidates` 只列候选、**不代选**
 - `router/ROUTER.md` 意图路由表
@@ -391,7 +391,19 @@
 - [x] 季度「这家做了什么 / 电话会怎么说」改走 `competitor-intel`
 - [x] 旧仓 `peers_rs_update` 继续冻结，不回改、不作为工作台入口
 
-下面仍保留迁移前审计，说明当初为什么难迁、以及为什么后来决定不迁。
+### ✅ 第 6 步：`peers-model`（2026-09-03，机械维护，不恢复 Appendix）
+
+- [x] 新建独立域，只做 Excel Model 与 Charts；Word Appendix 仍退役
+- [x] 三份权威 Model 由本机 config 锁定：ABE 共用、美团独立、同程独立
+- [x] 同程只写前两个 sheet；图表只改引用了本次实际更新数据 sheet 的 series
+- [x] 季报 / 半年报 / 年报按模板已有区块分流；没有可比列就跳过
+- [x] 图表政策：2019 同期起、排除 2020–2022、接 2023 至目标期；只给同期点打标签
+- [x] 只输出 `outputs/peers-model/` 副本，不覆盖权威文件
+- [x] 26Q2 holdout（删掉已有期间列再写回）：BKNG / EXPE / ABNB / 美团 / 同程全部通过
+- [x] 26Q2 历史 PDF 盲填 → plan → apply 副本：五家全部通过关闭重开、PDF 第三遍与 Charts 审计
+- [x] 年报 / 半年报路径 holdout：BKNG/EXPE/ABNB FY2025、美团 FY2022 与 20H1、同程 FY2022 通过
+
+下面仍保留迁移前审计，说明当初为什么难迁、以及为什么后来决定不迁 Appendix 写作。
 
 ## `peers-appendix` 迁移前置问题
 

@@ -1,4 +1,4 @@
-"""七个域的注册表。
+"""八个域的注册表。
 
 这是 ADR 0003 的可执行版本：域的划分、对外/内部定位、节奏与周期键语义
 都在这里定义一次，其余代码不得另行硬编码域名。
@@ -13,7 +13,8 @@ from typing import Literal
 Facing = Literal["external", "internal"]
 ValidationState = Literal["validated", "partial", "lightweight", "unvalidated"]
 PeriodKind = Literal[
-    "month_week", "data_date", "year_month", "fiscal_quarter", "query_date", "run_id", "none"
+    "month_week", "data_date", "year_month", "fiscal_quarter", "model_period",
+    "query_date", "run_id", "none"
 ]
 
 #: 周期键格式。刻意不统一——一套 period 语义装不下四种节奏（ADR 0003 §3）。
@@ -24,6 +25,7 @@ PERIOD_PATTERNS: dict[str, str] = {
     "data_date": r"^20\d{2}-\d{2}-\d{2}$",
     "year_month": r"^20\d{4}$",
     "fiscal_quarter": r"^\d{2}Q[1-4]$",
+    "model_period": r"^[A-Z0-9]+-(?:\d{2}Q[1-4]|\d{2}H[12]|FY20\d{2})$",
     "query_date": r"^20\d{2}-\d{2}-\d{2}$",
     "run_id": r"^20\d{6}-(?:[01]\d|2[0-3])[0-5]\d[0-5]\d$",
     "none": r"^$",
@@ -34,6 +36,7 @@ PERIOD_EXAMPLES: dict[str, str] = {
     "data_date": "2026-08-08",
     "year_month": "202607",
     "fiscal_quarter": "26Q2",
+    "model_period": "BKNG-26Q2 / MEITUAN-26H1 / TCEL-FY2026",
     "query_date": "2026-08-22",
     "run_id": "20260822-143015",
     "none": "（无周期）",
@@ -154,6 +157,17 @@ DOMAINS: dict[str, Domain] = {
         origin="database_matain/.cursor/skills/expert-call-pipeline",
         validation_state="validated",
         validation_note="真实批次已完成飞书回读；34 条情报已全量分流为 A 类 11 条正式入库、B 类 14 条待核、9 条剔除。",
+    ),
+    "peers-model": Domain(
+        key="peers-model",
+        zh="Peers 财务模型维护",
+        facing="internal",
+        cadence="每季 / 半年 / 年度",
+        period_kind="model_period",
+        summary="财报 PDF → 双遍取数复核 → Model 期间列、格式、公式与 Charts 更新副本。",
+        origin="新建（ADR 0009；旧 peers 脚本只读参考）",
+        validation_state="partial",
+        validation_note="26Q2 五家 holdout 与历史 PDF 副本写入已通过；下一次新季度财报仍需再跑一遍。",
     ),
     "sellside-research": Domain(
         key="sellside-research",

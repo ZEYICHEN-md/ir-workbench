@@ -1,0 +1,5 @@
+{
+  "company": "EXPE", "workbook_key": "peers_abe",
+  "sheets": [{"name": "EXPE", "header_row": 3, "kinds": ["quarter", "year"]}],
+  "chart_sheets": {"quarter": ["EXPE Quarterly Charts"], "year": []}
+}

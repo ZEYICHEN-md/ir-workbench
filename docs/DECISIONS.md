@@ -448,3 +448,62 @@
 
 **落在**：**ADR 0008**、`workbench/domain_state.py`、`workbench/status.py`、
 `modules/news_digest/steps.py`。
+
+### 要不要从冻结仓恢复 Peers Model 机械更新（2026-09-03）
+
+**结论**：恢复 **Model + Charts 机械维护**，不恢复 Word Appendix。新建 `peers-model` 域。旧 `peers_rs_update` / `peers_model_scripts` 只读参考，不 import。
+
+**理由**：用户仍要「给 PDF → 更新 Excel」。旧仓已有 insert / fill / chart 脚本，但和写作绑在一起且没有按三份真实模板验收。新模块按模板实际区块分流季 / 半年 / 年；同程只写前两个 sheet；图表只改引用了本次更新数据 sheet 的 series；2019 同期起排除 2020–2022；只输出副本。
+
+**落在**：ADR 0009、`modules/peers_model/`、`router/ROUTER.md`
+
+### Peers Model 落地时的几条现场判断（2026-09-03）
+
+**组合图次坐标轴线系列的数据标签怎么写才留得住**
+
+**结论**：先 `ApplyDataLabels`，再删掉非同期点；只改 `HasDataLabel` 保存后会丢。同时遍历 `FullSeriesCollection`，改写被隐藏的 series 但保持 `IsFiltered`。
+
+**理由**：EXPE chart 1 series 2 是次轴折线。holdout 数字和格式都对，只有标签在关闭重开后回到旧的 23Q3。实测 `ApplyDataLabels` 后标签能随文件保存。
+
+**落在**：`modules/peers_model/charts.py`
+
+**上一列是公式的行能不能被 PDF 数盖掉**
+
+**结论**：不能。模板、收割、写入、holdout 对比都跳过「上一可比列是公式」的行。
+
+**理由**：EXPE 年报列里有几行金标准把公式改成了硬编码。产品北极星是「新列继承上一列公式」，不是复刻某次手工覆盖。
+
+**落在**：`excel_model.py`、`selftest.py`
+
+**美团空的 FY2023 列表头当不当格式源**
+
+**结论**：不当。可比列若整列空白，往前找到最近有内容的同年类型列。
+
+**理由**：Key Financial Data 有 FY2023 表头但下面是空的；若拿它当格式源，半年/年报更新会写出空壳列。
+
+**落在**：`excel_model._sheet_plan`
+
+**BKNG GBV 分部用 PDF 的十亿一位小数，还是模型里更细的千美元**
+
+**结论**：PDF 驱动就用 PDF。Statistical Data 写 Agency $14.0bn、Merchant $37.0bn，并注明 rounding。模型金标准 13961 / 36996 更细，但业绩稿没有这个精度。
+
+**理由**：取数必须可核对到 PDF 原话。没有第二来源时不编造更细的数。
+
+**落在**：`outputs/peers-model/BKNG-26Q2/facts.blind.json`
+
+**美团 New Segment「Other services and sales」**
+
+**结论**：按模型口径加总。Core Local = Product sales + Others；New Initiatives = 该段 Delivery services + Product sales + Others。标 `derived`。
+
+**理由**：PDF 拆开披露，模型是一行。硬凑单一 PDF 数字会过不了第二遍核对。
+
+**落在**：`facts.blind.json` role=derived
+
+**ABNB「App 占 nights」64%**
+
+**结论**：本轮不写。8-K 股东信版式乱，pdfplumber 抽成乱码，第二遍核对无法证明原话。
+
+**理由**：宁缺，不拿对不上的乱码当证据。
+
+**落在**：`ABNB-26Q2/facts.blind.json` 未含 row 116
+

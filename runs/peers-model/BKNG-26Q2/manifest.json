@@ -1,0 +1,102 @@
+{
+  "domain": "peers-model",
+  "period": "BKNG-26Q2",
+  "created": "2026-09-03T18:58:34+08:00",
+  "updated": "2026-09-03T20:12:26+08:00",
+  "steps": {
+    "extract": {
+      "state": "done",
+      "at": "2026-09-03T18:59:16+08:00",
+      "result": {
+        "pdfs": 1,
+        "extracts": 1
+      }
+    },
+    "facts": {
+      "state": "done",
+      "at": "2026-09-03T20:10:46+08:00",
+      "note": "等待 Agent 按 PDF 填写 facts 模板"
+    },
+    "verify": {
+      "state": "done",
+      "at": "2026-09-03T20:10:46+08:00",
+      "result": {
+        "facts": 39
+      }
+    },
+    "plan": {
+      "state": "done",
+      "at": "2026-09-03T20:10:46+08:00",
+      "result": {
+        "operations": 1
+      }
+    },
+    "apply": {
+      "state": "done",
+      "at": "2026-09-03T20:12:26+08:00"
+    },
+    "readback": {
+      "state": "done",
+      "at": "2026-09-03T20:12:26+08:00",
+      "result": {
+        "cells": 39
+      }
+    },
+    "charts": {
+      "state": "done",
+      "at": "2026-09-03T20:12:26+08:00",
+      "result": {
+        "series": 27
+      }
+    }
+  },
+  "inputs": {
+    "pdf_1": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\peers_rs_update\\companies\\BKNG\\26Q2\\BKNG 26Q2 Earnings Release.pdf",
+      "sha256": "ead8dfb425c16949b658d410ae2bb11ba05fd5a0cc8f7306b1b8fdfe3c7a038b",
+      "at": "2026-09-03T18:58:36+08:00"
+    },
+    "model": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\peers_rs_update\\deliverables\\models\\peers data comparison_20260807.xlsx",
+      "sha256": "88d95c0674aa819c7adfec0ed6d87ca33e00edbe26585787e46d4f31bdf289c5",
+      "at": "2026-09-03T18:59:16+08:00"
+    },
+    "facts": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\BKNG-26Q2\\facts.blind.json",
+      "sha256": "a6fc9a57a6983486c16c0f3ee92a4e9cf64663e90cefc93a8be6aee3125efe03",
+      "at": "2026-09-03T20:10:46+08:00"
+    }
+  },
+  "outputs": {
+    "facts_template": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\BKNG-26Q2\\facts.template.json",
+      "sha256": "ab07c4f3f2696f838081af2fa2a497de56be7d372a2f0bddbd03efb488cba1c6",
+      "at": "2026-09-03T18:59:16+08:00"
+    },
+    "plan": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\BKNG-26Q2\\plan.json",
+      "sha256": "576219e85f0c2ea24b54418592d42e09ff67e1281b35c943709cc0badd12d959",
+      "at": "2026-09-03T20:10:46+08:00"
+    },
+    "model_copy": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\BKNG-26Q2\\peers data comparison_20260807_26Q2_updated_20260903T121046473995Z.xlsx",
+      "sha256": "2241108717a8884629cfbb50b21999af6f890edd9ea7844900a60ed7d05b1279",
+      "at": "2026-09-03T20:12:26+08:00"
+    },
+    "audit": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\BKNG-26Q2\\audit-20260903T121046473995Z.json",
+      "sha256": "f3a72e89e06910aa2b8838a9e02acadd9671973e4ef757ee09256328e8e21f0c",
+      "at": "2026-09-03T20:12:26+08:00"
+    }
+  },
+  "notes": [],
+  "order": [
+    "extract",
+    "facts",
+    "verify",
+    "plan",
+    "apply",
+    "readback",
+    "charts"
+  ]
+}

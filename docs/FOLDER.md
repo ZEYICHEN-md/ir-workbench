@@ -15,7 +15,7 @@ IR_workbench/
 │
 ├── router/ROUTER.md        # 意图路由表：人说什么 → 走哪个域
 ├── workbench/              # Control Plane（Agent 的手，不是人的入口）
-│   ├── domains.py          #   七个域的注册表（ADR 0003 的可执行版本）
+│   ├── domains.py          #   八个域的注册表（ADR 0003 的可执行版本）
 │   ├── paths.py            #   全部路径只在这里定义一次
 │   ├── config.py           #   工作簿显式锁定，绝不代选
 │   ├── doctor.py           #   环境自检
