@@ -1,0 +1,102 @@
+{
+  "domain": "peers-model",
+  "period": "MEITUAN-26Q2-q1-insert",
+  "created": "2026-09-04T12:28:22+08:00",
+  "updated": "2026-09-04T12:47:16+08:00",
+  "steps": {
+    "extract": {
+      "state": "done",
+      "at": "2026-09-04T12:28:31+08:00",
+      "result": {
+        "pdfs": 1,
+        "extracts": 1
+      }
+    },
+    "facts": {
+      "state": "done",
+      "at": "2026-09-04T12:46:47+08:00",
+      "note": "等待 Agent 按 PDF 填写 facts 模板"
+    },
+    "verify": {
+      "state": "done",
+      "at": "2026-09-04T12:46:47+08:00",
+      "result": {
+        "facts": 18
+      }
+    },
+    "plan": {
+      "state": "done",
+      "at": "2026-09-04T12:46:47+08:00",
+      "result": {
+        "operations": 1
+      }
+    },
+    "apply": {
+      "state": "done",
+      "at": "2026-09-04T12:47:16+08:00"
+    },
+    "readback": {
+      "state": "done",
+      "at": "2026-09-04T12:47:16+08:00",
+      "result": {
+        "cells": 18
+      }
+    },
+    "charts": {
+      "state": "done",
+      "at": "2026-09-04T12:47:16+08:00",
+      "result": {
+        "series": 11
+      }
+    }
+  },
+  "inputs": {
+    "pdf_1": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\peers_rs_update\\companies\\MEITUAN\\26Q2\\MEITUAN 26Q2 Earnings Release - Official Results Announcement.pdf",
+      "sha256": "7ce5fad275ba07f815774eb6ce7364e05318fdbc96263a610a560ed29a3c9504",
+      "at": "2026-09-04T12:28:26+08:00"
+    },
+    "model": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\q1-insert\\_start\\Meituan Hotel comparison_0601.xlsx",
+      "sha256": "00e809ab2fca0a261f29b18aa2a9cb50f5da567af917f8d01602003314a574c1",
+      "at": "2026-09-04T12:28:31+08:00"
+    },
+    "facts": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\MEITUAN-26Q2-q1-insert\\facts.blind.json",
+      "sha256": "4619b04f4ee461321e8e42c09ca8e19ce801de2212400cdb7fc6412ba1e2e64e",
+      "at": "2026-09-04T12:46:47+08:00"
+    }
+  },
+  "outputs": {
+    "facts_template": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\MEITUAN-26Q2-q1-insert\\facts.template.json",
+      "sha256": "30696f90e1c9b284c6dbcd08e62621b020a8c44daaa52370494c9978df3dc6f7",
+      "at": "2026-09-04T12:28:31+08:00"
+    },
+    "plan": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\MEITUAN-26Q2-q1-insert\\plan.json",
+      "sha256": "60e835cb6e11b43205466c1a3eac529cd707a913094194f8151cfcba4d2cf165",
+      "at": "2026-09-04T12:46:47+08:00"
+    },
+    "model_copy": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\MEITUAN-26Q2-q1-insert\\Meituan Hotel comparison_0601_26Q2_updated_20260904T044647699504Z.xlsx",
+      "sha256": "d7d520e2ff02082c8cdafbed94410a01ab53e6ca57fd20bb79b4325330fccbd5",
+      "at": "2026-09-04T12:47:16+08:00"
+    },
+    "audit": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\MEITUAN-26Q2-q1-insert\\audit-20260904T044647699504Z.json",
+      "sha256": "6028e3244d1ed9e706ff1ab1324a0a4528acf6bef5cc9191e3832ae6e49d32bb",
+      "at": "2026-09-04T12:47:16+08:00"
+    }
+  },
+  "notes": [],
+  "order": [
+    "extract",
+    "facts",
+    "verify",
+    "plan",
+    "apply",
+    "readback",
+    "charts"
+  ]
+}

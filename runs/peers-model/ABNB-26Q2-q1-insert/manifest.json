@@ -1,0 +1,102 @@
+{
+  "domain": "peers-model",
+  "period": "ABNB-26Q2-q1-insert",
+  "created": "2026-09-04T12:28:14+08:00",
+  "updated": "2026-09-04T12:46:42+08:00",
+  "steps": {
+    "extract": {
+      "state": "done",
+      "at": "2026-09-04T12:28:31+08:00",
+      "result": {
+        "pdfs": 1,
+        "extracts": 1
+      }
+    },
+    "facts": {
+      "state": "done",
+      "at": "2026-09-04T12:46:06+08:00",
+      "note": "等待 Agent 按 PDF 填写 facts 模板"
+    },
+    "verify": {
+      "state": "done",
+      "at": "2026-09-04T12:46:06+08:00",
+      "result": {
+        "facts": 14
+      }
+    },
+    "plan": {
+      "state": "done",
+      "at": "2026-09-04T12:46:06+08:00",
+      "result": {
+        "operations": 1
+      }
+    },
+    "apply": {
+      "state": "done",
+      "at": "2026-09-04T12:46:42+08:00"
+    },
+    "readback": {
+      "state": "done",
+      "at": "2026-09-04T12:46:42+08:00",
+      "result": {
+        "cells": 14
+      }
+    },
+    "charts": {
+      "state": "done",
+      "at": "2026-09-04T12:46:42+08:00",
+      "result": {
+        "series": 14
+      }
+    }
+  },
+  "inputs": {
+    "pdf_1": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\peers_rs_update\\companies\\ABNB\\26Q2\\8-K-results.pdf",
+      "sha256": "14cdd0d4b75ea2f0d81875b46afcdba18a3b0563ae0948b7c22de5f9ae288bc4",
+      "at": "2026-09-04T12:28:22+08:00"
+    },
+    "model": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\q1-insert\\_start\\peers data comparison_20260508.xlsx",
+      "sha256": "72c6078c0baca13b88d10c3eeb0c6354067f59f1cec594e554914713cb17d99c",
+      "at": "2026-09-04T12:28:31+08:00"
+    },
+    "facts": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\ABNB-26Q2-q1-insert\\facts.blind.json",
+      "sha256": "54ee94ff0730741c50c39edee8caab753d9302c8e7376dc17c1b0083dc688eaf",
+      "at": "2026-09-04T12:46:06+08:00"
+    }
+  },
+  "outputs": {
+    "facts_template": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\ABNB-26Q2-q1-insert\\facts.template.json",
+      "sha256": "08fe0d02498fa97d11f59a5c2d43e385fc74cbee8d818100083d2937d368fbb9",
+      "at": "2026-09-04T12:28:31+08:00"
+    },
+    "plan": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\ABNB-26Q2-q1-insert\\plan.json",
+      "sha256": "cd6bdebf2ce000f122c0ecbadbeba1f233ed06f37ab74e69baff80a3839f3707",
+      "at": "2026-09-04T12:46:06+08:00"
+    },
+    "model_copy": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\ABNB-26Q2-q1-insert\\peers data comparison_20260508_26Q2_updated_20260904T044606378555Z.xlsx",
+      "sha256": "f7c194caf866718742a13f9e944d65a771919c85a6727765caf6f02d75e3a4d4",
+      "at": "2026-09-04T12:46:42+08:00"
+    },
+    "audit": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\ABNB-26Q2-q1-insert\\audit-20260904T044606378555Z.json",
+      "sha256": "e2751f9fefdced156bca3f905d3c48b3025302762cc72c427f9de912fd75b613",
+      "at": "2026-09-04T12:46:42+08:00"
+    }
+  },
+  "notes": [],
+  "order": [
+    "extract",
+    "facts",
+    "verify",
+    "plan",
+    "apply",
+    "readback",
+    "charts"
+  ]
+}

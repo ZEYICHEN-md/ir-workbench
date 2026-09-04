@@ -1,0 +1,102 @@
+{
+  "domain": "peers-model",
+  "period": "TCEL-26Q2-q1-insert",
+  "created": "2026-09-04T12:28:22+08:00",
+  "updated": "2026-09-04T12:48:03+08:00",
+  "steps": {
+    "extract": {
+      "state": "done",
+      "at": "2026-09-04T12:28:37+08:00",
+      "result": {
+        "pdfs": 1,
+        "extracts": 1
+      }
+    },
+    "facts": {
+      "state": "done",
+      "at": "2026-09-04T12:47:27+08:00",
+      "note": "等待 Agent 按 PDF 填写 facts 模板"
+    },
+    "verify": {
+      "state": "done",
+      "at": "2026-09-04T12:47:27+08:00",
+      "result": {
+        "facts": 25
+      }
+    },
+    "plan": {
+      "state": "done",
+      "at": "2026-09-04T12:47:27+08:00",
+      "result": {
+        "operations": 1
+      }
+    },
+    "apply": {
+      "state": "done",
+      "at": "2026-09-04T12:48:03+08:00"
+    },
+    "readback": {
+      "state": "done",
+      "at": "2026-09-04T12:48:03+08:00",
+      "result": {
+        "cells": 25
+      }
+    },
+    "charts": {
+      "state": "done",
+      "at": "2026-09-04T12:48:03+08:00",
+      "result": {
+        "series": 13
+      }
+    }
+  },
+  "inputs": {
+    "pdf_1": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\peers_rs_update\\companies\\TCEL\\26Q2\\TCEL 26Q2 Earnings Release.pdf",
+      "sha256": "7759e2901560eaae4746efe4668f372454ae7156ba7fba92626bd4b2f4b46815",
+      "at": "2026-09-04T12:28:26+08:00"
+    },
+    "model": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\q1-insert\\_start\\Tongcheng Travel Model_0601.xlsx",
+      "sha256": "49f5da284a67c1f5e581fe77f15082c39cf61eb7f917205ba2594b7d8ddcd2ca",
+      "at": "2026-09-04T12:28:37+08:00"
+    },
+    "facts": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\TCEL-26Q2-q1-insert\\facts.blind.json",
+      "sha256": "53674ba5f90e4db49857ce4de2bb8a5fe1e81d7b53be470492679e793d63c804",
+      "at": "2026-09-04T12:47:27+08:00"
+    }
+  },
+  "outputs": {
+    "facts_template": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\TCEL-26Q2-q1-insert\\facts.template.json",
+      "sha256": "5ca69717d0b2253ea8da34ffb661be6f7cc936c8f881463c5627078a0a81b693",
+      "at": "2026-09-04T12:28:37+08:00"
+    },
+    "plan": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\TCEL-26Q2-q1-insert\\plan.json",
+      "sha256": "9e56499b9ba0749fd941a18cae658e5665e2916d28d4db97abed18c849f4253d",
+      "at": "2026-09-04T12:47:27+08:00"
+    },
+    "model_copy": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\TCEL-26Q2-q1-insert\\Tongcheng Travel Model_0601_26Q2_updated_20260904T044727221277Z.xlsx",
+      "sha256": "807fb433d6b1d786618934eae4dfaba17ffcbce1317f79fecd172d4c039fa800",
+      "at": "2026-09-04T12:48:03+08:00"
+    },
+    "audit": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\TCEL-26Q2-q1-insert\\audit-20260904T044727221277Z.json",
+      "sha256": "a2a95720382f461cf996591192897e500a96f6621ae1c15df8a70161ee83c305",
+      "at": "2026-09-04T12:48:03+08:00"
+    }
+  },
+  "notes": [],
+  "order": [
+    "extract",
+    "facts",
+    "verify",
+    "plan",
+    "apply",
+    "readback",
+    "charts"
+  ]
+}

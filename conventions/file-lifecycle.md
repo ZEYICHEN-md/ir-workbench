@@ -16,6 +16,24 @@
 
 不要让同事自己建 `inputs/` 子目录，也不要把命令贴给人跑。
 
+## 如果一定要自己拖进文件夹
+
+日常仍建议拖进对话框或放「下载」。非要在资源管理器里放，只进这些位置，**不要放仓库根目录，也不要放旧仓文件夹**：
+
+| 你手里的东西 | 拖到这里 |
+|---|---|
+| 国内行业数据 / Airline Data 新 Excel | `data/workbooks/`（放下后说「换一份新的国内行业数据」，等人指定锁定） |
+| 中金周报、STR 表 | `inputs/industry-data/`（Agent 会再按截至日归期） |
+| 卖方研报 PDF | `inputs/sellside-research/` |
+| Peers 财报 / 电话会 PDF | `inputs/peers-model/`（或直接拖进对话） |
+| 专家访谈 PDF | `inputs/expert-calls/`（或直接拖进对话 / 贴飞书链接） |
+| 季度披露材料包 | `inputs/intel-quarterly/<公司>/<财季>/` |
+| Capital IQ 股东底表 | 电脑 **下载**，不要进工作台 |
+| 交差成品、模型副本 | 不要手塞；问 Agent 去 `outputs/` 取 |
+
+根目录的 `0703_Travel_Pulse/`、`database_matain/`、`peers_rs_update/`、`peers_model_scripts/`、`update-shareholder-list/`、`test_expert_calls/` **不是收件箱**。
+
+
 ## 各层放什么
 
 | 路径 | 谁写 | 进 Git？ | 能不能删 |
@@ -40,11 +58,12 @@
 
 | 目录 | 是什么 |
 |---|---|
-| `0703_Travel_Pulse/` | 旧仓，已拆完 |
-| `database_matain/` | 旧仓，已迁完并停用 |
-| `peers_rs_update/` | 旧仓，Appendix 退役后冻结 |
-| `peers_model_scripts/` | 迁 `peers-model` 时的只读摘录 |
-| `update-shareholder-list/` | 迁 `shareholder-list` 前的交接包 |
+| `0703_Travel_Pulse/` | 旧仓，已拆完。GitHub `Travel_Pulse` 留历史，本机可删 |
+| `database_matain/` | 旧仓，已迁完并停用。GitHub 留历史，本机可删 |
+| `peers_rs_update/` | 旧仓，Appendix 退役后冻结。**例外**：本机 config 仍把三份权威 Model 锁在这里，搬走并重新锁定之前不要删 |
+| `peers_model_scripts/` | 迁 `peers-model` 时的只读摘录，可删 |
+| `update-shareholder-list/` | 迁 `shareholder-list` 前的交接包，可删 |
+| `test_expert_calls/` | 专家访谈验收用过的 PDF，不是入口；可删，下一批评 `inputs/expert-calls/` 或拖进对话 |
 
 真源在 `modules/<域>/`。发现第二套 `src/`、`scripts/rebuild.ps1` 或旧仓脚本，不要用。
 

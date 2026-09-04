@@ -1,0 +1,102 @@
+{
+  "domain": "peers-model",
+  "period": "EXPE-26Q2-q1-insert",
+  "created": "2026-09-04T12:28:11+08:00",
+  "updated": "2026-09-04T12:45:57+08:00",
+  "steps": {
+    "extract": {
+      "state": "done",
+      "at": "2026-09-04T12:30:29+08:00",
+      "result": {
+        "pdfs": 1,
+        "extracts": 1
+      }
+    },
+    "facts": {
+      "state": "done",
+      "at": "2026-09-04T12:44:45+08:00",
+      "note": "等待 Agent 按 PDF 填写 facts 模板"
+    },
+    "verify": {
+      "state": "done",
+      "at": "2026-09-04T12:44:45+08:00",
+      "result": {
+        "facts": 32
+      }
+    },
+    "plan": {
+      "state": "done",
+      "at": "2026-09-04T12:44:45+08:00",
+      "result": {
+        "operations": 1
+      }
+    },
+    "apply": {
+      "state": "done",
+      "at": "2026-09-04T12:45:57+08:00"
+    },
+    "readback": {
+      "state": "done",
+      "at": "2026-09-04T12:45:57+08:00",
+      "result": {
+        "cells": 32
+      }
+    },
+    "charts": {
+      "state": "done",
+      "at": "2026-09-04T12:45:57+08:00",
+      "result": {
+        "series": 55
+      }
+    }
+  },
+  "inputs": {
+    "pdf_1": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\peers_rs_update\\companies\\EXPE\\26Q2\\earnings-release.pdf",
+      "sha256": "050de772d7cee54d495c50011426d20afbdda266d805399b1443d4579b5eaf5e",
+      "at": "2026-09-04T12:29:48+08:00"
+    },
+    "model": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\q1-insert\\_start\\peers data comparison_20260508.xlsx",
+      "sha256": "72c6078c0baca13b88d10c3eeb0c6354067f59f1cec594e554914713cb17d99c",
+      "at": "2026-09-04T12:30:29+08:00"
+    },
+    "facts": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\EXPE-26Q2-q1-insert\\facts.blind.json",
+      "sha256": "1ba9f6c4b39efe28c0665a2b3871bc7626c0cebc1c47e1e6b9c96e5b1b41155c",
+      "at": "2026-09-04T12:44:45+08:00"
+    }
+  },
+  "outputs": {
+    "facts_template": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\EXPE-26Q2-q1-insert\\facts.template.json",
+      "sha256": "5e2930ab8b48380e2cad6eb113b0b3e7b2ea08958f737e024e0e58980069f271",
+      "at": "2026-09-04T12:30:29+08:00"
+    },
+    "plan": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\EXPE-26Q2-q1-insert\\plan.json",
+      "sha256": "8caa1a90cb694d51d60e3b9a8228a1cbe1403ec10c1b0f0e38b702fd90dd84d9",
+      "at": "2026-09-04T12:44:45+08:00"
+    },
+    "model_copy": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\EXPE-26Q2-q1-insert\\peers data comparison_20260508_26Q2_updated_20260904T044445414310Z.xlsx",
+      "sha256": "73593d38a41ab0679748b98b9231bc73fa1d59209c3981a286ae52fa21728884",
+      "at": "2026-09-04T12:45:57+08:00"
+    },
+    "audit": {
+      "path": "D:\\Users\\zeyichen\\Desktop\\IR_workbench\\outputs\\peers-model\\EXPE-26Q2-q1-insert\\audit-20260904T044445414310Z.json",
+      "sha256": "054fefa3a98684de7880f49e0240ca0e7fafac465c881d7ce8f8a19ddbd8ebec",
+      "at": "2026-09-04T12:45:57+08:00"
+    }
+  },
+  "notes": [],
+  "order": [
+    "extract",
+    "facts",
+    "verify",
+    "plan",
+    "apply",
+    "readback",
+    "charts"
+  ]
+}
