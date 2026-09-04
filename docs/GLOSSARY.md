@@ -6,7 +6,7 @@
 ## 产品与角色
 
 **IR 工作台**
-携程 IR 部门的 AI 自动化工作台。以 Agent 为入口，把部门高频工作沉淀为可分发、可移交、可持续使用的系统。产品边界由九个域定义；`peers-appendix` 写作流水线已退役，Model 维护走 `peers-model`，股东名册走 `shareholder-list`。进度见 `docs/MIGRATION.md`。
+携程 IR 部门的 AI 自动化工作台。以 Agent 为入口，把部门高频工作沉淀为可分发、可移交、可持续使用的系统。产品边界由九个域定义；`peers-appendix` 写作流水线已退役，Model 维护走 `peers-model`，股东名册走 `shareholder-list`。功能见 `docs/CAPABILITIES.md`，文件夹见 `docs/MAP.md`。
 *Avoid*：把它当成三个独立项目的文件夹集合；把它叫作「脚本库」
 
 **业务接手人**

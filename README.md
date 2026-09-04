@@ -1,22 +1,18 @@
 # IR 工作台
 
-携程 IR 部门的 AI 自动化工作台。把部门高频工作沉淀为可分发、可移交、可持续使用的系统。
+携程 IR 部门的日常工作台。打开这个文件夹，对 Agent 说话即可。不需要记命令，不需要开终端。
 
-## 我该看哪份文档
+你负责判断和确认。Agent 负责取数、核对、落文件。对外发布和改权威数据，一定要你先说「确认」。
 
-| 你是 | 看这个 |
-|------|--------|
-| **部门同事 / 接手人**（不写代码） | [docs/HANDOVER.md](docs/HANDOVER.md) 开箱与开口；[docs/CAPABILITIES.md](docs/CAPABILITIES.md) 能做什么 |
-| Agent | [router/ROUTER.md](router/ROUTER.md) —— 意图路由 |
-| 想知道为什么这么设计 | [docs/adr/](docs/adr/) · [docs/GLOSSARY.md](docs/GLOSSARY.md) · [docs/DECISIONS.md](docs/DECISIONS.md) |
-| 目录里什么放哪、文件怎么存取 | [docs/FOLDER.md](docs/FOLDER.md) · [conventions/file-lifecycle.md](conventions/file-lifecycle.md) |
-| 维护人排错与清理 | [docs/operator/README.md](docs/operator/README.md) |
+## 打开之后看这三份
 
-## 怎么用
+| 你想知道 | 看 |
+|---|---|
+| **文件夹是干什么的、东西往哪存、从哪取** | [docs/MAP.md](docs/MAP.md) |
+| 能做什么、怎么开口 | [docs/CAPABILITIES.md](docs/CAPABILITIES.md) |
+| 第一次怎么用、哪些事必须你点头 | [docs/HANDOVER.md](docs/HANDOVER.md) |
 
-打开这个文件夹（Kiro、Cursor 或 Claude Code 均可），对 Agent 说话。不需要记命令，不需要开终端。
-
-不确定能做什么时，问一句「**工作台现在能做什么 / 什么状态**」。
+不确定时，问一句「**工作台现在能做什么 / 什么状态**」。
 
 ## 九个域
 
@@ -34,30 +30,13 @@
 
 对外交付物只有新闻精选一个。
 
-## 决策记录
+## 包里有什么
 
-整合过程中的全部设计选择（问题 → 结论 → 理由）见 [docs/DECISIONS.md](docs/DECISIONS.md)，
-难逆决策见 [docs/adr/](docs/adr/)。
+**会跟着走的部门 context：** 九个域的流程、当前锁定用的行业数据 Excel 与归档、指标快照、竞对情报库、已定稿的新闻精选 Markdown、各期运行记录、以及上面三份说明。
 
-## 迁移状态
+**故意不随包走：** 中金周报 / 研报 / 财报 / 访谈 PDF、Peers 权威 Model 与更新副本、股东名册 xlsx、本机飞书登录。这些由交付人另给，或继续放在你这台电脑的对应文件夹。详见 [docs/MAP.md](docs/MAP.md)。
 
-工作台正在把三个旧项目整合进来。当前 **9** 个域挂上统一入口。
-`industry-data`、`aviation-monthly`、`news-digest`、`competitor-intel`、`hk-market`、`expert-calls`
-已完成真实业务验收；`expert-calls` 的 `20260901-190000` 批次已完成飞书回读，34 条情报全量分流。
-`sellside-research` 已完成真实抽取与摘读。`peers-model` 做 Model / Charts 机械维护（副本验收 `partial`）；
-`peers-appendix` 写作流水线仍退役。`shareholder-list` 已迁入，锁定重建验收见迁移记录（新切仍须明确有效日）。
-
-- [x] 骨架 + Control Plane（`ir doctor` / `ir status` / Windows CI）
-- [x] `industry-data`（含指标底稿归位与真实上线）
-- [x] `aviation-monthly`（含 2026 年 7 月真实写入）
-- [x] `news-digest` + `competitor-intel`（含 2026-08-W4 真实验收）
-- [x] `expert-calls`（情报优先采集 + 独立飞书精选；飞书分支已验收，情报分支待下一批）
-- [x] `hk-market` / `sellside-research`（2026-09-02 真实只读验收）
-- [x] `peers-appendix` **退役**（不维护 Word Appendix 流水线；旧仓冻结）
-- [x] `peers-model`（PDF → Model / Charts 机械更新；权威文件只出副本）
-- [x] `shareholder-list`（Capital IQ → Investor List；引擎已迁入）
-
-顺序与理由见 [docs/adr/0003-single-repo-and-module-layout.md](docs/adr/0003-single-repo-and-module-layout.md)。
+Agent 与维护人：[router/ROUTER.md](router/ROUTER.md) · [docs/operator/README.md](docs/operator/README.md) · [docs/adr/](docs/adr/)
 
 ## 维护人：装一下
 

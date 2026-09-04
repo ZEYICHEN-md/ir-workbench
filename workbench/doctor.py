@@ -11,6 +11,7 @@ import sys
 
 from . import domain_state, domains
 from .config import WORKBOOK_KEYS, Config
+from .lifecycle import FROZEN_LOCAL_DIRS
 from .paths import Paths
 from .result import Result
 
@@ -122,6 +123,20 @@ def run(paths: Paths, *, verbose: bool = False) -> Result:
         )
     else:
         checks.append({"name": "目录骨架", "level": "ok", "detail": f"{len(paths.required_dirs)} 个目录齐全"})
+
+    leftover_trees = [name for name in FROZEN_LOCAL_DIRS if (paths.root / name).is_dir()]
+    if leftover_trees:
+        checks.append(
+            {
+                "name": "搭建残留",
+                "level": "warn",
+                "detail": "根目录里还有：" + "、".join(leftover_trees),
+            }
+        )
+        warnings.append("这些旧文件夹不是工作台入口，不要往里面放东西。")
+        next_steps.append("对 Agent 说「清理根目录里的旧项目文件夹」；确认后再删。")
+    else:
+        checks.append({"name": "搭建残留", "level": "ok", "detail": "根目录没有旧仓残留"})
 
     # 3. 域运行时：目录、CLI 与 health 分开核对，禁止目录存在即报“已迁入”。
     runtime_states = {

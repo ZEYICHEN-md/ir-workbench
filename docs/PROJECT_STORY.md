@@ -1,7 +1,7 @@
 # IR 工作台：项目复盘与对外介绍
 
 > **本文是 2026-09-03 的状态快照**，用于内部复盘和作品集准备。
-> 当前域数、验收状态与目录约定以 `workbench/domains.py`、`docs/CAPABILITIES.md`、`docs/MIGRATION.md`、`docs/FOLDER.md` 为准，不要用本文核对「现在有几个域」。
+> 当前域数、验收状态与目录约定以 `workbench/domains.py`、`docs/CAPABILITIES.md`、`docs/MAP.md`、`docs/MIGRATION.md`、`docs/FOLDER.md` 为准，不要用本文核对「现在有几个域」。
 
 > 状态快照：2026-09-03。本文区分“已实现”“待真实验收”“已设计未实现”，不能把计划中的能力写成已经上线。
 

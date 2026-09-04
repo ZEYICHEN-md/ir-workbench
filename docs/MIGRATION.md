@@ -1,5 +1,7 @@
 # 迁移记录与计划
 
+> 维护人档案。接手同事请看 [MAP.md](MAP.md)、[CAPABILITIES.md](CAPABILITIES.md)、[HANDOVER.md](HANDOVER.md)。
+
 三个旧项目 → 统一工作台。顺序与理由见 [adr/0003](adr/0003-single-repo-and-module-layout.md)。
 
 ## 硬约束

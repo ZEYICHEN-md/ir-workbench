@@ -2,13 +2,7 @@
 
 > 面向部门同事与接手人：工作台能做什么、怎么开口、产出在哪。
 > 你只需要说自然语言，Agent 负责其余部分。
->
-> **迁移期提示（2026-09-04）**：目前 **9** 个域挂上统一入口。
-> `industry-data`、`aviation-monthly`、`news-digest`、`competitor-intel`、`hk-market`、`expert-calls`
-> 已完成真实业务验收；`expert-calls` 的 34 条情报已全量分流为 A 类 11 条正式入库、B 类 14 条待核、
-> 9 条剔除。`sellside-research` 已完成真实抽取与摘读。`peers-model` 已用 26Q2 历史 PDF 与 holdout 通过副本验收；
-> `peers-appendix` 写作流水线仍退役。`shareholder-list` 已迁入引擎。
-> 实时进度以 `docs/MIGRATION.md` 为准。
+> 文件夹是干什么的、东西往哪存、从哪取：见 [MAP.md](MAP.md)。
 
 ## 怎么用
 
@@ -133,16 +127,6 @@
 
 ## 数据放哪
 
-同事**不用自己建文件夹**。把文件拖进对话框、留在电脑「下载」里、或说一声，Agent 会放到对的位置。要取回上期成品，问「这期新闻精选 / 模型副本 / 股东名册在哪」。
+完整地图见 [MAP.md](MAP.md)。同事**不用自己建文件夹**：拖进对话框、留在电脑「下载」里、或说一声即可。要取回上期成品，问「这期新闻精选 / 模型副本 / 股东名册在哪」。
 
-| 位置 | 放什么 | 你用不用管 |
-|---|---|---|
-| `data/workbooks/` | 国内行业数据 Excel（唯一编辑面）、Airline Data 底表 | 改数只改被锁定的那一份 |
-| `data/models/` | Peers 三份权威 Model | 不要手改；更新只出副本 |
-| `data/workbooks/archived/` | 旧版底稿和写入前备份 | 不要删 |
-| `inputs/<域>/<周期>/` | 只服务这一期的原件（STR 表、研报 PDF、公众号文章） | Agent 代放 |
-| `outputs/<域>/<周期>/` | 交付物 | 问 Agent 路径即可 |
-| `runs/<域>/<周期>/` | 运行记录 | 一般不用看 |
-| `scratch/` | 临时草稿 | 可清；不要当档案 |
-
-更细的约定见 `docs/FOLDER.md` 与 `conventions/file-lifecycle.md`；出错处理见 `docs/operator/`。
+出错处理见 `docs/operator/`。

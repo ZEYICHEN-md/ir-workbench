@@ -20,6 +20,7 @@ FROZEN_LOCAL_DIRS: tuple[str, ...] = (
     "peers_rs_update",
     "peers_model_scripts",
     "update-shareholder-list",
+    "test_expert_calls",
 )
 
 #: ``ir hygiene`` 扫换行符时跳过。临时产物和冻结目录都不该被改写。

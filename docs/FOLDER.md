@@ -1,5 +1,7 @@
 # 目录约定
 
+给人看的介绍是 [MAP.md](MAP.md)。本文是维护人改目录时的树形真源。
+
 目标：**打开就能找到东西；临时垃圾不进根目录。**
 
 人怎么交文件、怎么取回、过期什么能删，见 [../conventions/file-lifecycle.md](../conventions/file-lifecycle.md)。本文只画树、钉「放 / 不放」。
@@ -34,27 +36,29 @@ IR_workbench/
 │
 ├── conventions/            # 跨域约定（溯源、命名、文件生命周期）
 ├── docs/                   # 给人读的持久文档
+│   ├── MAP.md              #   给人看的工作台地图（存取、每层干什么）
 │   ├── CAPABILITIES.md     #   功能清单（给部门同事看）
 │   ├── HANDOVER.md         #   同事开箱与日常开口
 │   ├── GLOSSARY.md         #   统一语言
 │   ├── DECISIONS.md        #   全部设计选择：问题 → 结论 → 理由
-│   ├── MIGRATION.md        #   迁移计划与进度
+│   ├── MIGRATION.md        #   历史迁入记录（不是给人看的入口）
 │   ├── FOLDER.md           #   本文件
 │   ├── PROJECT_STORY.md    #   历史快照，不以它核对当前域数
 │   ├── adr/                #   难逆决策
 │   ├── specs/              #   设计说明（-design.md）与操作手册（-runbook.md）
-│   ├── analyst/            #   指向 HANDOVER / CAPABILITIES
+│   ├── analyst/            #   指向 MAP / HANDOVER / CAPABILITIES
 │   ├── operator/           #   维护人：卫生、冻结目录、排错
 │   └── shareholder-list/   #   股东名册域内术语
 │
 ├── data/                   # 共享数据层，跨域共用，不在任何模块内
+│   ├── README.md           #   给人看的长期数据说明
 │   ├── workbooks/          #   指标底稿 Excel（唯一人工编辑面）
 │   │   └── archived/       #   往期底稿与写入前备份，只增不删
-│   ├── models/             #   Peers 权威 Model（本机锁定，不进 Git）
+│   ├── models/             #   Peers 权威 Model（xlsx 本机锁定；README 随包走）
 │   ├── canonical/          #   指标快照 + 洞察底稿
 │   └── intel/              #   竞对情报库
 │
-├── inputs/<域>/<周期>/     # 本期原件（Git 忽略）
+├── inputs/<域>/<周期>/     # 本期原件（PDF/xlsx 忽略；README 随包走）
 ├── outputs/<域>/<周期>/    # 交付物（.md 精选进 Git；xlsx/PDF 等只留本机）
 ├── runs/<域>/<周期>/       # manifest
 ├── dashboard/travel/       # 看板投影（复制到发布仓上线）

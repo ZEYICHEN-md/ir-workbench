@@ -1,6 +1,6 @@
 # 维护人手册
 
-同事看 [../HANDOVER.md](../HANDOVER.md) 和 [../CAPABILITIES.md](../CAPABILITIES.md)。这里只给要改仓库、装机、清文件的人。
+同事看 [../MAP.md](../MAP.md)、[../HANDOVER.md](../HANDOVER.md) 和 [../CAPABILITIES.md](../CAPABILITIES.md)。这里只给要改仓库、装机、清文件的人。
 
 ## 日常三问
 
@@ -31,8 +31,9 @@ ir hygiene --prune --fix    # 须用户明确说「确认删除过期临时文�
 | 问题 | 真源 |
 |---|---|
 | 用户想干什么 | `router/ROUTER.md` |
-| 现在有几个域、验收到哪 | `workbench/domains.py`，进度叙事 `docs/MIGRATION.md` |
-| 目录放什么 | `docs/FOLDER.md` + `conventions/file-lifecycle.md` |
+| 现在有几个域、验收到哪 | `workbench/domains.py`；迁入记录 `docs/MIGRATION.md` |
+| 给人看的文件夹地图 | `docs/MAP.md` |
+| 改目录时的树形真源 | `docs/FOLDER.md` + `conventions/file-lifecycle.md` |
 | 为什么这么设计 | `docs/DECISIONS.md` 与 `docs/adr/` |
 | `docs/PROJECT_STORY.md` | 历史快照，**不要**用它核对当前域数 |
 

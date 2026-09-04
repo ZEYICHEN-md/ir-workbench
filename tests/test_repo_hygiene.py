@@ -54,7 +54,13 @@ class TestDocPointers(unittest.TestCase):
     坏链在文档里是静默失败：接手人点过去发现没有，就会绕过整套约定自己发挥。
     """
 
-    ENTRY_DOCS = ("AGENTS.md", "CLAUDE.md", "README.md", "router/ROUTER.md")
+    ENTRY_DOCS = (
+        "AGENTS.md",
+        "CLAUDE.md",
+        "README.md",
+        "router/ROUTER.md",
+        "docs/MAP.md",
+    )
 
     #: 从 markdown 里粗略捞出的路径引用（反引号或链接里的相对路径）
     def _referenced_paths(self, text: str) -> set[str]:
@@ -161,6 +167,21 @@ class TestConventionsMatchRegistry(unittest.TestCase):
         self.assertIn("file-lifecycle.md", folder)
         self.assertTrue((ROOT / "docs" / "operator" / "README.md").is_file())
         self.assertTrue((ROOT / "docs" / "analyst" / "README.md").is_file())
+
+    def test_human_map_is_the_distribution_intro(self):
+        """接手人打开仓库应先看到地图，而不是迁移 checklist。"""
+        self.assertTrue((ROOT / "docs" / "MAP.md").is_file())
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("docs/MAP.md", readme)
+        self.assertNotIn("## 迁移状态", readme)
+        self.assertTrue((ROOT / "inputs" / "README.md").is_file())
+        self.assertTrue((ROOT / "data" / "README.md").is_file())
+        self.assertTrue((ROOT / "data" / "models" / "README.md").is_file())
+        self.assertTrue((ROOT / "outputs" / "README.md").is_file())
+        self.assertTrue((ROOT / "runs" / "README.md").is_file())
+        capabilities = (ROOT / "docs" / "CAPABILITIES.md").read_text(encoding="utf-8")
+        self.assertNotIn("迁移期提示", capabilities)
+        self.assertIn("MAP.md", capabilities)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@
 
 各域的操作流程在 `modules/<域>/SKILL.md`。跨域约定在 `conventions/`。
 统一语言在 [docs/GLOSSARY.md](docs/GLOSSARY.md)，决策理由在 [docs/adr/](docs/adr/)。
+给人看的文件夹地图：[docs/MAP.md](docs/MAP.md)。
 
 ## 五条纪律
 
@@ -44,23 +45,16 @@ PowerShell 默认用 GBK 编码传给命令的参数，**中文参数会静默�
 ```powershell
 ir doctor      # 环境自检
 ir status      # 按域报告进度
-ir domains     # 有哪些域、哪些已迁入
+ir domains     # 有哪些域
 ```
 
 `ir` 与 `py -m workbench` 等价。
 
-## 迁移中
+## 当前九域
 
-工作台正在整合三个旧项目，当前 **9** 个域挂在统一入口。`industry-data`、
-`aviation-monthly`、`news-digest`、`competitor-intel`、`hk-market`、`expert-calls` 已完成真实业务验收；
-`expert-calls` 的 `20260901-190000` 批次已完成飞书回读，并将 34 条情报全量分流为 A 类 11 条正式入库、
-B 类 14 条待核、9 条剔除；`sellside-research` 抽取与摘读层已用真实研报验收。
-`peers-model` 已用 26Q2 历史 PDF 与 holdout 通过副本验收（`partial`）；Word Appendix 仍退役。
-`shareholder-list` 已迁入并用 8/31 底表完成锁定重建（`partial`）；新切仍须明确有效日。
-进度见 [docs/MIGRATION.md](docs/MIGRATION.md)。
-
-`database_matain` / `0703_Travel_Pulse` / `peers_rs_update` 三个旧仓已迁出或冻结在 GitHub，
-**不要再嵌进工作台根目录**。文件放哪、过期怎么清：`conventions/file-lifecycle.md`。
+九个域都挂在统一入口，清单见 [docs/CAPABILITIES.md](docs/CAPABILITIES.md)。
+文件放哪、过期怎么清：[conventions/file-lifecycle.md](conventions/file-lifecycle.md)。
+**不要把旧仓再嵌进工作台根目录。** 迁入记录只给维护人看：[docs/MIGRATION.md](docs/MIGRATION.md)。
 
 ---
 

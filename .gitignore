@@ -1,13 +1,10 @@
 # 本机配置（本机配置与共享代码分离）
 .ir-workbench/
 
-# 三个旧项目与迁入残留：不要再嵌进本仓。若残留则忽略。
-# 它们各自带 .git——不排除的话会被记成未初始化的子模块。
+# 若有人误把旧仓拷进根目录：忽略，避免变成第二套入口。
 0703_Travel_Pulse/
 database_matain/
 peers_rs_update/
-
-# 迁入时留在磁盘上的只读参考，不是运行入口。有第二套代码就会再分叉。
 peers_model_scripts/
 update-shareholder-list/
 
@@ -16,10 +13,12 @@ scratch/
 _tmp/
 
 # 每期原件（券商周报、研报 PDF、STR 表等）：只服务当期，体积大且多为第三方材料。
-# 不进 git —— 中金周报单份 6.5 MB，每周一份一年就是几百 MB。
-# 可核对性由 manifest 里记录的文件名与 SHA-256 保证，不靠存原件。
+# 原件不进 git。收件说明 README 和空目录 .gitkeep 随包走。
 inputs/**
+!inputs/**/
 !inputs/**/.gitkeep
+!inputs/README.md
+!inputs/**/README.md
 
 # 交付物的 HTML/PDF：由 .md 一键重放，且内嵌三份 woff2 字体后单份约 4.6 MB。
 # Markdown 才是交付物真源，进 git；渲染结果不进（旧仓 reports/INDEX.md 已是同一约定）。
@@ -33,8 +32,9 @@ outputs/sellside-research/**
 # Peers Model 运行副本含完整财务 Excel 与 PDF 抽取原文，只留在本机。
 outputs/peers-model/
 
-# Peers 权威 Model：本机锁定，只出副本，不进 Git。
-data/models/
+# Peers 权威 Model：本机锁定，只出副本，不进 Git。说明文件随包走。
+data/models/**
+!data/models/README.md
 
 # Shareholder list 生成的完整工作簿（与 peers-model 一样只留本机）。
 outputs/shareholder-list/

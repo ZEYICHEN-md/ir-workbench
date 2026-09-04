@@ -103,6 +103,16 @@ class TestDoctorOnFreshClone(unittest.TestCase):
             advice = " ".join(result.next_steps)
             self.assertIn("重新安装", advice)
 
+    def test_doctor_warns_on_leftover_setup_trees(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            paths = make_skeleton(root, containers=True)
+            (root / "0703_Travel_Pulse").mkdir()
+            result = doctor.run(paths)
+            leftover = next(c for c in result.checks if c["name"] == "搭建残留")
+            self.assertEqual(leftover["level"], "warn")
+            self.assertIn("0703_Travel_Pulse", leftover["detail"])
+
 
 if __name__ == "__main__":
     unittest.main()
