@@ -7,6 +7,7 @@ from pathlib import Path
 
 from modules.peers_model.charts import rewrite_series_formula, series_period_kind
 from modules.peers_model.contracts import load
+from modules.peers_model.workflow import _facts_model_path, _facts_run_tag, _safe_tag
 from modules.peers_model.periods import (
     Period,
     chart_periods,
@@ -168,6 +169,28 @@ class TestContracts(unittest.TestCase):
             raw = json.loads(path.read_text(encoding="utf-8"))
             self.assertIn("company", raw)
             self.assertIn("sheets", raw)
+
+
+class TestRunIsolation(unittest.TestCase):
+    def test_model_period_allows_optional_run_tag(self):
+        from workbench.domains import get
+        domain = get("peers-model")
+        self.assertTrue(domain.validate_period("BKNG-26Q2"))
+        self.assertTrue(domain.validate_period("BKNG-26Q2-q1-insert"))
+        self.assertFalse(domain.validate_period("BKNG-26Q2-"))
+        self.assertFalse(domain.validate_period("BKNG-q1-insert"))
+
+    def test_run_tag_keeps_ascii(self):
+        self.assertEqual(_safe_tag("q1-insert"), "q1-insert")
+        self.assertEqual(_safe_tag(None), "")
+        with self.assertRaises(ValueError):
+            _safe_tag("???")
+
+    def test_plan_reuses_facts_model_and_tag(self):
+        facts = {"model": str(ROOT / "pyproject.toml"), "run_tag": "q1-insert"}
+        self.assertTrue(_facts_model_path(facts, None).endswith("pyproject.toml"))
+        self.assertEqual(_facts_run_tag(facts, None), "q1-insert")
+        self.assertEqual(_facts_run_tag(facts, "other"), "other")
 
 
 if __name__ == "__main__":

@@ -17,24 +17,53 @@ DOMAIN = "peers-model"
 STEPS = ["extract", "facts", "verify", "plan", "apply", "readback", "charts"]
 
 
-def _context(paths, company: str, period_text: str):
+def _safe_tag(value: str | None) -> str:
+    text = (value or "").strip()
+    if not text:
+        return ""
+    allowed = []
+    for char in text:
+        if char.isalnum() or char in "-_":
+            allowed.append(char)
+    tag = "".join(allowed).strip("-_")
+    if not tag:
+        raise ValueError("run-tag 只能用字母、数字、连字符或下划线")
+    return tag
+
+
+def _resolve_model(paths, contract, model_path: str | None) -> Path:
+    if model_path:
+        path = Path(model_path).expanduser().resolve()
+        if not path.is_file():
+            raise ContractError(f"指定的工作簿不存在：{path}")
+        return path
+    return workbook(contract, Config(paths))
+
+
+def _context(
+    paths, company: str, period_text: str, *,
+    model_path: str | None = None, run_tag: str | None = None,
+):
     contract = load(company)
     period = Period.parse(period_text)
     if period is None:
         raise ValueError("期间格式应为 26Q3、26H1 或 FY2026")
-    model = workbook(contract, Config(paths))
+    model = _resolve_model(paths, contract, model_path)
     run_key = f"{contract.company}-{period.key}"
+    tag = _safe_tag(run_tag)
+    if tag:
+        run_key = f"{run_key}-{tag}"
     manifest = Manifest(paths, DOMAIN, run_key)
     manifest.ensure_steps(STEPS)
     output = paths.outputs(DOMAIN, run_key)
     output.mkdir(parents=True, exist_ok=True)
-    return contract, period, model, run_key, manifest, output
+    return contract, period, model, run_key, manifest, output, tag
 
 
-def inspect(paths, company: str) -> Result:
+def inspect(paths, company: str, *, model_path: str | None = None) -> Result:
     try:
         contract = load(company)
-        model = workbook(contract, Config(paths))
+        model = _resolve_model(paths, contract, model_path)
         payload = excel_model.inspect_workbook(model, contract)
     except (ContractError, ValueError, excel_model.ModelError) as error:
         return Result(status="blocked", summary=str(error), domain=DOMAIN)
@@ -48,9 +77,13 @@ def inspect(paths, company: str) -> Result:
     )
 
 
-def prepare(paths, company: str, period_text: str, pdf_paths: list[str]) -> Result:
+def prepare(
+    paths, company: str, period_text: str, pdf_paths: list[str], *,
+    model_path: str | None = None, run_tag: str | None = None,
+) -> Result:
     try:
-        contract, period, model, run_key, manifest, output = _context(paths, company, period_text)
+        contract, period, model, run_key, manifest, output, tag = _context(
+            paths, company, period_text, model_path=model_path, run_tag=run_tag)
         pdfs = [Path(p).resolve() for p in pdf_paths]
         extracts = []
         for index, pdf in enumerate(pdfs, 1):
@@ -60,6 +93,9 @@ def prepare(paths, company: str, period_text: str, pdf_paths: list[str]) -> Resu
             extracts.append(destination)
             manifest.record_input(f"pdf_{index}", pdf)
         template = excel_model.build_template(model, contract, period, pdfs)
+        template["model"] = str(model)
+        if tag:
+            template["run_tag"] = tag
         facts_path = output / "facts.template.json"
         facts_path.write_text(json.dumps(template, ensure_ascii=False, indent=2), encoding="utf-8")
         manifest.record_input("model", model)
@@ -83,10 +119,33 @@ def prepare(paths, company: str, period_text: str, pdf_paths: list[str]) -> Resu
         return Result(status="blocked", summary=str(error), domain=DOMAIN)
 
 
-def _verified_plan(paths, company: str, period_text: str, facts_file: str, *, skip_pdf: bool = False):
-    contract, period, model, run_key, manifest, output = _context(paths, company, period_text)
+def _facts_model_path(facts: dict, model_path: str | None) -> str | None:
+    if model_path:
+        return model_path
+    recorded = facts.get("model")
+    if recorded and Path(recorded).is_file():
+        return recorded
+    return None
+
+
+def _facts_run_tag(facts: dict, run_tag: str | None) -> str | None:
+    if run_tag:
+        return run_tag
+    recorded = facts.get("run_tag")
+    return recorded if recorded else None
+
+
+def _verified_plan(
+    paths, company: str, period_text: str, facts_file: str, *,
+    skip_pdf: bool = False, model_path: str | None = None, run_tag: str | None = None,
+):
     facts_path = Path(facts_file).resolve()
     facts = pdf_source.load_facts(facts_path)
+    contract, period, model, run_key, manifest, output, _ = _context(
+        paths, company, period_text,
+        model_path=_facts_model_path(facts, model_path),
+        run_tag=_facts_run_tag(facts, run_tag),
+    )
     if facts.get("company") != contract.company or facts.get("period") != period.key:
         raise ValueError("facts 的 company/period 与命令不一致")
     if skip_pdf:
@@ -112,10 +171,14 @@ def _verified_plan(paths, company: str, period_text: str, facts_file: str, *, sk
     return contract, period, model, run_key, manifest, output, facts, plan_payload, plan_path
 
 
-def plan(paths, company: str, period_text: str, facts_file: str) -> Result:
+def plan(
+    paths, company: str, period_text: str, facts_file: str, *,
+    model_path: str | None = None, run_tag: str | None = None,
+) -> Result:
     try:
         _, _, _, run_key, _, _, _, payload, plan_path = _verified_plan(
-            paths, company, period_text, facts_file)
+            paths, company, period_text, facts_file,
+            model_path=model_path, run_tag=run_tag)
         writes = sum(len(item["writes"]) for item in payload["operations"])
         return Result(
             status="partial", summary=f"零写入计划已生成：{writes} 个硬编码单元格。",
@@ -131,7 +194,10 @@ def plan(paths, company: str, period_text: str, facts_file: str) -> Result:
         return Result(status="blocked", summary=str(error), domain=DOMAIN)
 
 
-def apply(paths, company: str, period_text: str, facts_file: str, *, confirmed: bool) -> Result:
+def apply(
+    paths, company: str, period_text: str, facts_file: str, *,
+    confirmed: bool, model_path: str | None = None, run_tag: str | None = None,
+) -> Result:
     if not confirmed:
         return Result(
             status="blocked", summary="尚未获得模型副本写入确认。", domain=DOMAIN,
@@ -139,7 +205,8 @@ def apply(paths, company: str, period_text: str, facts_file: str, *, confirmed: 
         )
     try:
         contract, period, model, run_key, manifest, output, facts, payload, _ = _verified_plan(
-            paths, company, period_text, facts_file)
+            paths, company, period_text, facts_file,
+            model_path=model_path, run_tag=run_tag)
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
         destination = output / f"{model.stem}_{period.key}_updated_{stamp}{model.suffix}"
         audit = excel_model.apply_plan(model, destination, contract, period, payload)

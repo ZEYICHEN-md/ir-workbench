@@ -4,20 +4,33 @@ from __future__ import annotations
 from . import selftest, workflow
 
 
+def _optional(args, name):
+    return getattr(args, name, None)
+
+
 def cmd_inspect(args, paths):
-    return workflow.inspect(paths, args.company)
+    return workflow.inspect(paths, args.company, model_path=_optional(args, "model"))
 
 
 def cmd_prepare(args, paths):
-    return workflow.prepare(paths, args.company, args.period, args.pdf)
+    return workflow.prepare(
+        paths, args.company, args.period, args.pdf,
+        model_path=_optional(args, "model"), run_tag=_optional(args, "run_tag"),
+    )
 
 
 def cmd_plan(args, paths):
-    return workflow.plan(paths, args.company, args.period, args.facts)
+    return workflow.plan(
+        paths, args.company, args.period, args.facts,
+        model_path=_optional(args, "model"), run_tag=_optional(args, "run_tag"),
+    )
 
 
 def cmd_apply(args, paths):
-    return workflow.apply(paths, args.company, args.period, args.facts, confirmed=args.confirmed)
+    return workflow.apply(
+        paths, args.company, args.period, args.facts, confirmed=args.confirmed,
+        model_path=_optional(args, "model"), run_tag=_optional(args, "run_tag"),
+    )
 
 
 def cmd_selftest(args, paths):
@@ -27,6 +40,8 @@ def cmd_selftest(args, paths):
 def _common_model_args(parser) -> None:
     parser.add_argument("--company", required=True, help="BKNG/EXPE/ABNB/MEITUAN/TCEL")
     parser.add_argument("--period", required=True, help="如 26Q3、26H1、FY2026")
+    parser.add_argument("--model", help="覆盖配置中的工作簿路径；只读该副本，不改权威文件")
+    parser.add_argument("--run-tag", dest="run_tag", help="隔离输出目录，避免覆盖既有 run")
 
 
 def register(subparsers, common) -> None:
@@ -35,6 +50,7 @@ def register(subparsers, common) -> None:
 
     inspect_p = sub.add_parser("inspect", help="只读核对模型结构", parents=[common])
     inspect_p.add_argument("--company", required=True)
+    inspect_p.add_argument("--model", help="覆盖配置中的工作簿路径")
     inspect_p.set_defaults(func=cmd_inspect)
 
     prepare_p = sub.add_parser("prepare", help="抽取 PDF 并生成逐行 facts 模板", parents=[common])
