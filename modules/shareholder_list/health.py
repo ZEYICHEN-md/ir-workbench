@@ -2,57 +2,22 @@
 
 from __future__ import annotations
 
-import importlib.util
+from .build import VALID_AS_OF, output_filename, period_key
+from .discover import MARKET_CAPS, PRIOR_DIR, PRIOR_TEMPLATE, default_combined, default_peer
 
-from workbench.paths import Paths
 
-
-def checks(base: Paths) -> list[dict]:
+def checks(base) -> list[dict]:
     rows: list[dict] = []
-    engine = importlib.util.find_spec("shareholder_list") is not None
-    rows.append(
-        {
-            "name": "生成引擎",
-            "level": "ok" if engine else "fail",
-            "detail": "shareholder_list 可导入" if engine else "缺少 shareholder_list；请 pip install -e .",
-        }
-    )
-
-    try:
-        from shareholder_list.discover import PRIOR_TEMPLATE
-        from shareholder_list.build import VALID_AS_OF, output_filename
-    except Exception as error:  # noqa: BLE001
-        rows.append({"name": "引擎常量", "level": "fail", "detail": str(error)})
-        return rows
-
     template_ok = PRIOR_TEMPLATE.is_file()
     rows.append(
         {
             "name": "母版骨架",
             "level": "ok" if template_ok else "fail",
-            "detail": PRIOR_TEMPLATE.name if template_ok else f"找不到 {PRIOR_TEMPLATE}",
+            "detail": str(PRIOR_TEMPLATE.relative_to(base.root)) if template_ok else f"找不到 {PRIOR_TEMPLATE}",
         }
     )
 
-    market = base.data / "market_caps.json"
-    rows.append(
-        {
-            "name": "市值快照",
-            "level": "ok" if market.is_file() else "fail",
-            "detail": str(market.relative_to(base.root)) if market.is_file() else "缺少 data/market_caps.json",
-        }
-    )
-
-    rebuild = base.root / "scripts" / "rebuild.ps1"
-    rows.append(
-        {
-            "name": "一键入口",
-            "level": "ok" if rebuild.is_file() else "fail",
-            "detail": "scripts/rebuild.ps1" if rebuild.is_file() else "缺少 scripts/rebuild.ps1",
-        }
-    )
-
-    wording = base.root / "templates" / "Investor List_26Q1_20260518.xlsx"
+    wording = PRIOR_DIR / "Investor List_26Q1_20260518.xlsx"
     rows.append(
         {
             "name": "5 月文案权威",
@@ -61,7 +26,14 @@ def checks(base: Paths) -> list[dict]:
         }
     )
 
-    from shareholder_list.discover import default_combined, default_peer
+    market_ok = MARKET_CAPS.is_file()
+    rows.append(
+        {
+            "name": "市值快照",
+            "level": "ok" if market_ok else "fail",
+            "detail": str(MARKET_CAPS.relative_to(base.root)) if market_ok else "缺少 market_caps.json",
+        }
+    )
 
     peer = default_peer()
     combined = default_combined()
@@ -78,14 +50,14 @@ def checks(base: Paths) -> list[dict]:
         {
             "name": "本期有效日",
             "level": "ok",
-            "detail": f"{VALID_AS_OF} → {output_filename()}",
+            "detail": f"{VALID_AS_OF} → {period_key()} / {output_filename()}",
         }
     )
     rows.append(
         {
             "name": "写入边界",
             "level": "ok",
-            "detail": "copy-then-write；不手改 output/*.xlsx；不迁飞书",
+            "detail": "copy-then-write；只写 outputs/shareholder-list/；不迁飞书",
         }
     )
     return rows

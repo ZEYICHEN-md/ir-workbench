@@ -1,8 +1,4 @@
-"""shareholder-list 命令。挂在 `ir shareholder-list` 下。
-
-真正的生成器是 `python -m shareholder_list`（与 `scripts/rebuild.ps1` 同一套）。
-本模块只做工作台四态包装，不另写一套引擎。
-"""
+"""shareholder-list 命令。挂在 `ir shareholder-list` 下。唯一入口，不另写 PowerShell / python -m。"""
 
 from __future__ import annotations
 
@@ -14,7 +10,10 @@ from pathlib import Path
 
 from workbench.result import Result
 
-DOMAIN = "shareholder-list"
+from . import DOMAIN
+from .build import VALID_AS_OF
+from .discover import default_combined, default_peer, default_template
+from .engine import default_output, main as engine_main, valid_as_date as engine_valid
 
 
 def _parse_json_blobs(text: str) -> list[dict]:
@@ -38,10 +37,6 @@ def _parse_json_blobs(text: str) -> list[dict]:
 
 
 def cmd_rebuild(args, base) -> Result:
-    from shareholder_list.build import VALID_AS_OF, output_filename
-    from shareholder_list.discover import default_combined, default_peer, default_template
-    from shareholder_list.__main__ import main as engine_main, valid_as_date as engine_valid
-
     peer = Path(args.peer) if args.peer else default_peer()
     combined = Path(args.combined) if args.combined else default_combined()
     template = Path(args.template) if args.template else default_template()
@@ -108,14 +103,13 @@ def cmd_rebuild(args, base) -> Result:
             status="failed",
             summary=f"生成失败：{type(error).__name__}: {error}",
             domain=DOMAIN,
-            next_steps=["不要手改 output/*.xlsx。改 src/shareholder_list 后再重建。"],
+            next_steps=["不要手改生成的 xlsx。改 modules/shareholder_list 后再重建。"],
         )
 
     blobs = _parse_json_blobs(stdout.getvalue())
     validate_blob = next((b for b in blobs if "validate" in b), None)
     audit_blob = next((b for b in blobs if "n" in b and "output" in b), None)
-    out_name = output_filename()
-    out_path = Path(args.output) if args.output else base.root / "output" / out_name
+    out_path = Path(args.output) if args.output else default_output(base.root)
     if audit_blob and audit_blob.get("output"):
         out_path = Path(audit_blob["output"])
 
@@ -184,7 +178,7 @@ def register(subparsers, common) -> None:
     rebuild.add_argument("--peer", help="覆盖自动发现的 Peer Holdings 底表")
     rebuild.add_argument("--combined", help="覆盖自动发现的 Combined Ownership 底表")
     rebuild.add_argument("--template", help="覆盖 PRIOR_TEMPLATE 母版")
-    rebuild.add_argument("--output", help="覆盖 output/Investor List_YYYYMMDD.xlsx")
+    rebuild.add_argument("--output", help="覆盖 outputs/shareholder-list/<有效日>/ 下的文件名")
     rebuild.add_argument(
         "--refresh-market",
         action="store_true",

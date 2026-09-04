@@ -104,7 +104,7 @@
 
 - **怎么开口**：「更新 shareholder list，有效日切成今天」；只想复现当前有效日那一本时说「重建 shareholder list」（不要当新一期）
 - **你要准备**：Downloads 里放好 Peer Holdings（不要 Public 版）和 Institution Combined Ownership
-- **产出**：`output/Investor List_{有效日}.xlsx`。不要手改格子
+- **产出**：`outputs/shareholder-list/{有效日}/Investor List_{有效日}.xlsx`。不要手改格子
 - **硬门禁**：新切必须你先说出有效日；没说切日就只锁定重建，不刷新行情
 
 ### 情报与 Appendix 正文

@@ -4,13 +4,13 @@
 
 Authoritative May wording file:
 
-`templates/Investor List_26Q1_20260518.xlsx`
+`modules/shareholder_list/templates/Investor List_26Q1_20260518.xlsx`
 
 Skeleton / prior SH (`discover.PRIOR_TEMPLATE`): last published list of the previous holdings quarter. This 8/31 cut:
 
-`templates/Investor List_20260626.xlsx`
+`modules/shareholder_list/templates/Investor List_20260626.xlsx`
 
-Next holdings quarter: point `PRIOR_TEMPLATE` at that published file (`output/Investor List_20260831.xlsx`). Do not keep June as prior. Do not pin to the file this cut will write.
+Next holdings quarter: point `PRIOR_TEMPLATE` at that published file under `outputs/shareholder-list/`. Do not keep June as prior. Do not pin to the file this cut will write.
 
 G3 / map D8 / Top 20 B2 / map E16–E18 follow May. Numbers follow this validity snapshot.
 
@@ -28,7 +28,7 @@ G3 句式：`updated as of {有效日}`。无 TBU。不要把持股日写进 G3�
 
 ## SH Summary
 
-- F3 = `data/market_caps.json` → `tcom_shares_outstanding` (this validity date).
+- F3 = `modules/shareholder_list/market_caps.json` → `tcom_shares_outstanding` (this validity date).
 - I/J headers stay `% S/O 25Q2` / `% S/O 25Q3` and stay empty (May).
 - H = `IFERROR(F-G, F)` (June).
 - K/L = `0.0%` every row. Do not keep June K7 `#,##0` on Vanguard.
@@ -81,11 +81,11 @@ Copy from the June skeleton. Do not derive from holdings. Audit compares every c
 
 | 组件 | 作用 |
 |---|---|
-| `ir shareholder-list rebuild` / `scripts/rebuild.ps1` | 找 Python、`pip install -e .`、一次 `--audit`（审**这次**写的 output） |
-| `src/shareholder_list/build.py` | 生成；季度常量在文件顶部；文件名由 `VALID_AS_OF` 推导 |
-| `src/shareholder_list/validate.py` | 生成后门禁 + `spot_check` |
-| `src/shareholder_list/market.py` | Yahoo crumb |
-| `src/shareholder_list/discover.py` | Downloads 最新底表（Peer 排除 `*-Public-*`） |
-| `scripts/adversarial_audit.py` | 逐格对抗审查；路径跟 CLI 走，不再写死某一季文件名 |
-| `data/market_caps.json` | F3、汇率、地区市值 |
+| `ir shareholder-list rebuild` | 唯一入口；一次 `--audit`（审**这次**写的 output） |
+| `modules/shareholder_list/build.py` | 生成；季度常量在文件顶部；文件名由 `VALID_AS_OF` 推导 |
+| `modules/shareholder_list/validate.py` | 生成后门禁 + `spot_check` |
+| `modules/shareholder_list/market.py` | Yahoo crumb |
+| `modules/shareholder_list/discover.py` | Downloads 最新底表（Peer 排除 `*-Public-*`） |
+| `modules/shareholder_list/adversarial_audit.py` | 逐格对抗审查 |
+| `modules/shareholder_list/market_caps.json` | F3、汇率、地区市值 |
 | `docs/shareholder-list/CONTEXT.md` / `docs/adr/0010`–`0014` | 术语与决策 |

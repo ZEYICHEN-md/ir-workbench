@@ -39,6 +39,12 @@ def output_filename(valid: str | None = None) -> str:
     y, m, d = (valid or VALID_AS_OF).replace("-", "/").split("/")
     return f"Investor List_{int(y):04d}{int(m):02d}{int(d):02d}.xlsx"
 
+
+def period_key(valid: str | None = None) -> str:
+    """Workbench period key (data_date): 2026/08/31 → 2026-08-31."""
+    y, m, d = (valid or VALID_AS_OF).replace("-", "/").split("/")
+    return f"{int(y):04d}-{int(m):02d}-{int(d):02d}"
+
 COMBINED_KEEP = [
     "Institution",
     "Sustainability Considered",

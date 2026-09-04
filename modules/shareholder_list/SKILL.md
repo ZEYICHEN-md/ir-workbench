@@ -6,7 +6,7 @@
 
 Sheet 细则：[reference.md](reference.md)。术语：[docs/shareholder-list/CONTEXT.md](../../docs/shareholder-list/CONTEXT.md)。
 
-Agent 代跑命令，不要把命令贴给用户。一键入口与 `scripts/rebuild.ps1` 是同一套引擎（`python -m shareholder_list --audit`）。
+Agent 代跑 `ir shareholder-list rebuild`，不要把命令贴给用户。不要另写 PowerShell 或 `python -m` 入口。
 
 ---
 
@@ -19,13 +19,13 @@ Agent 代跑命令，不要把命令贴给用户。一键入口与 `scripts/rebu
    - `Institution Combined Ownership-Public-*.xlsx`
    - 不要用 `InvestorLists*.xlsx`
 2. 跟 agent 说清楚：**「更新 shareholder list，有效日切成今天」**（或指定日，如 2026/11/30）。
-3. **关 Excel**（否则写 output 会 WinError 32）。
-4. Agent 按下面「新切」改常量并跑 `ir shareholder-list rebuild --refresh-market`（等价 `scripts/rebuild.ps1 -RefreshMarket`）。
-5. 交差文件：`output/Investor List_{有效日 YYYYMMDD}.xlsx`。不要手改格子；不对就改脚本再跑。
+3. **关 Excel**（否则写文件会 WinError 32）。
+4. Agent 按下面「新切」改常量并跑 `ir shareholder-list rebuild --refresh-market`。
+5. 交差文件：`outputs/shareholder-list/{有效日}/Investor List_{有效日 YYYYMMDD}.xlsx`。不要手改格子；不对就改脚本再跑。
 
-**持股季变了**（CIQ 披露季换了，要改 `PRIOR_Q` / `CUR_Q`）：母版改成**上一本已交差定稿**。8/31 之后的下一持股季 = `output/Investor List_20260831.xlsx`。只换有效日、持股还是同一季 → 母版不动。
+**持股季变了**（CIQ 披露季换了，要改 `PRIOR_Q` / `CUR_Q`）：母版改成**上一本已交差定稿**。8/31 之后的下一持股季 = 刚交差的那本。只换有效日、持股还是同一季 → 母版不动。
 
-Yahoo 失败：日期已经改成今天后，保留已有 `data/market_caps.json`，跑**不带** `--refresh-market` 的 rebuild，门禁仍要全过。
+Yahoo 失败：日期已经改成今天后，保留已有 `modules/shareholder_list/market_caps.json`，跑**不带** `--refresh-market` 的 rebuild，门禁仍要全过。
 
 ---
 
@@ -45,7 +45,7 @@ Yahoo 失败：日期已经改成今天后，保留已有 `data/market_caps.json
 
 ## 新切（用户要出下一本时）
 
-只改 `src/shareholder_list/build.py` 顶部常量和（若持股季变了）`src/shareholder_list/discover.py` 的 `PRIOR_TEMPLATE`。文件名由 `VALID_AS_OF` 推导，不要写死在 `__main__.py`。
+只改 `modules/shareholder_list/build.py` 顶部常量和（若持股季变了）`modules/shareholder_list/discover.py` 的 `PRIOR_TEMPLATE`。文件名由 `VALID_AS_OF` 推导，不要写死输出路径。
 
 - `VALID_AS_OF` = 有效日 `YYYY/MM/DD`（用户要切成今天就写今天）
 - `WORKBOOK_AS_OF` = 同一天的英文（`2026/09/01` → `September 1, 2026`），不要斜杠
@@ -58,9 +58,9 @@ Yahoo 失败：日期已经改成今天后，保留已有 `data/market_caps.json
 
 输入由 CLI 自动找：Downloads 最新 Peer / Combined；母版用 `PRIOR_TEMPLATE`。缺底表就问用户，不要拿 InvestorLists 顶替。
 
-文案权威（CLI 不读）：`templates/Investor List_26Q1_20260518.xlsx`。
+文案权威（CLI 不读）：`modules/shareholder_list/templates/Investor List_26Q1_20260518.xlsx`。
 
-本期 8/31 的 `PRIOR_TEMPLATE` 仍是 6 月：`templates/Investor List_20260626.xlsx`。
+本期 8/31 的 `PRIOR_TEMPLATE` 仍是 6 月：`modules/shareholder_list/templates/Investor List_20260626.xlsx`。
 
 ---
 
@@ -70,7 +70,7 @@ Yahoo 失败：日期已经改成今天后，保留已有 `data/market_caps.json
 
 `ir shareholder-list rebuild`
 
-不要另写一套 `python -m shareholder_list` 当入口。不要加 `--refresh-market`。
+不要加 `--refresh-market`。
 
 ---
 
@@ -80,7 +80,7 @@ Yahoo 失败：日期已经改成今天后，保留已有 `data/market_caps.json
 
 1. 进程 **exit code 0**（审计有 findings 即非 0）。
 2. JSON `validate.ok` true，`failures` 空。
-3. 第二条 JSON：`"n": 0` **且** `"output"` 就是刚写的 `output/Investor List_{VALID_AS_OF as YYYYMMDD}.xlsx`。
+3. 第二条 JSON：`"n": 0` **且** `"output"` 就是刚写的 `outputs/shareholder-list/{period}/Investor List_{VALID_AS_OF as YYYYMMDD}.xlsx`。
 4. `validate.spot_check` vs `VALID_AS_OF`：`g3`、`market_b1`、`combined_1` = `Baidu Holdings, LTD`、`sh_1` = Combined 去掉百度后第一名、`cwi_combined_shares`。
 5. 按 [reference.md](reference.md) 过 sheet 清单。audit `output` 路径必须是刚生成的文件。
 6. 百分比扫 **每一数据行**：Top 20 F/G/H、SH K/L、地区 holding/%-of-mcap。Combined `% S/O` 保持 `#,##0.00`。
@@ -111,4 +111,4 @@ Yahoo 失败：日期已经改成今天后，保留已有 `data/market_caps.json
 - 只看五个 spot_check；不核对 audit 的 `output` 路径。
 - 只抽查 H36 / K7。门禁扫全表数据行。
 - 把 Combined `% S/O` 改成 Excel `%`。
-- 把某台电脑的 `python.exe` 路径贴进 PowerShell。一律 `ir shareholder-list rebuild` 或 `scripts/rebuild.ps1`。
+- 另写 `rebuild.ps1` 或 `python -m shareholder_list`。一律 `ir shareholder-list rebuild`。

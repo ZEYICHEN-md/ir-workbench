@@ -37,9 +37,6 @@ pending = [
 
 [project.scripts]
 ir = "workbench.cli:main"
-shareholder-list = "shareholder_list.__main__:main"
 
 [tool.setuptools.packages.find]
-where = [".", "src"]
-include = ["workbench*", "modules*", "shareholder_list*"]
-exclude = ["src*", "tests*", "update-shareholder-list*", "dashboard*"]
+include = ["workbench*", "modules*"]

@@ -9,7 +9,7 @@ from typing import Any
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
-from shareholder_list.build import (
+from .build import (
     COMBINED_KEEP,
     HOLDINGS_AS_OF,
     MAP_D8,

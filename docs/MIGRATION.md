@@ -405,12 +405,11 @@
 
 ### ⬛ 第 7 步：`shareholder-list`（2026-09-04 迁入引擎）
 
-- [x] 按交接包把生成器铺到 `src/shareholder_list/`，一键入口 `scripts/rebuild.ps1`
-- [x] 母版改指仓库内 `templates/`，去掉桌面硬编码路径
+- [x] 生成器、母版、市值、审计都放进 `modules/shareholder_list/`（与其它域同一形状）
+- [x] 唯一入口 `ir shareholder-list rebuild`；不保留 `src/` 与 `scripts/rebuild.ps1`
 - [x] 技能真源 `modules/shareholder_list/SKILL.md`；路由进 `router/ROUTER.md`
 - [x] 源包 ADR 改编号为 0011–0014，不覆盖工作台 0001–0004
-- [x] `ir shareholder-list rebuild` 包装同一套 `python -m shareholder_list --audit`
-- [x] 用 Downloads 里的 CIQ 底表跑通锁定重建（exit 0、validate.ok、audit n=0；`output/Investor List_20260831.xlsx`）
+- [x] 用 Downloads 里的 CIQ 底表跑通锁定重建（exit 0、validate.ok、audit n=0）
 
 下面仍保留迁移前审计，说明当初为什么难迁、以及为什么后来决定不迁 Appendix 写作。
 

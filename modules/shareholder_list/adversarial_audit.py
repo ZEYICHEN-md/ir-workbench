@@ -10,7 +10,7 @@ from typing import Any
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
-from shareholder_list.build import (
+from .build import (
     ADR_VALUE_TICKERS,
     AUM_FLOOR,
     COMBINED_KEEP,
@@ -26,13 +26,26 @@ from shareholder_list.build import (
     load_mapping,
     num,
     output_filename,
+    period_key,
     read_table,
     sheet_region,
     usd_mcap,
 )
-from shareholder_list.discover import default_combined, default_peer, default_template
+from .discover import MARKET_CAPS, default_combined, default_peer, default_template
+from workbench.paths import Paths, find_root
 
-ROOT = Path(__file__).resolve().parents[1]
+DOMAIN = "shareholder-list"
+
+
+def _layout():
+    paths = Paths(find_root())
+    out_dir = paths.outputs(DOMAIN, period_key())
+    return paths, out_dir
+
+
+def default_output_path() -> Path:
+    _, out_dir = _layout()
+    return out_dir / output_filename()
 
 REGION_ROW5 = {
     4: "Style",
@@ -111,12 +124,13 @@ def run_audit(
     findings: list[dict[str, Any]] = []
     sheets: dict[str, Any] = {}
 
-    OUT = Path(output) if output else ROOT / "output" / output_filename()
+    _, out_dir = _layout()
+    OUT = Path(output) if output else out_dir / output_filename()
     PEER = Path(peer) if peer else default_peer()
     COMB = Path(combined) if combined else default_combined()
     TMPL = Path(template) if template else default_template()
-    market_path = Path(market_path) if market_path else ROOT / "data" / "market_caps.json"
-    REPORT = Path(report_path) if report_path else ROOT / "output" / "adversarial_audit.json"
+    market_path = Path(market_path) if market_path else MARKET_CAPS
+    REPORT = Path(report_path) if report_path else out_dir / "adversarial_audit.json"
     MARKET = json.loads(market_path.read_text(encoding="utf-8"))
     if PEER is None or COMB is None or TMPL is None:
         raise FileNotFoundError("need peer, combined, and template paths for audit")
@@ -566,6 +580,7 @@ def run_audit(
         "findings": findings,
         "sheets": sheets,
     }
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(json.dumps(report, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
     print(json.dumps({"n": report["n_findings"], "high": report["high"], "med": report["med"], "findings": findings, "output": str(OUT)}, indent=2, ensure_ascii=False))
     return report

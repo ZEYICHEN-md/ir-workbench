@@ -4,7 +4,7 @@
 > 同时确认季度行业展望简报为一次性产物，不设模块（见 `docs/DECISIONS.md` Q27）。
 >
 > **增补（2026-09-04）**：第九个域 `shareholder-list`，见 [ADR 0010](0010-shareholder-list-module.md)。
-> 引擎留在 `src/shareholder_list/` + `scripts/rebuild.ps1`，技能真源在 `modules/shareholder_list/`。
+> 代码、SKILL、母版与市值都在 `modules/shareholder_list/`，入口只有 `ir shareholder-list`。
 
 - 状态：**Accepted**（2026-08-22）
 - 日期：2026-08-22

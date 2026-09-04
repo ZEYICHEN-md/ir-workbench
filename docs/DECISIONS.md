@@ -512,9 +512,9 @@
 
 ## 九、shareholder-list 迁入（2026-09-04）
 
-**结论**：独立成第九个域。引擎留在 `src/shareholder_list/` + `scripts/rebuild.ps1`，技能在 `modules/shareholder_list/`。产物写仓库根 `output/`。源包 ADR 改编号 0011–0014。
+**结论**：独立成第九个域。代码、SKILL、母版和市值都在 `modules/shareholder_list/`，入口只有 `ir shareholder-list rebuild`，产物写 `outputs/shareholder-list/<有效日>/`。源包 ADR 改编号 0011–0014。
 
-**理由**：`repo_root()` 和门禁都钉死这两处路径；工作台约定技能在 `modules/`。两套入口会分叉。列序 / 内嵌上期 / 不迁飞书 / Yahoo 市值是域内难逆决策，不能覆盖工作台 ADR 0001–0004。
+**理由**：交接包 README 按通用 skill 仓库打的包，不是本仓约定。工作台域的形状以 peers-model 为准。列序 / 内嵌上期 / 不迁飞书 / Yahoo 市值仍是域内难逆决策，不能覆盖工作台 ADR 0001–0004。
 
 **落在**：ADR 0010–0014、`router/ROUTER.md`
 

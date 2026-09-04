@@ -1,4 +1,4 @@
-"""Refresh Yahoo market caps + USD/HKD into data/market_caps.json."""
+"""Refresh Yahoo market caps + USD/HKD into market_caps.json."""
 from __future__ import annotations
 
 import json

@@ -8,7 +8,9 @@
 
 携程 IR 每季用 S&P Capital IQ 两张底表生成完整机构股东名册（约 14 个 sheet）。交接包已有可复现的 Python 生成器、对抗审查和操作手册。用户口头习惯说 **shareholder list**，Excel 文件名仍是 `Investor List_YYYYMMDD.xlsx`。
 
-工作台现有八个域都不覆盖这件事。不能把引擎塞进飞书，也不能并进 `industry-data`（那是指标底稿权威，ADR 0001）。
+工作台现有域都不覆盖这件事。不能把引擎塞进飞书，也不能并进 `industry-data`（那是指标底稿权威，ADR 0001）。
+
+交接包 README 是按「通用 skill 仓库」写的（根目录 `src/`、`.cursor/skills/`、`scripts/rebuild.ps1`）。那不是本仓目录约定。迁入以 ADR 0003 为准：代码和 SKILL 在 `modules/<域>/`，Agent 的手是 `ir ...`，交付物在 `outputs/<域>/`。
 
 ## 决策
 
@@ -16,19 +18,17 @@
 
 节奏按季 / 按有效日；周期键用 `data_date`（如 `2026-08-31`）。内部能力，不对外发布。
 
-### 2. 引擎位置跟交接包契约，不搬进 `modules/`
+### 2. 布局与其它域相同
 
-`python -m shareholder_list` 的 `repo_root()` 认 `src/shareholder_list/build.py` + `scripts/rebuild.ps1`。生成器、校验、Yahoo 抓行情留在 `src/shareholder_list/`；一键脚本留在 `scripts/rebuild.ps1`。`modules/shareholder_list/` 只放 SKILL、工作台 CLI 包装和 health。
+生成器、校验、Yahoo、审计、母版骨架、锁定市值都在 `modules/shareholder_list/`。唯一入口是 `ir shareholder-list rebuild`。不要保留平行的 `src/`、`scripts/rebuild.ps1`、`python -m shareholder_list`。
 
-工作台 Agent 的手是 `ir shareholder-list rebuild`，与 `rebuild.ps1` 调用同一套 `python -m shareholder_list --audit`。不要再发明第三套入口。
+### 3. 产物走 `outputs/shareholder-list/<有效日>/`
 
-### 3. 产物写在仓库根 `output/`，不改成 `outputs/shareholder-list/`
-
-引擎、审计 JSON、交差文件名都钉在 `output/Investor List_{YYYYMMDD}.xlsx`。改路径会让门禁对不上 audit 的 `output` 字段。这是对 `docs/FOLDER.md` 按域分区的例外，只限本域生成的 xlsx。
+交差文件仍叫 `Investor List_YYYYMMDD.xlsx`，目录按周期键分区，与 `docs/FOLDER.md` 一致。审计 JSON 写在同一目录。生成的 xlsx 不进 git（同 `outputs/peers-model/`）。
 
 ### 4. 技能真源在 `modules/shareholder_list/SKILL.md`
 
-与 ADR 0003 一致：`.cursor/skills/update-shareholder-list/` 只放指路薄壳。路由段进 `router/ROUTER.md`。域内术语在 `docs/shareholder-list/CONTEXT.md`（根目录已有工作台 GLOSSARY，不覆盖）。
+`.cursor/skills/update-shareholder-list/` 只放指路薄壳。路由段进 `router/ROUTER.md`。域内术语在 `docs/shareholder-list/CONTEXT.md`。
 
 ### 5. 源包 ADR 重新编号，避免覆盖工作台 0001–0004
 
@@ -41,8 +41,8 @@
 
 ### 6. 底表不进 Git
 
-Capital IQ 导出仍从用户 `%USERPROFILE%\Downloads` 按 mtime 发现。模板骨架进 `templates/`。市值锁定进 `data/market_caps.json`。
+Capital IQ 导出仍从用户 `%USERPROFILE%\Downloads` 按 mtime 发现。模板骨架在模块 `templates/`。市值锁定在模块 `market_caps.json`。
 
 ## 后果
 
-工作台域数为九。迁入后先用锁定重建验证引擎（不切有效日、不加 `--refresh-market`）。新切仍须用户明确说有效日。
+工作台域数为九。业务规则（copy-then-write、锁定重建 vs 新切、不手改 xlsx、不迁飞书）保持交接包原意。目录形状跟 peers-model 一类域对齐，不以交接包 README 当本仓真源。

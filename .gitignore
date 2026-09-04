@@ -29,17 +29,19 @@ outputs/sellside-research/**
 # Peers Model 运行副本含完整财务 Excel 与 PDF 抽取原文，只留在本机。
 outputs/peers-model/
 
+# Shareholder list 生成的完整工作簿（与 peers-model 一样只留本机）。
+outputs/shareholder-list/
+
+# 第一次迁入时误写在仓库根 output/ 的残留，不进 git。
+output/
+.worktrees/
+
 # Python
 __pycache__/
 *.py[cod]
 *.egg-info/
 build/
 dist/
-
-# Shareholder list 生成的完整工作簿（引擎写在仓库根 output/，见 ADR 0010）
-output/*.xlsx
-output/adversarial_audit.json
-.worktrees/
 
 # Excel 临时锁文件
 ~$*.xls*

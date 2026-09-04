@@ -8,32 +8,43 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
+MODULE = ROOT / "modules" / "shareholder_list"
 
 
 class TestEngineLayout(unittest.TestCase):
-    def test_prior_dir_is_repo_templates(self):
-        from shareholder_list.discover import PRIOR_DIR, PRIOR_TEMPLATE
+    def test_prior_dir_is_module_templates(self):
+        from modules.shareholder_list.discover import PRIOR_DIR, PRIOR_TEMPLATE
 
-        self.assertEqual(PRIOR_DIR, ROOT / "templates")
+        self.assertEqual(PRIOR_DIR, MODULE / "templates")
         self.assertNotIn("IR_what_I Did", str(PRIOR_DIR))
         self.assertTrue(PRIOR_TEMPLATE.is_file(), PRIOR_TEMPLATE)
         self.assertEqual(PRIOR_TEMPLATE.name, "Investor List_20260626.xlsx")
 
     def test_wording_template_exists_but_is_not_prior(self):
-        from shareholder_list.discover import PRIOR_TEMPLATE
+        from modules.shareholder_list.discover import PRIOR_TEMPLATE
 
-        wording = ROOT / "templates" / "Investor List_26Q1_20260518.xlsx"
+        wording = MODULE / "templates" / "Investor List_26Q1_20260518.xlsx"
         self.assertTrue(wording.is_file())
         self.assertNotEqual(PRIOR_TEMPLATE, wording)
 
-    def test_rebuild_script_and_audit_exist(self):
-        self.assertTrue((ROOT / "scripts" / "rebuild.ps1").is_file())
-        self.assertTrue((ROOT / "scripts" / "adversarial_audit.py").is_file())
+    def test_engine_lives_in_the_module(self):
+        self.assertTrue((MODULE / "build.py").is_file())
+        self.assertTrue((MODULE / "engine.py").is_file())
+        self.assertTrue((MODULE / "adversarial_audit.py").is_file())
+        self.assertFalse((ROOT / "src" / "shareholder_list" / "build.py").is_file())
+        self.assertFalse((ROOT / "scripts" / "rebuild.ps1").is_file())
 
-    def test_market_caps_locked_file_exists(self):
-        payload = (ROOT / "data" / "market_caps.json").read_text(encoding="utf-8")
+    def test_market_caps_live_in_the_module(self):
+        payload = (MODULE / "market_caps.json").read_text(encoding="utf-8")
         self.assertIn("tcom_shares_outstanding", payload)
         self.assertIn("2026-08-31", payload)
+
+    def test_default_output_uses_workbench_outputs(self):
+        from modules.shareholder_list.engine import default_output
+
+        path = default_output(ROOT)
+        self.assertEqual(path.parent, ROOT / "outputs" / "shareholder-list" / "2026-08-31")
+        self.assertEqual(path.name, "Investor List_20260831.xlsx")
 
 
 class TestDomainContract(unittest.TestCase):
@@ -56,8 +67,8 @@ class TestDomainContract(unittest.TestCase):
         self.assertTrue(runtime.module_present)
         self.assertTrue(runtime.cli_loaded, runtime.cli_error)
         self.assertTrue(runtime.health_loaded, runtime.health_error)
-        self.assertTrue((ROOT / "modules" / "shareholder_list" / "SKILL.md").is_file())
-        self.assertTrue((ROOT / "modules" / "shareholder_list" / "reference.md").is_file())
+        self.assertTrue((MODULE / "SKILL.md").is_file())
+        self.assertTrue((MODULE / "reference.md").is_file())
 
 
 class TestRebuildGate(unittest.TestCase):
@@ -74,8 +85,8 @@ class TestRebuildGate(unittest.TestCase):
             force_refresh=False,
         )
         with (
-            patch("shareholder_list.discover.default_peer", return_value=None),
-            patch("shareholder_list.discover.default_combined", return_value=None),
+            patch("modules.shareholder_list.cli.default_peer", return_value=None),
+            patch("modules.shareholder_list.cli.default_combined", return_value=None),
         ):
             result = cmd_rebuild(args, Paths(ROOT))
         self.assertEqual(result.status, "blocked")
@@ -84,11 +95,11 @@ class TestRebuildGate(unittest.TestCase):
     def test_refresh_on_locked_date_is_blocked(self):
         from datetime import date
 
+        from modules.shareholder_list.build import VALID_AS_OF
         from modules.shareholder_list.cli import cmd_rebuild
-        from shareholder_list.build import VALID_AS_OF
         from workbench.paths import Paths
 
-        template = ROOT / "templates" / "Investor List_20260626.xlsx"
+        template = MODULE / "templates" / "Investor List_20260626.xlsx"
         args = SimpleNamespace(
             peer=str(template),
             combined=str(template),

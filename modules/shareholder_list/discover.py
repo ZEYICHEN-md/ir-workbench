@@ -3,8 +3,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+MODULE_DIR = Path(__file__).resolve().parent
 DOWNLOADS = Path.home() / "Downloads"
-PRIOR_DIR = Path(__file__).resolve().parents[2] / "templates"
+PRIOR_DIR = MODULE_DIR / "templates"
+MARKET_CAPS = MODULE_DIR / "market_caps.json"
 PEER_GLOB = "Peer Ownership-Holdings-*.xlsx"
 COMBINED_GLOB = "Institution Combined Ownership-Public-*.xlsx"
 TEMPLATE_GLOB = "Investor List_*.xlsx"
@@ -12,7 +14,7 @@ TEMPLATE_GLOB = "Investor List_*.xlsx"
 # Last published shareholder list of the **previous holdings quarter**.
 # Copied as skeleton; SH / Combined in this file become SH Prior (QoQ, rank arrows).
 # This 8/31 cut: June. Next holdings quarter: point at that cut's published file
-# (usually repo `output/Investor List_20260831.xlsx`). Locked rebuild: do not change.
+# (usually outputs/shareholder-list/<period>/Investor List_*.xlsx). Locked rebuild: do not change.
 # Never point at the file this VALID_AS_OF will write (self-compare → all QoQ = 0).
 PRIOR_TEMPLATE = PRIOR_DIR / "Investor List_20260626.xlsx"
 
