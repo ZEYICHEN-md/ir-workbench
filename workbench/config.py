@@ -1,8 +1,10 @@
-"""本机配置。
+"""工作簿锁定与本机发布配置。
 
 原则（ADR 0003 §4）：**工作簿选择必须显式配置，不按文件名猜最新。**
-配置文件在 .ir-workbench/config.json，Git 忽略——本机配置与共享代码分离，
-这样另一台机器上的路径差异不会污染仓库。
+
+部门当前锁定哪几份 Excel，写在 ``data/workbook-lock.json``，随仓走——clone
+下来就能用。``.ir-workbench/config.json`` 只覆盖本机差异（看板发布仓路径、
+临时改锁），Git 忽略，避免把某台电脑的绝对路径写进仓库。
 """
 
 from __future__ import annotations
@@ -41,14 +43,25 @@ class Config:
     def exists(self) -> bool:
         return self.paths.config_file.is_file()
 
+    def _read_json(self, path: Path) -> dict[str, Any]:
+        if not path.is_file():
+            return {}
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        return raw if isinstance(raw, dict) else {}
+
     def load(self) -> dict[str, Any]:
         if self._data is None:
-            if self.exists:
-                raw = json.loads(self.paths.config_file.read_text(encoding="utf-8"))
-            else:
-                raw = {}
             merged = json.loads(json.dumps(DEFAULTS))
-            merged.update(raw)
+            lock = self._read_json(self.paths.workbook_lock)
+            local = self._read_json(self.paths.config_file)
+            merged["workbooks"] = {
+                **(lock.get("workbooks") or {}),
+                **(local.get("workbooks") or {}),
+            }
+            merged["publish"] = {
+                **merged["publish"],
+                **(local.get("publish") or {}),
+            }
             self._data = merged
         return self._data
 
@@ -81,7 +94,19 @@ class Config:
             stored = str(resolved)
         self.load()["workbooks"][key] = stored
         self.save()
+        if not Path(stored).is_absolute():
+            self._save_lock_key(key, stored)
         return resolved
+
+    def _save_lock_key(self, key: str, stored: str) -> None:
+        """仓内路径写入随仓锁定清单，换人 clone 下来还是同一份。"""
+        path = self.paths.workbook_lock
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = self._read_json(path)
+        books = dict(payload.get("workbooks") or {})
+        books[key] = stored
+        payload["workbooks"] = books
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     # --- 发布 ---
 

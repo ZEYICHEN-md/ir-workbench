@@ -12,8 +12,7 @@ update-shareholder-list/
 scratch/
 _tmp/
 
-# 每期原件（券商周报、研报 PDF、STR 表等）：只服务当期，体积大且多为第三方材料。
-# 原件不进 git。收件说明 README 和空目录 .gitkeep 随包走。
+# 当期原件（下周会换）。默认不进 git；收件说明 README 随包走。要留底时再加。
 inputs/**
 !inputs/**/
 !inputs/**/.gitkeep
@@ -29,14 +28,10 @@ outputs/**/*.pdf
 # 不建持久层（ADR 0004），也绝不能误进公开作品集导出。
 outputs/sellside-research/**
 
-# Peers Model 运行副本含完整财务 Excel 与 PDF 抽取原文，只留在本机。
+# 运行副本可从权威 Model 重放：每期整本复制，还夹着 PDF 抽取页。
 outputs/peers-model/
 
-# Peers 权威 Model：本机锁定，只出副本，不进 Git。说明文件随包走。
-data/models/**
-!data/models/README.md
-
-# Shareholder list 生成的完整工作簿（与 peers-model 一样只留本机）。
+# Shareholder list 生成的完整工作簿（可从 Downloads 底表重放）。
 outputs/shareholder-list/
 
 # 第一次迁入时误写在仓库根 output/ 的残留，不进 git。

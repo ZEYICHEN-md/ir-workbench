@@ -45,17 +45,17 @@
 | 你手里的东西 | 放到 | 随分发包走吗 |
 |---|---|---|
 | 国内行业数据 / Airline Data Excel | `data/workbooks/` | **走**（当前锁定的那份） |
-| Peers 三份权威 Model | `data/models/` | 不走；由交付人另拷，本机锁定 |
-| 中金周报、STR 表 | `inputs/industry-data/` | 原件不走；目录说明走 |
+| Peers 三份权威 Model | `data/models/` | **走** |
+| 中金周报、STR 表 | `inputs/industry-data/` | 当期原件默认不走（下周会换）；目录说明走 |
 | 新闻精选用的剪报 / 公众号 | `inputs/news-digest/` | 同上 |
-| 卖方研报 PDF | `inputs/sellside-research/` | 不走（版权） |
-| Peers 财报 / 电话会 PDF | `inputs/peers-model/` | 不走 |
-| 专家访谈 PDF | `inputs/expert-calls/` | 不走 |
-| 季度披露材料包 | `inputs/intel-quarterly/` | 不走 |
+| 卖方研报 PDF | `inputs/sellside-research/` | 同上 |
+| Peers 财报 / 电话会 PDF | `inputs/peers-model/` | 同上 |
+| 专家访谈 PDF | `inputs/expert-calls/` | 同上 |
+| 季度披露材料包 | `inputs/intel-quarterly/` | 同上 |
 | Capital IQ 股东底表 | 电脑「下载」 | 不进工作台 |
 | 交差成品 | 不要手塞 | 问 Agent 去 `outputs/` 取 |
 
-第三方 PDF、大 Excel 原件默认不进 Git：体积大，且常有版权或内部限制。部门真正要交接的 context 是下面这些已经在包里的东西。
+当期原件默认不进 Git：下周就会换成新的一份。部门一直要用的底稿（行业数据 Excel、Peers Model、情报库）随仓走。
 
 ---
 
@@ -67,9 +67,9 @@
 | 国内行业数据底稿 | `data/workbooks/` 被锁定的那份 | **走** |
 | 看板数字 / 洞察 | `data/canonical/`，上线后看 datamax.fun | **走** |
 | 竞对按公司/主题查 | 对 Agent 说；真源在 `data/intel/` | **走** |
-| Peers Model 更新副本 | `outputs/peers-model/` | 不走（本机 Excel） |
-| 权威 Model 原件 | `data/models/` | 不走 |
-| 股东名册交差 xlsx | `outputs/shareholder-list/<有效日>/` | 不走 |
+| Peers Model 更新副本 | `outputs/peers-model/` | 不走（运行产物，可从权威文件再生成） |
+| 权威 Model 原件 | `data/models/` | **走** |
+| 股东名册交差 xlsx | `outputs/shareholder-list/<有效日>/` | 不走（可从 Downloads 底表再生成） |
 | 「做到哪了」 | 问「现在什么状态」 | 进度在 `runs/`，**走** |
 
 不确定就问 Agent：「这期新闻精选在哪」「BKNG 模型副本在哪」「股东名册在哪」。
@@ -108,7 +108,7 @@
 | `runs/` | 每一期做到哪一步 |
 | `tests/` | 回归测试 |
 | `scratch/` | 临时草稿，可清 |
-| `.ir-workbench/` | 本机配置（哪份 Excel 被锁定）。不进 Git，换电脑要重新指定 |
+| `.ir-workbench/` | 本机覆盖（看板发布仓路径等）。工作簿锁定在 `data/workbook-lock.json` | 不进 Git |
 
 根目录不该再出现旧项目文件夹（例如以前的 `0703_Travel_Pulse`）。看到就当残留，不要往里面放东西。
 
@@ -120,18 +120,18 @@
 
 - 九个域的流程与门禁
 - 当前锁定用的行业数据 Excel 和归档
+- Peers 三份权威 Model，以及 `data/workbook-lock.json`（哪几份被锁定）
 - 指标快照、洞察、竞对情报库
 - 已定稿的新闻精选 Markdown
 - 各期运行记录
 - 本地图、功能清单、开箱说明
 
-这些**故意不随包走**，需要的话由交付人另给，或继续放在你这台电脑上：
+这些**不随包走**——不是机密，而是可以再生成、或下周就会换掉：
 
-- 中金周报、STR、研报 PDF、财报 PDF、专家访谈 PDF
-- Peers 权威 Model 与更新副本
-- 股东名册生成的 xlsx
+- 当期中金周报 / 研报 / 财报 / 访谈 PDF（下周换新的；需要留底时再说一声）
+- Peers 更新副本、股东名册生成的 xlsx（可从权威文件 / Downloads 底表再生成）
 - 新闻精选的 HTML/PDF（可用 Markdown 再导出）
-- 本机飞书登录、`.ir-workbench/config.json`
+- 本机飞书登录、看板发布仓在这台电脑上的路径
 
 ---
 

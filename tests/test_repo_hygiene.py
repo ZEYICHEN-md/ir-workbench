@@ -183,6 +183,19 @@ class TestConventionsMatchRegistry(unittest.TestCase):
         self.assertNotIn("迁移期提示", capabilities)
         self.assertIn("MAP.md", capabilities)
 
+    def test_workbook_lock_points_at_tracked_files(self):
+        import json
+
+        lock_path = ROOT / "data" / "workbook-lock.json"
+        self.assertTrue(lock_path.is_file())
+        lock = json.loads(lock_path.read_text(encoding="utf-8"))
+        missing = [
+            rel
+            for rel in lock["workbooks"].values()
+            if not (ROOT / rel).is_file()
+        ]
+        self.assertEqual(missing, [], f"锁定清单指向的文件不在仓库里：{missing}")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -32,9 +32,9 @@
 
 ## 包里有什么
 
-**会跟着走的部门 context：** 九个域的流程、当前锁定用的行业数据 Excel 与归档、指标快照、竞对情报库、已定稿的新闻精选 Markdown、各期运行记录、以及上面三份说明。
+**会跟着走的部门 context：** 九个域的流程、当前锁定的行业数据 Excel 与归档、三份 Peers 权威 Model、指标快照、竞对情报库、已定稿的新闻精选 Markdown、各期运行记录、以及上面三份说明。
 
-**故意不随包走：** 中金周报 / 研报 / 财报 / 访谈 PDF、Peers 权威 Model 与更新副本、股东名册 xlsx、本机飞书登录。这些由交付人另给，或继续放在你这台电脑的对应文件夹。详见 [docs/MAP.md](docs/MAP.md)。
+**不跟着走的：** 当期原件（下周会换）、每次跑出来的模型副本 / 股东名册 xlsx / 精选 HTML（都能再生成）、本机飞书登录。详见 [docs/MAP.md](docs/MAP.md)。
 
 Agent 与维护人：[router/ROUTER.md](router/ROUTER.md) · [docs/operator/README.md](docs/operator/README.md) · [docs/adr/](docs/adr/)
 

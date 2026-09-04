@@ -54,9 +54,10 @@ IR_workbench/
 │   ├── README.md           #   给人看的长期数据说明
 │   ├── workbooks/          #   指标底稿 Excel（唯一人工编辑面）
 │   │   └── archived/       #   往期底稿与写入前备份，只增不删
-│   ├── models/             #   Peers 权威 Model（xlsx 本机锁定；README 随包走）
+│   ├── models/             #   Peers 权威 Model（xlsx 随仓走）
 │   ├── canonical/          #   指标快照 + 洞察底稿
-│   └── intel/              #   竞对情报库
+│   ├── intel/              #   竞对情报库
+│   └── workbook-lock.json  #   当前锁定哪几份 Excel
 │
 ├── inputs/<域>/<周期>/     # 本期原件（PDF/xlsx 忽略；README 随包走）
 ├── outputs/<域>/<周期>/    # 交付物（.md 精选进 Git；xlsx/PDF 等只留本机）

@@ -58,8 +58,13 @@ class Paths:
 
     @property
     def models(self) -> Path:
-        """Peers 权威 Model（本机锁定，只出副本）。不进 Git。"""
+        """Peers 权威 Model（随仓走）。更新只出 ``outputs/peers-model/`` 副本。"""
         return self.data / "models"
+
+    @property
+    def workbook_lock(self) -> Path:
+        """部门当前锁定的工作簿清单。随仓走，clone 即可用。"""
+        return self.data / "workbook-lock.json"
 
     # --- 按域分区 ---
     def inputs(self, domain: str, period: str | None = None) -> Path:

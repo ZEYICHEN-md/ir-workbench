@@ -1,0 +1,9 @@
+{
+  "workbooks": {
+    "industry": "data/workbooks/国内行业数据_0831.xlsx",
+    "airline": "data/workbooks/Airline Data_0830.xlsx",
+    "peers_abe": "data/models/peers data comparison_20260807.xlsx",
+    "peers_meituan": "data/models/Meituan Hotel comparison_26Q2.xlsx",
+    "peers_tcel": "data/models/Tongcheng Travel Model_26Q2.xlsx"
+  }
+}

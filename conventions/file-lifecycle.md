@@ -39,19 +39,20 @@
 | 路径 | 谁写 | 进 Git？ | 能不能删 |
 |---|---|---|---|
 | `data/workbooks/` | 人编辑的指标底稿 | 当前锁定的表进 Git | **当前表不删**。换新版时旧表进归档 |
-| `data/models/` | Peers 权威 Model | **不进** | 当前锁定的 Model 不删；更新只出 `outputs/peers-model/` 副本 |
+| `data/models/` | Peers 权威 Model | **进** | 当前锁定的 Model 不删；更新只出 `outputs/peers-model/` 副本 |
 | `data/workbooks/archived/` | 换表或自动写入前的整份备份 | 进 Git | **只增不删** |
 | `data/canonical/` | 机器从底稿重建 | 进 Git | 不删、不手改 |
 | `data/intel/` | 情报库真源 | 进 Git | 不删 |
-| `inputs/<域>/<周期>/` | 人交来的原件（Agent 代放） | **不进**（体积大、第三方材料） | 超 90 天只**报告**，问人后才删 |
-| `outputs/<域>/<周期>/` | 交付物 | 新闻精选的 `.md` 进 Git；HTML/PDF、模型副本、股东名册 xlsx、研报摘读 **不进** | 交付物不自动删 |
+| `data/workbook-lock.json` | 当前锁定哪几份 Excel | **进** | 换锁时一起改 |
+| `inputs/<域>/<周期>/` | 人交来的原件（Agent 代放） | **默认不进**（下周会换；要留底再说） | 超 90 天只**报告**，问人后才删 |
+| `outputs/<域>/<周期>/` | 交付物 | 新闻精选的 `.md` 进 Git；HTML/PDF、模型副本、股东名册 xlsx、研报摘读 **不进**（可再生成） | 交付物不自动删 |
 | `runs/<域>/<周期>/` | manifest | 进 Git | 不删（体积小，是进度记忆） |
 | `scratch/` | dry-run、抽取文本、探测 | **不进** | **超 14 天可自动清** |
 | `_tmp/`、根目录 `output/` | 历史残留 | 不进 | **整桶可清**（真源是 `outputs/`，注意多一个 `s`） |
 | `dashboard/travel/` | 看板投影 | 进 Git | 不删；上线走发布仓 |
-| `.ir-workbench/` | 本机配置 | **不进** | 不删 |
+| `.ir-workbench/` | 本机覆盖（发布仓路径） | **不进** | 不删 |
 
-卖方研报、专家访谈 PDF/TXT、Peers 模型副本、股东名册 xlsx 只留本机，见 `.gitignore`。
+卖方研报抽取页、专家访谈 PDF/TXT、Peers 运行副本、股东名册生成 xlsx 不进 Git（可再生成），见 `.gitignore`。
 
 ## 冻结目录（不要再放进工作台）
 
