@@ -6,13 +6,11 @@
 
 | 你是 | 看这个 |
 |------|--------|
-| **部门同事 / 接手人**（不写代码） | [docs/CAPABILITIES.md](docs/CAPABILITIES.md) —— 工作台能做什么、怎么开口 |
+| **部门同事 / 接手人**（不写代码） | [docs/HANDOVER.md](docs/HANDOVER.md) 开箱与开口；[docs/CAPABILITIES.md](docs/CAPABILITIES.md) 能做什么 |
 | Agent | [router/ROUTER.md](router/ROUTER.md) —— 意图路由 |
 | 想知道为什么这么设计 | [docs/adr/](docs/adr/) · [docs/GLOSSARY.md](docs/GLOSSARY.md) · [docs/DECISIONS.md](docs/DECISIONS.md) |
-| 目录里什么放哪 | [docs/FOLDER.md](docs/FOLDER.md) |
-
-首次安装引导（`docs/analyst/`）与维护人手册（`docs/operator/`）**尚未编写**，
-排在迁移完成之后。现阶段装机步骤见本文末「维护人：装一下」。
+| 目录里什么放哪、文件怎么存取 | [docs/FOLDER.md](docs/FOLDER.md) · [conventions/file-lifecycle.md](conventions/file-lifecycle.md) |
+| 维护人排错与清理 | [docs/operator/README.md](docs/operator/README.md) |
 
 ## 怎么用
 
@@ -43,10 +41,11 @@
 
 ## 迁移状态
 
-工作台正在把三个旧项目整合进来。当前 **9** 个域挂上统一入口；前五个已完成真实业务验收，
-`expert-calls` 飞书发布已完成首次真实验收、情报入库仍待下一批访谈核对，
-`sellside-research` 已完成真实抽取与摘读。`peers-model` 做 Model / Charts 机械维护；
-`peers-appendix` 写作流水线仍退役。`shareholder-list` 已迁入，锁定重建验收见迁移记录。
+工作台正在把三个旧项目整合进来。当前 **9** 个域挂上统一入口。
+`industry-data`、`aviation-monthly`、`news-digest`、`competitor-intel`、`hk-market`、`expert-calls`
+已完成真实业务验收；`expert-calls` 的 `20260901-190000` 批次已完成飞书回读，34 条情报全量分流。
+`sellside-research` 已完成真实抽取与摘读。`peers-model` 做 Model / Charts 机械维护（副本验收 `partial`）；
+`peers-appendix` 写作流水线仍退役。`shareholder-list` 已迁入，锁定重建验收见迁移记录（新切仍须明确有效日）。
 
 - [x] 骨架 + Control Plane（`ir doctor` / `ir status` / Windows CI）
 - [x] `industry-data`（含指标底稿归位与真实上线）

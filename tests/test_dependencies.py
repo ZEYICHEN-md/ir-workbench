@@ -73,7 +73,7 @@ class TestDeclaredDependencies(unittest.TestCase):
             )
 
     def test_pending_deps_are_not_in_main_dependencies(self):
-        """未迁入域的包不该进主依赖——那会让安装变重，进而诱使 CI 走 --no-deps。"""
+        """可选依赖不该进主依赖——那会让安装变重，进而诱使 CI 走 --no-deps。"""
         pending = _names(_pyproject()["project"]["optional-dependencies"]["pending"])
         overlap = pending & self.declared
         self.assertEqual(overlap, set(), f"这些包同时在 dependencies 与 pending 里：{overlap}")
@@ -86,7 +86,7 @@ class TestDeclaredDependencies(unittest.TestCase):
             self.assertNotIn(
                 module,
                 doctor.REQUIRED_DEPS,
-                f"{module} 属未迁入域，不该出现在 REQUIRED_DEPS（会让 doctor 误报 fail）",
+                f"{module} 是可选依赖，不该出现在 REQUIRED_DEPS（会让 doctor 误报 fail）",
             )
 
     def test_all_deps_are_pinned(self):
@@ -101,7 +101,7 @@ class TestDeclaredDependencies(unittest.TestCase):
 
 
 class TestDoctorDependencySeverity(unittest.TestCase):
-    """必需依赖缺失要 fail，未迁域依赖缺失只提示——两者不能混。"""
+    """必需依赖缺失要 fail，可选依赖缺失只提示——两者不能混。"""
 
     def test_required_and_pending_do_not_overlap(self):
         overlap = set(doctor.REQUIRED_DEPS) & set(doctor.PENDING_DEPS)

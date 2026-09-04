@@ -30,7 +30,10 @@
 
 公开仓**由导出脚本生成，不是 git 镜像**。镜像会带上包含敏感材料的历史，过滤历史比重新导出风险高。
 
-### 2. 八个模块
+### 2. 模块（当前九个）
+
+历史沿革：七 → 八（`expert-calls`，ADR 0005）→ `peers-appendix` 退役后由 `peers-model` 补回第八（ADR 0009）→ `shareholder-list` 为第九（ADR 0010）。
+**当前注册表以 `workbench/domains.py` 为准**，不要用本节最初的「八个模块」表去数。
 
 | 模块 | 面向 | 节奏 | 来源 |
 |---|---|---|---|
@@ -40,12 +43,13 @@
 | `hk-market` | 内部查询 | 按需 | Travel_Pulse `hk-volume-ratio` + `hk_market_pulse.py` + `ccass_southbound.py` |
 | `competitor-intel` | 内部 | 周 / 季 / 按访谈 | 新建，见 ADR 0002 |
 | `expert-calls` | 内部 | 按访谈到达 | database_matain `.cursor/skills/expert-call-pipeline`，见 ADR 0005 |
-| ~~`peers-appendix`~~ | 内部 | 季 | **2026-09-03 退役**，见文首增补 |
+| `peers-model` | 内部 | 季 / 半年 / 年 | 新建，见 ADR 0009；旧 Appendix 写作退役 |
 | `sellside-research` | 内部查询 | 按需 | Travel_Pulse `inputs/` 研报处理，轻量化 |
+| `shareholder-list` | 内部 | 季 / 按有效日 | 交接包 `update-shareholder-list`，见 ADR 0010 |
 
-对外交付物只有 `news-digest` 一个。其余七个是内部能力。
+对外交付物只有 `news-digest` 一个。其余是内部能力。
 
-**不设模块的旧能力**：季度行业展望简报（`database_matain/docs/briefs/` + `generate_brief_charts.py` + `publish_feishu_q3_brief.py`）确认为一次性产物，归档不迁。
+**不设模块的旧能力**：季度行业展望简报（`database_matain/docs/briefs/` + `generate_brief_charts.py` + `publish_feishu_q3_brief.py`）确认为一次性产物，归档不迁。`peers-appendix` Word 流水线 2026-09-03 退役，旧仓冻结。
 
 ### 3. 周期键按域定义
 
@@ -56,8 +60,10 @@
 | `news-digest` | 月内周次 | `2026-08-W2` | 2026年8月第2周 |
 | `industry-data` | 数据截至日 | `2026-08-08` | 数据截至 2026-08-08 |
 | `aviation-monthly` | 年月 | `202607` | 2026年7月 |
-| `competitor-intel` | 月内周次（周度）+ 财季（季度） | `2026-08-W2` / `26Q3` | — |
-| ~~`peers-appendix`~~ | 财季 | `26Q2` | 2026-09-03 退役 |
+| `competitor-intel` | 月内周次（周度） | `2026-08-W2` | — |
+| `expert-calls` | 运行时刻 | `20260822-143015` | — |
+| `peers-model` | 公司-期间 | `BKNG-26Q2` | — |
+| `shareholder-list` | 有效日 | `2026-08-31` | — |
 | `hk-market` | 查询日 | `2026-08-22` | — |
 | `sellside-research` | 无 | — | — |
 

@@ -1,32 +1,20 @@
-"""仓库卫生：换行符归一。
+"""仓库卫生：换行符归一，以及过期临时文件扫描。
 
-为什么需要一条命令而不是靠人记得：编辑器与各类工具在 Windows 上默认写 CRLF，
-而工作台要求全仓 LF（ADR 0006）。规则靠人记 = 迟早脱节；做成命令 + 测试断言 = 不会。
+换行符：Windows 工具默认写 CRLF，工作台要求全仓 LF（ADR 0006）。
+过期文件：规则在 ``conventions/file-lifecycle.md``，由 ``lifecycle`` 执行。
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
+from . import lifecycle
 from .paths import Paths
 from .result import Result
 
 TEXT_SUFFIXES = {".py", ".md", ".json", ".js", ".toml", ".yml", ".yaml", ".mdc"}
 
-#: 不处理：旧仓（冻结保留原样）、临时产物、构建产物、本机配置
-SKIP_DIRS = {
-    ".git",
-    "__pycache__",
-    "scratch",
-    "_tmp",
-    "dist",
-    "build",
-    ".venv",
-    ".ir-workbench",
-    "0703_Travel_Pulse",
-    "database_matain",
-    "peers_rs_update",
-}
+SKIP_DIRS = set(lifecycle.SKIP_HYGIENE_DIRS)
 
 
 def text_files(root: Path) -> list[Path]:
@@ -41,9 +29,9 @@ def text_files(root: Path) -> list[Path]:
     return found
 
 
-def run(paths: Paths, *, fix: bool = False) -> Result:
+def _lf_result(paths: Paths, *, fix: bool) -> Result:
     offenders = [path for path in text_files(paths.root) if b"\r\n" in path.read_bytes()]
-    names = [str(path.relative_to(paths.root)) for path in offenders]
+    names = [str(path.relative_to(paths.root)).replace("\\", "/") for path in offenders]
 
     if not offenders:
         return Result(
@@ -73,3 +61,31 @@ def run(paths: Paths, *, fix: bool = False) -> Result:
         checks=[{"name": name, "level": "ok", "detail": "已归一"} for name in names[:20]],
         data={"fixed": names},
     )
+
+
+def _merge(lf: Result, prune: Result) -> Result:
+    """两份卫生结果合成一份。任一需要人处理就报 partial。"""
+    rank = {"success": 0, "partial": 1, "blocked": 2, "failed": 3}
+    status = lf.status if rank[lf.status] >= rank[prune.status] else prune.status
+    summaries = [s for s in (lf.summary, prune.summary) if s]
+    data = {}
+    if lf.data:
+        data["line_endings"] = lf.data
+    if prune.data:
+        data["prune"] = prune.data
+    return Result(
+        status=status,
+        summary=" ".join(summaries),
+        checks=[*lf.checks, *prune.checks],
+        missing=[*lf.missing, *prune.missing],
+        warnings=[*lf.warnings, *prune.warnings],
+        next_steps=[*lf.next_steps, *prune.next_steps],
+        data=data,
+    )
+
+
+def run(paths: Paths, *, fix: bool = False, prune: bool = False) -> Result:
+    lf = _lf_result(paths, fix=fix)
+    if not prune:
+        return lf
+    return _merge(lf, lifecycle.prune(paths, fix=fix))

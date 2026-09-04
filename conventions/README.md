@@ -6,6 +6,7 @@
 |---|---|
 | [data-provenance.md](data-provenance.md) | 取数溯源、数据冲突处理、缺失披露 |
 | [file-naming.md](file-naming.md) | 工作簿、原件、交付物、文档的命名 |
+| [file-lifecycle.md](file-lifecycle.md) | 文件怎么进工作台、放哪、过期什么能删 |
 | [lark-cli-windows.md](lark-cli-windows.md) | 飞书身份与个人账号解耦；lark-cli 在 Windows 上的编码与传参坑、授权顺序、身份与群聊限制 |
 
 ## 待迁入（随对应域迁移一起做）

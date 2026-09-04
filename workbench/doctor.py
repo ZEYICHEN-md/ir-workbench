@@ -63,11 +63,10 @@ REQUIRED_DEPS: dict[str, str] = {
     "yfinance": "美股成交额与港股回退行情",
 }
 
-#: 未迁入域会用到的依赖。现在缺是正常的（那些域还没搬进来），所以只提示。
-#: 对应域迁入时，把它移到 REQUIRED_DEPS，并把包移进 pyproject 的 dependencies。
+#: 可选依赖。缺了不挡主路径，doctor 只提示。
 PENDING_DEPS: dict[str, str] = {
-    # playwright 例外：news-digest 已迁入，但它装完还要另跑 `playwright install chromium`
-    # 下载浏览器，放必需会让首次安装很重；缺它只影响 PDF，HTML 照常出。
+    # news-digest 已迁入，但 PDF 导出另要 `playwright install chromium`，
+    # 放主依赖会让首次安装很重；缺它只影响 PDF，HTML 照常出。
     "playwright": "导出 PDF（新闻精选，可选）",
 }
 
@@ -226,7 +225,7 @@ def run(paths: Paths, *, verbose: bool = False) -> Result:
             if advice and row["level"] in {"fail", "warn"}:
                 next_steps.append(advice)
 
-    # 7. 依赖：已迁入域缺了就是 fail，未迁入域缺了只提示
+    # 7. 依赖：主路径缺了就是 fail，可选依赖缺了只提示
     absent_required = [name for name in REQUIRED_DEPS if importlib.util.find_spec(name) is None]
     if absent_required:
         checks.append(
@@ -246,9 +245,9 @@ def run(paths: Paths, *, verbose: bool = False) -> Result:
     if absent_pending:
         checks.append(
             {
-                "name": "待迁域依赖",
+                "name": "可选依赖",
                 "level": "ok",
-                "detail": f"缺 {len(absent_pending)} 个（对应域尚未迁入，属正常）",
+                "detail": f"缺 {len(absent_pending)} 个（仅影响可选能力，属正常）",
             }
         )
 

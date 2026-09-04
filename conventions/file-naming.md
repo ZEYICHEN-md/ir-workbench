@@ -19,18 +19,30 @@ Airline Data_MMDD.xlsx        # 航空月度底表
 
 ## 本期原件（`inputs/<域>/<周期>/`）
 
-原文件名保留不动，便于回溯到来源。周期键按域定义（见 `workbench/domains.py`）：
+原文件名保留不动，便于回溯到来源。目录名用**周期键**（一律 ASCII，ADR 0007），
+给人看的中文由 `Domain.label()` 生成，不作目录名。周期键按域定义（`workbench/domains.py`）：
 
-| 域 | 周期键 | 例 |
+| 域 | 周期键 | 目录名例 |
 |---|---|---|
-| `news-digest` | 周报期次 | `2026年8月第2周` |
+| `news-digest` | 月内周次 | `2026-08-W2` |
 | `industry-data` | 数据截至日 | `2026-08-08` |
 | `aviation-monthly` | 年月 | `202607` |
+| `competitor-intel` | 周次（周度） | `2026-08-W2` |
+| `hk-market` | 查询日 | `2026-08-22` |
+| `expert-calls` | 运行时刻 | `20260822-143015` |
+| `peers-model` | 公司-期间 | `BKNG-26Q2` |
+| `shareholder-list` | 有效日 | `2026-08-31` |
+| `sellside-research` | 无 | `inputs/sellside-research/`（不建期次目录） |
+
+怎么把文件放进去、什么能删，见 [file-lifecycle.md](file-lifecycle.md)。
 
 ## 交付物（`outputs/<域>/<周期>/`）
 
+目录名同样用周期键。给人看的文件名可以含中文标签，由程序拼接，不穿命令行：
+
 ```text
 旅行行业新闻精选-2026年8月第2周.md / .html / .pdf
+Investor List_20260831.xlsx
 ```
 
 ## 设计说明与决策
@@ -46,3 +58,4 @@ docs/specs/YYYY-MM-DD-<主题>-runbook.md  # 操作手册
 一律进 `scratch/`，可随时清空。建议前缀任务日：`20260822_field_list.json`。
 
 **默认可删**——重要结论要沉淀进 `docs/`，不要依赖 `scratch/` 存活。
+超 14 天的 scratch 走 `ir hygiene --prune`。

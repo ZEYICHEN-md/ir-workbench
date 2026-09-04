@@ -40,6 +40,7 @@
 | 更新 shareholder list / 股东名册 / 更新持股 / SH Summary / Combined Ownership / Top 20 / DATA_ALL / Capital IQ 持股 / Investor List | `shareholder-list` | 先读并执行 `modules/shareholder_list/SKILL.md`（sheet 细则 `modules/shareholder_list/reference.md`）。对用户说 **shareholder list**，不要改口成 investor list。有新 CIQ 且用户说了有效日 → 新切；只说「跑一遍 / 重建」且没说切日 → 锁定重建当前 `VALID_AS_OF`，不要当新切 | **新切须明确说有效日**（今天或指定日）。日历过了 ≠ 出新一期。不要手改 output 里刚生成的 xlsx；不要把引擎迁飞书 |
 | 能做什么 / 现在什么状态 / 跑不跑得起来 | Control Plane | `ir doctor` + `ir status` | — |
 | 换一份新的国内行业数据 | Control Plane | 列候选 → **用户指定** → `ir config set` | 绝不代选 |
+| 文件放哪 / 上期成品在哪 / 过期文件能不能删 | Control Plane | 按 `conventions/file-lifecycle.md` 用人话说明存取位置；清理先 `ir hygiene --prune` 列出 | **真正删除须明确说「确认删除过期临时文件」** |
 | 更新工作台 | Control Plane | 拉取新版本并复检 | — |
 
 ## 落不进表里怎么办
@@ -61,6 +62,8 @@
 ## 相关
 
 - 功能清单（给同事看）：`docs/CAPABILITIES.md`
+- 同事开箱：`docs/HANDOVER.md`
 - 统一语言：`docs/GLOSSARY.md`
 - 决策记录：`docs/adr/`
+- 文件存取与过期清理：`conventions/file-lifecycle.md`
 - 各域操作流程：`modules/<域>/SKILL.md`

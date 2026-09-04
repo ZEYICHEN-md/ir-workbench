@@ -114,7 +114,7 @@ def _cmd_domains(args, paths: Paths) -> int:
 def _cmd_hygiene(args, paths: Paths) -> int:
     from . import hygiene
 
-    return _emit(hygiene.run(paths, fix=args.fix), args)
+    return _emit(hygiene.run(paths, fix=args.fix, prune=args.prune), args)
 
 
 def _cmd_config_show(args, paths: Paths) -> int:
@@ -221,8 +221,17 @@ def build_parser() -> argparse.ArgumentParser:
     p_domains = sub.add_parser("domains", help="列出全部域及迁移状态", parents=[COMMON])
     p_domains.set_defaults(func=_cmd_domains)
 
-    p_hyg = sub.add_parser("hygiene", help="仓库卫生：换行符归一为 LF", parents=[COMMON])
+    p_hyg = sub.add_parser(
+        "hygiene",
+        help="仓库卫生：换行符归一；加 --prune 扫描过期临时文件",
+        parents=[COMMON],
+    )
     p_hyg.add_argument("--fix", action="store_true", help="实际改写（默认只报告）")
+    p_hyg.add_argument(
+        "--prune",
+        action="store_true",
+        help="扫描过期临时文件（scratch / _tmp / 根目录 output/）。删除须同时加 --fix，且须用户确认。",
+    )
     p_hyg.set_defaults(func=_cmd_hygiene)
 
     _register_domain_commands(sub)

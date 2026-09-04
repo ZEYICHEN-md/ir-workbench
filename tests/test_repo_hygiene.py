@@ -9,32 +9,15 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
+from workbench.lifecycle import SKIP_HYGIENE_DIRS
+
 ROOT = Path(__file__).resolve().parents[1]
 
 #: 纳入检查的文本文件后缀
 TEXT_SUFFIXES = {".py", ".md", ".json", ".js", ".toml", ".yml", ".yaml", ".mdc", ".gitattributes"}
 
-#: 不检查的目录：旧仓（迁移中，历史原样保留）、临时产物、构建产物
-SKIP_DIRS = {
-    ".git",
-    "__pycache__",
-    "scratch",
-    "_tmp",
-    "outputs",
-    "output",
-    "dist",
-    "build",
-    ".venv",
-    ".ir-workbench",
-    # 三个旧项目文件夹：冻结保留，不受本仓约定管辖
-    "0703_Travel_Pulse",
-    "database_matain",
-    "peers_rs_update",
-    # 旧仓脚本的只读摘录，不进运行入口，也不按本仓 LF 约束改写。
-    "peers_model_scripts",
-    # 交接包原件，不进运行入口
-    "update-shareholder-list",
-}
+#: 换行符检查比 ``ir hygiene`` 多跳过交付物目录——里面有生成的 JSON/Markdown。
+SKIP_DIRS = set(SKIP_HYGIENE_DIRS) | {"outputs", "output"}
 
 
 def text_files() -> list[Path]:
@@ -147,6 +130,37 @@ class TestDomainRegistryMatchesDisk(unittest.TestCase):
                     f"health={runtime.health_loaded} ({runtime.health_error})"
                 )
         self.assertEqual(failures, [], "域运行时契约失败：\n" + "\n".join(failures))
+
+
+class TestConventionsMatchRegistry(unittest.TestCase):
+    """命名与生命周期文档必须覆盖当前注册表，否则 Agent 会按过期例子建错目录。"""
+
+    def test_file_naming_lists_every_domain(self):
+        from workbench import domains
+
+        text = (ROOT / "conventions" / "file-naming.md").read_text(encoding="utf-8")
+        missing = [key for key in domains.DOMAINS if f"`{key}`" not in text]
+        self.assertEqual(missing, [], f"file-naming.md 漏了这些域：{missing}")
+
+    def test_file_naming_uses_ascii_period_examples(self):
+        from workbench import domains
+
+        text = (ROOT / "conventions" / "file-naming.md").read_text(encoding="utf-8")
+        self.assertNotIn("`2026年8月第2周`", text)
+        for key, definition in domains.DOMAINS.items():
+            if definition.period_kind == "none":
+                continue
+            example = definition.period_example.split(" / ", 1)[0].split(" ", 1)[0]
+            self.assertIn(example, text, f"{key} 的周期键示例 {example} 应出现在 file-naming.md")
+
+    def test_file_lifecycle_is_indexed(self):
+        self.assertTrue((ROOT / "conventions" / "file-lifecycle.md").is_file())
+        index = (ROOT / "conventions" / "README.md").read_text(encoding="utf-8")
+        folder = (ROOT / "docs" / "FOLDER.md").read_text(encoding="utf-8")
+        self.assertIn("file-lifecycle.md", index)
+        self.assertIn("file-lifecycle.md", folder)
+        self.assertTrue((ROOT / "docs" / "operator" / "README.md").is_file())
+        self.assertTrue((ROOT / "docs" / "analyst" / "README.md").is_file())
 
 
 if __name__ == "__main__":

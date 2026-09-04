@@ -163,7 +163,9 @@
 
 ### Q15 收不收财报原件
 
-**结论**：不收。原件仍只存 `peers-appendix` 的 `companies/<TICKER>/<YYQn>/`，情报库只存引用与位置指针，两边共用同一套 ticker 与季度键。
+**结论**：不收进情报库。原件放用户指定的当季材料目录，或 `inputs/intel-quarterly/<TICKER>/<YYQn>/`；历史包仍可指向冻结旧仓 `peers_rs_update/companies/<TICKER>/<YYQn>/`。情报库只存引用与位置指针，两边共用同一套 ticker 与季度键。
+
+**理由**：原件体积大、含第三方材料，且 Appendix 写作流水线已退役，不能再把「原件住在 peers-appendix 模块里」当成现行布局。
 
 ### Q20 TCOM 建不建档
 
@@ -510,12 +512,20 @@
 
 ---
 
-## 九、shareholder-list 迁入（2026-09-04）
+## 十、shareholder-list 迁入（2026-09-04）
 
 **结论**：独立成第九个域。代码、SKILL、母版和市值都在 `modules/shareholder_list/`，入口只有 `ir shareholder-list rebuild`，产物写 `outputs/shareholder-list/<有效日>/`。源包 ADR 改编号 0011–0014。
 
 **理由**：交接包 README 按通用 skill 仓库打的包，不是本仓约定。工作台域的形状以 peers-model 为准。列序 / 内嵌上期 / 不迁飞书 / Yahoo 市值仍是域内难逆决策，不能覆盖工作台 ADR 0001–0004。
 
 **落在**：ADR 0010–0014、`router/ROUTER.md`
+
+### 文件怎么进工作台、过期怎么清（2026-09-04）
+
+**结论**：人不用记目录。原件拖进对话、放「下载」或说一声，Agent 拷到 `inputs/<域>/<周期>/`。交付物在 `outputs/`。`scratch/` 超 14 天、根目录 `output/` 与 `_tmp/` 可清；`data/workbooks/archived/` 只增不删。真正删除前 dry-run，用户说「确认删除过期临时文件」后才 `ir hygiene --prune --fix`。迁入残留的 `peers_model_scripts/` 与 `update-shareholder-list/` 本机可留作只读参考，不进 Git、不是运行入口。
+
+**理由**：功能配齐之后，接手人会卡住的是「文件放哪、能不能删」。没有可执行的清理，scratch 和误写的 `output/` 会无限涨；文档若继续写「八个模块 / 自动发飞书 / 中文周期键当目录名」，就会和代码再分叉。
+
+**落在**：`conventions/file-lifecycle.md`、`workbench/lifecycle.py`、`ir hygiene --prune`
 
 

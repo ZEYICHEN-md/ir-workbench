@@ -55,7 +55,7 @@
 
 - [x] **Windows CI**：`.github/workflows/tests.yml` 在 push / PR / 手动触发时安装完整依赖，跑全量 unittest、doctor、域注册表和 LF hygiene。
 
-未做（第二梯队，移交前再补）：首次安装引导、`ir package` 打包。
+未做（第二梯队）：`ir package` 打包、公开作品集导出。同事开箱手册已有 `docs/HANDOVER.md`。
 
 ### ✅ 第 0 步：骨架 + Control Plane（2026-08-22）
 

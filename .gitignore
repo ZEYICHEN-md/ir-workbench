@@ -7,6 +7,10 @@
 database_matain/
 peers_rs_update/
 
+# 迁入时留在磁盘上的只读参考，不是运行入口。有第二套代码就会再分叉。
+peers_model_scripts/
+update-shareholder-list/
+
 # 一次性产物
 scratch/
 _tmp/
