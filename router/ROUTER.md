@@ -37,6 +37,7 @@
 | 只提取专家访谈摘要 / 先出 Expert Call 草稿 | `expert-calls` | 同次阅读先出情报草稿，再出候选排序 → 人选择 → 校验溯源 → 只为选中项渲染 revision 1680 callout 草稿；不写飞书 | 情报入库与飞书发布分别确认 |
 | 更新 Expert Call / 把专家访谈写入飞书 | `expert-calls` | 完成情报草稿、候选排序、人工选择、callout 草稿与精确判重；用户审阅后逐条写入并回读 | **发布到飞书须明确说「发布专家访谈精选」；飞书发布不触发情报入库** |
 | 帮我摘这份研报 | `sellside-research` | 读 PDF 出摘要 | — |
+| 更新 shareholder list / 股东名册 / 更新持股 / SH Summary / Combined Ownership / Top 20 / DATA_ALL / Capital IQ 持股 / Investor List | `shareholder-list` | 先读并执行 `modules/shareholder_list/SKILL.md`（sheet 细则 `modules/shareholder_list/reference.md`）。对用户说 **shareholder list**，不要改口成 investor list。有新 CIQ 且用户说了有效日 → 新切；只说「跑一遍 / 重建」且没说切日 → 锁定重建当前 `VALID_AS_OF`，不要当新切 | **新切须明确说有效日**（今天或指定日）。日历过了 ≠ 出新一期。不要手改 output 里刚生成的 xlsx；不要把引擎迁飞书 |
 | 能做什么 / 现在什么状态 / 跑不跑得起来 | Control Plane | `ir doctor` + `ir status` | — |
 | 换一份新的国内行业数据 | Control Plane | 列候选 → **用户指定** → `ir config set` | 绝不代选 |
 | 更新工作台 | Control Plane | 拉取新版本并复检 | — |

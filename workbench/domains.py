@@ -1,4 +1,4 @@
-"""八个域的注册表。
+"""九个域的注册表。
 
 这是 ADR 0003 的可执行版本：域的划分、对外/内部定位、节奏与周期键语义
 都在这里定义一次，其余代码不得另行硬编码域名。
@@ -179,6 +179,17 @@ DOMAINS: dict[str, Domain] = {
         origin="0703_Travel_Pulse/inputs 研报处理",
         validation_state="lightweight",
         validation_note="真实研报已验收；按 ADR 0004 有意不建 manifest 或跨期档案。",
+    ),
+    "shareholder-list": Domain(
+        key="shareholder-list",
+        zh="机构股东名册",
+        facing="internal",
+        cadence="每季 / 按有效日",
+        period_kind="data_date",
+        summary="Capital IQ 两张底表 → 完整 Investor List xlsx。对用户说 shareholder list。",
+        origin="交接包 update-shareholder-list（原独立仓 shareholder_list）",
+        validation_state="partial",
+        validation_note="锁定重建 2026/08/31 已通过（validate.ok、audit n=0）；下一次新切仍需用户明确有效日后再跑。",
     ),
 }
 

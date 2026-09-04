@@ -1,0 +1,14 @@
+---
+description: Investor List is copy-then-write; never inherit last quarter's row formats or fills.
+alwaysApply: true
+---
+
+# Template leftover
+
+The generator copies `PRIOR_TEMPLATE` (previous holdings quarter's published list), then overwrites values. **Row number is not an institution.** Last quarter's `New Entry` / empty row keeps `General`; Index green sticks to the old row.
+
+- Fix leftover formats in `src/shareholder_list/build.py`. Gate in `src/shareholder_list/validate.py` and `scripts/adversarial_audit.py` on **every data row** (Top 20 F/G/H, SH K/L, region `REGION_PCT_COLS`). Do not add a one-off probe for H36 / K7 / J161.
+- Switching `PRIOR_TEMPLATE` is for **QoQ vs last published list**, not for formats. Locked rebuild: keep it. New holdings quarter: point it at last published. Never the file this cut will write.
+- Combined `% S/O` is CIQ percentage points (`6.67` with `#,##0.00`). Do not convert to Excel `%`.
+- Do not hand-edit `output/*.xlsx`. Rebuild with `ir shareholder-list rebuild` or `scripts/rebuild.ps1`.
+- Sheet rules: `modules/shareholder_list/reference.md`.

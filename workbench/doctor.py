@@ -53,7 +53,7 @@ def _domain_checks(paths: Paths) -> dict[str, list[dict]]:
 #: 已迁入域必需的依赖。缺了对应能力就跑不了，所以报 fail 而不是 warn。
 #: 与 `pyproject.toml` 的 `dependencies` 一一对应——那边是安装清单，这边是运行时自检。
 REQUIRED_DEPS: dict[str, str] = {
-    "openpyxl": "读写 Excel（行业数据、航空月度）",
+    "openpyxl": "读写 Excel（行业数据、航空月度、shareholder list）",
     "pdfplumber": "读 PDF（民航局月报）",
     "requests": "抓取官方数据与 RSS",
     "bs4": "解析公告页面与新闻精选导出",

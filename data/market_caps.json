@@ -1,0 +1,25 @@
+{
+  "as_of": "2026-08-31",
+  "fx_usd_hkd": 7.8376,
+  "source": "Yahoo Finance v7 quote (crumb), marketCap + impliedSharesOutstanding",
+  "tcom_shares_outstanding": 629705222,
+  "usd_market_cap": {
+    "TCOM": 28557129728,
+    "BABA": 295540654080,
+    "NTES": 78597111808,
+    "PDD": 121970851840,
+    "JD": 38813368320,
+    "BIDU": 32941797376,
+    "ABNB": 113427963904,
+    "BKNG": 159338266624,
+    "EXPE": 39539171328,
+    "MMYT": 5551342592,
+    "TRIP": 1156757504,
+    "TRVG": 423350720
+  },
+  "hkd_market_cap": {
+    "700_XHKG": 4082802360320,
+    "3690_XHKG": 486958268416,
+    "780_XHKG": 28368257024
+  }
+}

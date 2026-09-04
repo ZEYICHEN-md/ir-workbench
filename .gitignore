@@ -36,6 +36,11 @@ __pycache__/
 build/
 dist/
 
+# Shareholder list 生成的完整工作簿（引擎写在仓库根 output/，见 ADR 0010）
+output/*.xlsx
+output/adversarial_audit.json
+.worktrees/
+
 # Excel 临时锁文件
 ~$*.xls*
 

@@ -21,6 +21,7 @@ SKIP_DIRS = {
     "scratch",
     "_tmp",
     "outputs",
+    "output",
     "dist",
     "build",
     ".venv",
@@ -31,6 +32,8 @@ SKIP_DIRS = {
     "peers_rs_update",
     # 旧仓脚本的只读摘录，不进运行入口，也不按本仓 LF 约束改写。
     "peers_model_scripts",
+    # 交接包原件，不进运行入口
+    "update-shareholder-list",
 }
 
 

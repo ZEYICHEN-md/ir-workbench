@@ -15,7 +15,7 @@ IR_workbench/
 │
 ├── router/ROUTER.md        # 意图路由表：人说什么 → 走哪个域
 ├── workbench/              # Control Plane（Agent 的手，不是人的入口）
-│   ├── domains.py          #   八个域的注册表（ADR 0003 的可执行版本）
+│   ├── domains.py          #   九个域的注册表（ADR 0003 的可执行版本）
 │   ├── paths.py            #   全部路径只在这里定义一次
 │   ├── config.py           #   工作簿显式锁定，绝不代选
 │   ├── doctor.py           #   环境自检
@@ -49,6 +49,10 @@ IR_workbench/
 ├── outputs/<域>/<周期>/    # 交付物
 ├── runs/<域>/<周期>/       # manifest
 ├── dashboard/travel/       # 看板投影（复制到发布仓上线）
+├── src/shareholder_list/   # shareholder-list 生成引擎（ADR 0010；不放 modules/）
+├── scripts/rebuild.ps1     # 与 ir shareholder-list rebuild 同一套引擎
+├── templates/              # Investor List 骨架与 5 月文案权威
+├── output/                 # shareholder-list 交差 xlsx（本域例外，不走 outputs/）
 ├── tests/                  # 回归测试
 └── scratch/                # 一次性产物，可随时清空，不入库
 ```
@@ -67,6 +71,8 @@ IR_workbench/
 | `conventions/` | **真的跨域**的规则 | 单域流程 |
 | `docs/adr/` | 难逆、有取舍的决策 | 日常操作笔记 |
 | `docs/specs/` | 某次任务的设计说明或 runbook | 临时 JSON、聊天摘录 |
+| `output/` | shareholder-list 交差工作簿 | 其他域交付物（那些走 `outputs/<域>/`） |
+| `templates/` | Investor List 复制用骨架 | Capital IQ 底表（仍在 Downloads） |
 | `scratch/` | dry-run 产物、字段 dump、探测脚本 | 任何需要长期保留的东西 |
 | 根目录 | 入口文档、约定级配置 | **禁止**堆 `_*.json`、临时 txt |
 

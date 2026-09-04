@@ -20,7 +20,7 @@
 
 不确定能做什么时，问一句「**工作台现在能做什么 / 什么状态**」。
 
-## 八个域
+## 九个域
 
 | 域 | 面向 | 节奏 |
 |---|---|---|
@@ -32,6 +32,7 @@
 | 专家访谈情报与精选 | 内部 | 按访谈到达 |
 | Peers 财务模型维护 | 内部 | 每季 / 半年 / 年度 |
 | 卖方研报摘读 | 内部查询 | 按需 |
+| 机构股东名册 | 内部 | 每季 / 按有效日 |
 
 对外交付物只有新闻精选一个。
 
@@ -42,10 +43,10 @@
 
 ## 迁移状态
 
-工作台正在把三个旧项目整合进来。当前 **8** 个域挂上统一入口；前五个已完成真实业务验收，
+工作台正在把三个旧项目整合进来。当前 **9** 个域挂上统一入口；前五个已完成真实业务验收，
 `expert-calls` 飞书发布已完成首次真实验收、情报入库仍待下一批访谈核对，
 `sellside-research` 已完成真实抽取与摘读。`peers-model` 做 Model / Charts 机械维护；
-`peers-appendix` 写作流水线仍退役。
+`peers-appendix` 写作流水线仍退役。`shareholder-list` 已迁入，锁定重建验收见迁移记录。
 
 - [x] 骨架 + Control Plane（`ir doctor` / `ir status` / Windows CI）
 - [x] `industry-data`（含指标底稿归位与真实上线）
@@ -55,6 +56,7 @@
 - [x] `hk-market` / `sellside-research`（2026-09-02 真实只读验收）
 - [x] `peers-appendix` **退役**（不维护 Word Appendix 流水线；旧仓冻结）
 - [x] `peers-model`（PDF → Model / Charts 机械更新；权威文件只出副本）
+- [x] `shareholder-list`（Capital IQ → Investor List；引擎已迁入）
 
 顺序与理由见 [docs/adr/0003-single-repo-and-module-layout.md](docs/adr/0003-single-repo-and-module-layout.md)。
 

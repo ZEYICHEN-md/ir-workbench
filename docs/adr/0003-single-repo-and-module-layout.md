@@ -3,8 +3,8 @@
 > **增补（2026-08-22）**：模块数由七增至八——`expert-calls` 见 [ADR 0005](0005-expert-calls-module.md)。
 > 同时确认季度行业展望简报为一次性产物，不设模块（见 `docs/DECISIONS.md` Q27）。
 >
-> **增补（2026-09-03）**：`peers-appendix` 退役，模块数回到七。Appendix / 业绩总结由人写，
-> 季度检索走 `competitor-intel`。旧仓冻结，工作台不保留该域代码或 CLI。见 `docs/DECISIONS.md`。
+> **增补（2026-09-04）**：第九个域 `shareholder-list`，见 [ADR 0010](0010-shareholder-list-module.md)。
+> 引擎留在 `src/shareholder_list/` + `scripts/rebuild.ps1`，技能真源在 `modules/shareholder_list/`。
 
 - 状态：**Accepted**（2026-08-22）
 - 日期：2026-08-22

@@ -30,3 +30,5 @@ Charts 的期间范围统一为：2019 对应期间起，排除 2020–2022，�
 ## 后果
 
 工作台域数是八个。`peers-model` 已用 26Q2 历史 PDF 盲填和 holdout 通过副本验收，标为 `partial`；下一次尚未写入的新季度仍要再跑一遍。不改变 `peers-appendix` 的退役状态。
+
+> **后续（2026-09-04）**：域数增至九，见 [ADR 0010](0010-shareholder-list-module.md)。本 ADR 只约束 peers-model。

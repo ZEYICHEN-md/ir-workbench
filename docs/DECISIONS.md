@@ -277,6 +277,7 @@
 | 情报库入库要设一套严格的「实质性」判据 | 门槛要低，噪音靠分层控 | 记录成本低、回溯采集成本高——关卡设错了位置 |
 | TCOM 只能走季度通道（因为精选里没有它） | 采集不设限、发布设限 | 用户指出限制只在「不出现在精选」，采集无妨 |
 | 工作台有七个域 | 八个域 | 搬 `database_matain` 时发现 `expert-call-pipeline` 是一条独立成熟流水线 |
+| 工作台有八个域 | 九个域 | 交接包 `update-shareholder-list`：Capital IQ → Investor List，不能并进指标底稿 |
 | 「对外交付物只有新闻精选一个」 | 一度不成立，确认简报停做后重新成立 | `docs/FOLDER.md` 把季度简报写成「对外简报成品」 |
 | 途牛可能不在 Appendix 里（依用户回忆） | 在，有独立小节 | 读原件核对：`2026 Q2 Key Qs_Appendix_0813.docx` 第 322、358 段 |
 | peers 迁移工作量大（40 个脚本） | 小于预估 | 同事业务能力在，自动化只需覆盖机械劳动 |
@@ -506,4 +507,15 @@
 **理由**：宁缺，不拿对不上的乱码当证据。
 
 **落在**：`ABNB-26Q2/facts.blind.json` 未含 row 116
+
+---
+
+## 九、shareholder-list 迁入（2026-09-04）
+
+**结论**：独立成第九个域。引擎留在 `src/shareholder_list/` + `scripts/rebuild.ps1`，技能在 `modules/shareholder_list/`。产物写仓库根 `output/`。源包 ADR 改编号 0011–0014。
+
+**理由**：`repo_root()` 和门禁都钉死这两处路径；工作台约定技能在 `modules/`。两套入口会分叉。列序 / 内嵌上期 / 不迁飞书 / Yahoo 市值是域内难逆决策，不能覆盖工作台 ADR 0001–0004。
+
+**落在**：ADR 0010–0014、`router/ROUTER.md`
+
 

@@ -3,11 +3,11 @@
 > 面向部门同事与接手人：工作台能做什么、怎么开口、产出在哪。
 > 你只需要说自然语言，Agent 负责其余部分。
 >
-> **迁移期提示（2026-09-03）**：目前 **8** 个域挂上统一入口。
+> **迁移期提示（2026-09-04）**：目前 **9** 个域挂上统一入口。
 > `industry-data`、`aviation-monthly`、`news-digest`、`competitor-intel`、`hk-market`、`expert-calls`
 > 已完成真实业务验收；`expert-calls` 的 34 条情报已全量分流为 A 类 11 条正式入库、B 类 14 条待核、
 > 9 条剔除。`sellside-research` 已完成真实抽取与摘读。`peers-model` 已用 26Q2 历史 PDF 与 holdout 通过副本验收；
-> `peers-appendix` 写作流水线仍退役。
+> `peers-appendix` 写作流水线仍退役。`shareholder-list` 已迁入引擎。
 > 实时进度以 `docs/MIGRATION.md` 为准。
 
 ## 怎么用
@@ -97,6 +97,15 @@
 - **覆盖**：ABE 共用一本（BKNG / EXPE / ABNB 各改各的 sheet）、美团独立、同程独立（只写前两个 sheet）
 - **季报 vs 半年报 / 年报**：按模板里实际存在的区块更新，不凭空造列
 - **门禁**：写入副本前说「确认写入模型副本」。来源冲突先列出，等你选口径
+
+### 机构股东名册（shareholder list）
+
+每季用 Capital IQ 两张底表生成完整机构股东名册。对你说的是 **shareholder list**；Excel 文件名仍是 `Investor List_YYYYMMDD.xlsx`。
+
+- **怎么开口**：「更新 shareholder list，有效日切成今天」；只想复现当前有效日那一本时说「重建 shareholder list」（不要当新一期）
+- **你要准备**：Downloads 里放好 Peer Holdings（不要 Public 版）和 Institution Combined Ownership
+- **产出**：`output/Investor List_{有效日}.xlsx`。不要手改格子
+- **硬门禁**：新切必须你先说出有效日；没说切日就只锁定重建，不刷新行情
 
 ### 情报与 Appendix 正文
 

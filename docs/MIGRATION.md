@@ -63,7 +63,7 @@
 
 - `workbench/` —— `paths` / `config` / `doctor` / `status` / `manifest` / `result` / `domains` / `cli`
 - 四态结果语义：`success` / `partial` / `blocked` / `failed`，含退出码映射
-- 域注册表：最初规划八个域；`peers-appendix` 退役后由 `peers-model` 补回第八个域。定位、节奏、周期键与验收状态在 `workbench/domains.py` 定义一次
+- 域注册表：最初规划八个域；`peers-appendix` 退役后由 `peers-model` 补回第八个域；`shareholder-list` 为第九个域（ADR 0010）。定位、节奏、周期键与验收状态在 `workbench/domains.py` 定义一次
 - manifest 索引 = 域 + 周期键，含输入输出 SHA-256 留痕
 - 工作簿显式配置，`config candidates` 只列候选、**不代选**
 - `router/ROUTER.md` 意图路由表
@@ -402,6 +402,15 @@
 - [x] 26Q2 holdout（删掉已有期间列再写回）：BKNG / EXPE / ABNB / 美团 / 同程全部通过
 - [x] 26Q2 历史 PDF 盲填 → plan → apply 副本：五家全部通过关闭重开、PDF 第三遍与 Charts 审计
 - [x] 年报 / 半年报路径 holdout：BKNG/EXPE/ABNB FY2025、美团 FY2022 与 20H1、同程 FY2022 通过
+
+### ⬛ 第 7 步：`shareholder-list`（2026-09-04 迁入引擎）
+
+- [x] 按交接包把生成器铺到 `src/shareholder_list/`，一键入口 `scripts/rebuild.ps1`
+- [x] 母版改指仓库内 `templates/`，去掉桌面硬编码路径
+- [x] 技能真源 `modules/shareholder_list/SKILL.md`；路由进 `router/ROUTER.md`
+- [x] 源包 ADR 改编号为 0011–0014，不覆盖工作台 0001–0004
+- [x] `ir shareholder-list rebuild` 包装同一套 `python -m shareholder_list --audit`
+- [x] 用 Downloads 里的 CIQ 底表跑通锁定重建（exit 0、validate.ok、audit n=0；`output/Investor List_20260831.xlsx`）
 
 下面仍保留迁移前审计，说明当初为什么难迁、以及为什么后来决定不迁 Appendix 写作。
 
