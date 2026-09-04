@@ -102,12 +102,9 @@ class Config:
         specs = {
             "industry": (self.paths.workbooks, "*国内行业数据*.xls*"),
             "airline": (self.paths.workbooks, "*Airline*Data*.xls*"),
-            "peers_abe": (self.paths.root / "peers_rs_update" / "deliverables" / "models",
-                          "peers data comparison*.xls*"),
-            "peers_meituan": (self.paths.root / "peers_rs_update" / "deliverables" / "models",
-                              "Meituan*.xls*"),
-            "peers_tcel": (self.paths.root / "peers_rs_update" / "deliverables" / "models",
-                           "Tongcheng*Model*.xls*"),
+            "peers_abe": (self.paths.models, "peers data comparison*.xls*"),
+            "peers_meituan": (self.paths.models, "Meituan*.xls*"),
+            "peers_tcel": (self.paths.models, "Tongcheng*Model*.xls*"),
         }
         folder, pattern = specs.get(key, (None, None))
         if folder is None or pattern is None or not folder.is_dir():

@@ -50,6 +50,7 @@ IR_workbench/
 ├── data/                   # 共享数据层，跨域共用，不在任何模块内
 │   ├── workbooks/          #   指标底稿 Excel（唯一人工编辑面）
 │   │   └── archived/       #   往期底稿与写入前备份，只增不删
+│   ├── models/             #   Peers 权威 Model（本机锁定，不进 Git）
 │   ├── canonical/          #   指标快照 + 洞察底稿
 │   └── intel/              #   竞对情报库
 │
@@ -61,8 +62,7 @@ IR_workbench/
 └── scratch/                # 一次性产物，超 14 天可清，不入库
 ```
 
-本机还可以有冻结目录（`0703_Travel_Pulse/`、`database_matain/`、`peers_rs_update/`、
-`peers_model_scripts/`、`update-shareholder-list/`）。它们不进 Git、不是运行入口，见 file-lifecycle。
+本机不应再嵌旧仓。若磁盘上还留着 `0703_Travel_Pulse/` 这类目录，见 file-lifecycle：不是入口，可删。
 根目录 `output/`（少一个 s）是历史残留，可清。
 
 ## 各目录放什么
@@ -70,9 +70,10 @@ IR_workbench/
 | 路径 | 放 | 不放 |
 |---|---|---|
 | `data/workbooks/` | 作为编辑面的 Excel | 快照、脚本输出、导出草稿 |
+| `data/models/` | Peers 权威 Model（config 锁定） | 指标底稿、运行副本 |
 | `data/workbooks/archived/` | 换表时的旧版、自动写入前的整份备份 | 当前正在用的底稿 |
 | `data/canonical/` | 指标快照、洞察底稿 | Excel、scratch dump、密钥 |
-| `data/intel/` | 情报库 JSONL 真源 | 财报原件（用户指定材料目录或冻结旧仓，情报库只存引用） |
+| `data/intel/` | 情报库 JSONL 真源 | 财报原件（用户指定材料目录或 `inputs/intel-quarterly/`，情报库只存引用） |
 | `inputs/<域>/<周期>/` | 只服务这一期的原件 | 长期数据、交付物 |
 | `outputs/<域>/<周期>/` | 交付成品 | dry-run、抽取中间页 |
 | `runs/<域>/<周期>/` | manifest（机器写，一般不手改） | 交付物 |

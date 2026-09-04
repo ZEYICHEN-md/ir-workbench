@@ -13,8 +13,7 @@ from pathlib import Path
 from .paths import Paths
 from .result import Result
 
-#: 本机可有、不进运行入口、不按本仓卫生规则改写的冻结目录。
-#: 三个旧仓按 ADR 0003 冻结；后两个是迁入时留在磁盘上的只读参考，不是第二套入口。
+#: 迁入完成后本机不应再放这些目录。若残留，卫生检查跳过、Git 忽略。
 FROZEN_LOCAL_DIRS: tuple[str, ...] = (
     "0703_Travel_Pulse",
     "database_matain",

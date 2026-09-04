@@ -23,6 +23,7 @@
 | 你手里的东西 | 拖到这里 |
 |---|---|
 | 国内行业数据 / Airline Data 新 Excel | `data/workbooks/`（放下后说「换一份新的国内行业数据」，等人指定锁定） |
+| Peers 权威 Model 新版本 | `data/models/`，再说一声让 Agent 锁定 |
 | 中金周报、STR 表 | `inputs/industry-data/`（Agent 会再按截至日归期） |
 | 卖方研报 PDF | `inputs/sellside-research/` |
 | Peers 财报 / 电话会 PDF | `inputs/peers-model/`（或直接拖进对话） |
@@ -31,14 +32,14 @@
 | Capital IQ 股东底表 | 电脑 **下载**，不要进工作台 |
 | 交差成品、模型副本 | 不要手塞；问 Agent 去 `outputs/` 取 |
 
-根目录的 `0703_Travel_Pulse/`、`database_matain/`、`peers_rs_update/`、`peers_model_scripts/`、`update-shareholder-list/`、`test_expert_calls/` **不是收件箱**。
-
+根目录旧仓文件夹**不是收件箱**。
 
 ## 各层放什么
 
 | 路径 | 谁写 | 进 Git？ | 能不能删 |
 |---|---|---|---|
 | `data/workbooks/` | 人编辑的指标底稿 | 当前锁定的表进 Git | **当前表不删**。换新版时旧表进归档 |
+| `data/models/` | Peers 权威 Model | **不进** | 当前锁定的 Model 不删；更新只出 `outputs/peers-model/` 副本 |
 | `data/workbooks/archived/` | 换表或自动写入前的整份备份 | 进 Git | **只增不删** |
 | `data/canonical/` | 机器从底稿重建 | 进 Git | 不删、不手改 |
 | `data/intel/` | 情报库真源 | 进 Git | 不删 |
@@ -52,18 +53,18 @@
 
 卖方研报、专家访谈 PDF/TXT、Peers 模型副本、股东名册 xlsx 只留本机，见 `.gitignore`。
 
-## 冻结目录（本机可有，不是入口）
+## 冻结目录（迁入完成后不要再放进工作台）
 
-这些文件夹**可以留在磁盘上当历史**，但工作台不从里面跑、不按本仓规则改写、不进 Git：
+这些名字若还出现在磁盘上，**不是收件箱、不是运行入口**。Git 忽略。历史在各自的 GitHub 旧仓。
 
-| 目录 | 是什么 |
-|---|---|
-| `0703_Travel_Pulse/` | 旧仓，已拆完。GitHub `Travel_Pulse` 留历史，本机可删 |
-| `database_matain/` | 旧仓，已迁完并停用。GitHub 留历史，本机可删 |
-| `peers_rs_update/` | 旧仓，Appendix 退役后冻结。**例外**：本机 config 仍把三份权威 Model 锁在这里，搬走并重新锁定之前不要删 |
-| `peers_model_scripts/` | 迁 `peers-model` 时的只读摘录，可删 |
-| `update-shareholder-list/` | 迁 `shareholder-list` 前的交接包，可删 |
-| `test_expert_calls/` | 专家访谈验收用过的 PDF，不是入口；可删，下一批评 `inputs/expert-calls/` 或拖进对话 |
+| 目录 | 是什么 | 本机 |
+|---|---|---|
+| `0703_Travel_Pulse/` | 已拆完的旧仓 | 可删 |
+| `database_matain/` | 已迁完并停用的旧仓 | 可删 |
+| `peers_rs_update/` | Appendix 退役后的旧仓。权威 Model 已迁到 `data/models/` | 可删 |
+| `peers_model_scripts/` | 迁 `peers-model` 时的只读摘录 | 可删 |
+| `update-shareholder-list/` | 迁 `shareholder-list` 前的交接包 | 可删 |
+| `test_expert_calls/` | 专家访谈验收 PDF | 可删；下一批评 `inputs/expert-calls/` 或拖进对话 |
 
 真源在 `modules/<域>/`。发现第二套 `src/`、`scripts/rebuild.ps1` 或旧仓脚本，不要用。
 
@@ -77,6 +78,6 @@
 
 `--fix` 只删安全桶：`scratch/`（≥14 天）、`_tmp/`、根目录 `output/`。
 `inputs/` 超 90 天会出现在清单里，但命令不会删。
-`data/workbooks/archived/`、`runs/`、`outputs/` 交付物、情报库，永远不走这条命令。
+`data/workbooks/archived/`、`data/models/`、`runs/`、`outputs/` 交付物、情报库，永远不走这条命令。
 
 换行符卫生仍是 `ir hygiene` / `ir hygiene --fix`（ADR 0006），与过期清理互相独立；两个开关可以一起加。

@@ -118,6 +118,21 @@ class TestFrozenDirs(unittest.TestCase):
         for name in FROZEN_LOCAL_DIRS:
             self.assertIn(f"{name}/", text, f"{name} 必须被 gitignore，否则会变成第二套入口")
 
+    def test_peer_model_candidates_come_from_data_models(self):
+        from workbench.config import Config
+
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            paths = Paths(root)
+            paths.ensure_containers()
+            target = paths.models / "peers data comparison_20260807.xlsx"
+            target.write_bytes(b"fake")
+            leftover = root / "peers_rs_update" / "deliverables" / "models"
+            leftover.mkdir(parents=True)
+            (leftover / "peers data comparison_old.xlsx").write_bytes(b"old")
+            found = {p.name for p in Config(paths).candidates("peers_abe")}
+            self.assertEqual(found, {"peers data comparison_20260807.xlsx"})
+
     def test_hygiene_skips_frozen_dirs(self):
         from workbench.hygiene import SKIP_DIRS
 

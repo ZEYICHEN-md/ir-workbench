@@ -1,8 +1,8 @@
 # 本机配置（本机配置与共享代码分离）
 .ir-workbench/
 
-# 三个旧项目：各自冻结在 GitHub 作为历史（ADR 0003），不嵌进本仓。
-# 它们各自带 .git——不排除的话会被记成未初始化的子模块，内容根本不会被追踪。
+# 三个旧项目与迁入残留：不要再嵌进本仓。若残留则忽略。
+# 它们各自带 .git——不排除的话会被记成未初始化的子模块。
 0703_Travel_Pulse/
 database_matain/
 peers_rs_update/
@@ -32,6 +32,9 @@ outputs/sellside-research/**
 
 # Peers Model 运行副本含完整财务 Excel 与 PDF 抽取原文，只留在本机。
 outputs/peers-model/
+
+# Peers 权威 Model：本机锁定，只出副本，不进 Git。
+data/models/
 
 # Shareholder list 生成的完整工作簿（与 peers-model 一样只留本机）。
 outputs/shareholder-list/

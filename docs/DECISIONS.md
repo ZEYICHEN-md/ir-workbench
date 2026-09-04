@@ -163,7 +163,7 @@
 
 ### Q15 收不收财报原件
 
-**结论**：不收进情报库。原件放用户指定的当季材料目录，或 `inputs/intel-quarterly/<TICKER>/<YYQn>/`；历史包仍可指向冻结旧仓 `peers_rs_update/companies/<TICKER>/<YYQn>/`。情报库只存引用与位置指针，两边共用同一套 ticker 与季度键。
+**结论**：不收进情报库。原件放用户指定的当季材料目录，或 `inputs/intel-quarterly/<TICKER>/<YYQn>/`。情报库只存引用与位置指针。历史材料若还要回读，去 GitHub 冻结仓 `ota-peers-appendix`，不要在工作台根目录再嵌一份旧仓。
 
 **理由**：原件体积大、含第三方材料，且 Appendix 写作流水线已退役，不能再把「原件住在 peers-appendix 模块里」当成现行布局。
 
@@ -522,10 +522,18 @@
 
 ### 文件怎么进工作台、过期怎么清（2026-09-04）
 
-**结论**：人不用记目录。原件拖进对话、放「下载」或说一声，Agent 拷到 `inputs/<域>/<周期>/`。交付物在 `outputs/`。`scratch/` 超 14 天、根目录 `output/` 与 `_tmp/` 可清；`data/workbooks/archived/` 只增不删。真正删除前 dry-run，用户说「确认删除过期临时文件」后才 `ir hygiene --prune --fix`。迁入残留的 `peers_model_scripts/` 与 `update-shareholder-list/` 本机可留作只读参考，不进 Git、不是运行入口。
+**结论**：人不用记目录。原件拖进对话、放「下载」或说一声，Agent 拷到 `inputs/<域>/<周期>/`。交付物在 `outputs/`。权威 Peers Model 锁在 `data/models/`。`scratch/` 超 14 天、根目录 `output/` 与 `_tmp/` 可清；`data/workbooks/archived/` 只增不删。真正删除前 dry-run，用户说「确认删除过期临时文件」后才 `ir hygiene --prune --fix`。旧仓不要再嵌进工作台根目录。
 
 **理由**：功能配齐之后，接手人会卡住的是「文件放哪、能不能删」。没有可执行的清理，scratch 和误写的 `output/` 会无限涨；文档若继续写「八个模块 / 自动发飞书 / 中文周期键当目录名」，就会和代码再分叉。
 
 **落在**：`conventions/file-lifecycle.md`、`workbench/lifecycle.py`、`ir hygiene --prune`
+
+### 权威 Peers Model 从旧仓迁出（2026-09-04）
+
+**结论**：三份权威 Model 复制到 `data/models/`，本机 config 改锁新路径。之后删除工作台根目录里的旧仓副本（`0703_Travel_Pulse`、`database_matain`、`peers_rs_update`、`peers_model_scripts`、`update-shareholder-list`、`test_expert_calls`）。GitHub 旧仓仍是历史。
+
+**理由**：旧仓嵌在工作台根目录会让人当成第二套入口；config 还指着 `peers_rs_update` 时又删不掉。权威文件迁走后，根目录只留工作台自己的树。
+
+**落在**：`data/models/`、`workbench/config.py`、`.ir-workbench/config.json`
 
 

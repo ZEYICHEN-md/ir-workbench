@@ -17,7 +17,7 @@
 
 新建 `peers-model` 域，只做 Model 与 Charts。Word Appendix、业绩总结正文和研究判断继续由人完成，`peers-appendix` 仍保持退役。
 
-三份 Model 通过本机 config 显式锁定，不按文件名或修改时间猜选。旧 `peers_rs_update` 与 `peers_model_scripts` 只读参考，新模块不 import 旧代码。
+三份 Model 通过本机 config 显式锁定，不按文件名或修改时间猜选。权威文件在 `data/models/`；旧仓不嵌进工作台、新模块不 import 旧代码。
 
 处理顺序固定为：PDF 第一遍抽取 → Agent 结构化 facts → 第二遍独立重读 PDF → 零写入计划 → 人确认 → 输出副本写入 → COM 重算与回读 → Charts gate。任何来源冲突先停下让人选择口径。
 

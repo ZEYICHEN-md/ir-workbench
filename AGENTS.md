@@ -59,9 +59,8 @@ B 类 14 条待核、9 条剔除；`sellside-research` 抽取与摘读层已用�
 `shareholder-list` 已迁入并用 8/31 底表完成锁定重建（`partial`）；新切仍须明确有效日。
 进度见 [docs/MIGRATION.md](docs/MIGRATION.md)。
 
-`database_matain` / `0703_Travel_Pulse` / `peers_rs_update` 三个旧文件夹，以及本机可能还有的
-`peers_model_scripts/`、`update-shareholder-list/`，都**不是运行入口**，不要在那里面跑。
-`database_matain` 已有显式停用标记。文件放哪、过期怎么清：`conventions/file-lifecycle.md`。
+`database_matain` / `0703_Travel_Pulse` / `peers_rs_update` 三个旧仓已迁出或冻结在 GitHub，
+**不要再嵌进工作台根目录**。文件放哪、过期怎么清：`conventions/file-lifecycle.md`。
 
 ---
 

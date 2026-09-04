@@ -138,6 +138,7 @@
 | 位置 | 放什么 | 你用不用管 |
 |---|---|---|
 | `data/workbooks/` | 国内行业数据 Excel（唯一编辑面）、Airline Data 底表 | 改数只改被锁定的那一份 |
+| `data/models/` | Peers 三份权威 Model | 不要手改；更新只出副本 |
 | `data/workbooks/archived/` | 旧版底稿和写入前备份 | 不要删 |
 | `inputs/<域>/<周期>/` | 只服务这一期的原件（STR 表、研报 PDF、公众号文章） | Agent 代放 |
 | `outputs/<域>/<周期>/` | 交付物 | 问 Agent 路径即可 |

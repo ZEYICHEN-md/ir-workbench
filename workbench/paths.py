@@ -56,6 +56,11 @@ class Paths:
     def intel(self) -> Path:
         return self.data / "intel"
 
+    @property
+    def models(self) -> Path:
+        """Peers 权威 Model（本机锁定，只出副本）。不进 Git。"""
+        return self.data / "models"
+
     # --- 按域分区 ---
     def inputs(self, domain: str, period: str | None = None) -> Path:
         base = self.root / "inputs" / domain
@@ -121,6 +126,7 @@ class Paths:
             self.workbooks,
             self.canonical,
             self.intel,
+            self.models,
             self.root / "inputs",
             self.root / "outputs",
             self.root / "runs",

@@ -19,16 +19,11 @@ ir hygiene --prune --fix    # 须用户明确说「确认删除过期临时文�
 
 规则：[../../conventions/file-lifecycle.md](../../conventions/file-lifecycle.md)。
 `--fix` 只动 `scratch/`（≥14 天）、`_tmp/`、根目录 `output/`。
-不删 `data/workbooks/archived/`、`runs/`、交付物、情报库。
+不删 `data/workbooks/archived/`、`data/models/`、`runs/`、交付物、情报库。
 
-## 冻结目录
+## 旧仓
 
-本机若还有这些文件夹，不要在里面跑流程，也不要往里面提交：
-
-- `0703_Travel_Pulse/`、`database_matain/`、`peers_rs_update/`（三个旧仓）
-- `peers_model_scripts/`（`peers-model` 迁入时的只读摘录）
-- `update-shareholder-list/`（`shareholder-list` 迁入前的交接包）
-
+迁入完成后不要把旧仓再嵌进工作台根目录。权威 Peers Model 在 `data/models/`。
 运行入口只有 `modules/<域>/` + `ir ...`。
 
 ## 文档以谁为准

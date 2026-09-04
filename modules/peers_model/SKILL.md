@@ -1,7 +1,7 @@
 # Peers Model 自动更新
 
 本模块只处理 Excel Model 与 Charts 的机械维护，不恢复 Word Appendix 或业绩总结写作。
-旧 `peers_rs_update` 和 `peers_model_scripts` 只作只读参考，运行入口只有 `ir peers-model`。
+旧 `peers_rs_update` 已冻结在 GitHub；权威 Model 锁在 `data/models/`。运行入口只有 `ir peers-model`。
 
 ## 用户怎么开口
 
