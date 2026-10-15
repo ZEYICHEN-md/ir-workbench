@@ -82,6 +82,20 @@ class TestCalendar(unittest.TestCase):
     def test_publish_is_tuesday_after(self):
         self.assertEqual(calendar_.publish_date("2026-08-W2"), date(2026, 8, 18))
 
+    def test_ir_today_freezes_latest_completed_week(self):
+        """考试场次用 IR_TODAY 冻结时钟：2026-10-14（周三）应对 2026-10-W1。"""
+        import os
+
+        previous = os.environ.get("IR_TODAY")
+        os.environ["IR_TODAY"] = "2026-10-14"
+        try:
+            self.assertEqual(calendar_.latest_completed_key(), "2026-10-W1")
+        finally:
+            if previous is None:
+                os.environ.pop("IR_TODAY", None)
+            else:
+                os.environ["IR_TODAY"] = previous
+
     def test_week_that_does_not_exist_is_rejected(self):
         """2026 年 9 月只有 4 个周一。"""
         with self.assertRaises(calendar_.PeriodError):

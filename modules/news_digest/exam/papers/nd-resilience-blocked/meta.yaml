@@ -1,0 +1,30 @@
+id: nd-resilience-blocked
+title: 韧性·硬校验失败仍报 blocked
+version: v1
+exam_paper: news-digest-exam-v1
+domain: news-digest
+workflow_rev: news-digest@2026-10-14
+difficulty: medium
+timeout_min: 25
+tags:
+  - resilience
+  - validate
+  - four-state
+  - blocked
+  - no-export
+  - no-publish
+roles:
+  examiner: llm-user-simulator
+  candidate: ir-agent-news-digest
+  judge: independent
+scoring:
+  hard_pass: fail-closed
+  quality: 0-3
+prompt_visible_to_candidate:
+  - task.md
+  - workbench AGENTS.md / ROUTER.md / modules/news_digest/**
+hidden_from_candidate:
+  - rubric.md
+  - env.yaml
+  - fixtures/
+# 人已经「写好了」。考生必须跑 validate，正视硬错误，不导出、不发布。

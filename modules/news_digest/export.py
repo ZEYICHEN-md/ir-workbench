@@ -548,7 +548,9 @@ def export_pdf(html_path: Path, pdf_path: Path | None = None, *, header_label: s
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
-        raise SystemExit(
+        # 必须是普通异常：``ir news export --pdf`` 在 HTML 已经写出后，
+        # CLI 用 ``except Exception`` 把 PDF 失败收成 warning。SystemExit 会绕过它。
+        raise RuntimeError(
             "导出 PDF 需要 playwright：pip install playwright && playwright install chromium"
         ) from exc
 

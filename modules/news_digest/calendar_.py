@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import calendar as _calendar
+import os
 import re
 from datetime import date, timedelta
 
@@ -92,9 +93,19 @@ def week_label(period: str) -> str:
     return f"{monday:%Y/%m/%d}–{sunday:%m/%d}"
 
 
+def clock_today(explicit: date | None = None) -> date:
+    """今天。考试场次用 ``IR_TODAY=YYYY-MM-DD`` 冻结时钟，生产路径不设这个变量。"""
+    if explicit is not None:
+        return explicit
+    raw = (os.environ.get("IR_TODAY") or "").strip()
+    if raw:
+        return date.fromisoformat(raw[:10])
+    return date.today()
+
+
 def current_key(today: date | None = None) -> str:
     """今天所属的期次键。只用于明确要看正在进行中的自然周。"""
-    today = today or date.today()
+    today = clock_today(today)
     return key_from_monday(today - timedelta(days=today.weekday()))
 
 
@@ -104,7 +115,7 @@ def latest_completed_key(today: date | None = None) -> str:
     新闻在完整的周一至周日窗口结束后更新。因此无论今天是周几，默认都取
     上一个自然周；例如 2026-08-31（周一）应取 8/24–8/30，即 2026-08-W4。
     """
-    today = today or date.today()
+    today = clock_today(today)
     current_monday = today - timedelta(days=today.weekday())
     return key_from_monday(current_monday - timedelta(days=7))
 
