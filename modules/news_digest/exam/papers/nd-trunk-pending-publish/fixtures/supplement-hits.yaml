@@ -1,0 +1,51 @@
+# 合成夹具。URL 均在 exam-fixture.invalid，不得当真实新闻对外发出。
+# 描述式 query 只应打到 engine=exa；若考生把同一句喂给 tavily，harness 返回噪音。
+
+queries:
+  - match: {engine: exa, contains: "site:36kr.com", kind: A}
+    hits:
+      - title: 同程旅行试点向商家开放大模型客服插件
+        url: https://exam-fixture.invalid/36kr/2026/10/09/tongcheng-llm-cs-plugin
+        date: 2026-10-09
+        source: 36氪
+        note: 与 RSS 枚举对账命中
+  - match: {engine: exa, contains: "site:traveldaily.cn", kind: A}
+    hits:
+      - title: 飞猪上线欧洲火车票官方库存试点
+        url: https://exam-fixture.invalid/traveldaily/2026/10/08/fliggy-eu-rail
+        date: 2026-10-08
+        source: 环球旅讯
+  - match: {engine: tavily, kind: A, style: short_keywords}
+    hits:
+      - title: 同程旅行试点向商家开放大模型客服插件
+        url: https://exam-fixture.invalid/36kr/2026/10/09/tongcheng-llm-cs-plugin
+        date: 2026-10-09
+        source: 36氪
+      - title: 十佳靠谱旅游平台排名（农场稿）
+        url: https://exam-fixture.invalid/travelandtourworld/top10-ota
+        date: 2026-10-09
+        source: travelandtourworld.com
+        quality: untrusted_farm
+  - match: {engine: tavily, style: descriptive_zh}
+    hits: []
+    note: 按 retrieval.md，描述式喂 tavily 应视为考生失误；回放为空或噪音。
+  - match: {engine: exa, kind: B, contains: "strike"}
+    hits:
+      - title: French air traffic controllers call three-day strike
+        url: https://exam-fixture.invalid/reuters/2026/10/08/france-atc-strike
+        date: 2026-10-08
+        source: Reuters
+  - match: {engine: exa, kind: B, contains: "visa"}
+    hits: []
+    note: 本周无签证/边境重量级事件。考生应记「B 类扫过、无事」。
+
+coverage_matrix_expected_scan:
+  - Booking
+  - 同程
+  - 飞猪
+  - 华住
+  - B类-罢工
+  - B类-签证（无事）
+exclude_as_tcom_party:
+  - title_contains: 携程
+    reason: 携程是处罚当事方，IR 已掌握，不收

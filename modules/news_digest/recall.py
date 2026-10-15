@@ -28,11 +28,14 @@
 
 from __future__ import annotations
 
+import json
+import os
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
+from pathlib import Path
 
 UA = {"User-Agent": "Mozilla/5.0 (compatible; ir-workbench/news-digest)"}
 
@@ -240,6 +243,28 @@ def fetch_feed(
     return out, None
 
 
+def _gather_from_fixture(
+    path: str,
+    *,
+    since: str | None,
+    until: str | None,
+    scoped_only: bool,
+) -> tuple[list[dict], list[str]]:
+    """考试场次：用夹具回放 RSS 枚举，不打外网。"""
+    payload = json.loads(Path(path).read_text(encoding="utf-8-sig"))
+    if isinstance(payload, dict):
+        payload = payload.get("items") or payload.get("entries") or []
+    if not isinstance(payload, list):
+        raise ValueError(f"召回夹具顶层必须是数组：{path}")
+    rows = [dict(row) for row in payload]
+    if since or until:
+        rows = filter_by_window(rows, since or "0000-01-01", until, keep_undated=True)
+    if scoped_only:
+        rows = [row for row in rows if row.get("in_scope")]
+    rows.sort(key=lambda r: (r.get("date") or "", r.get("title") or ""), reverse=True)
+    return rows, ["外网已拦截：本场召回使用夹具，未请求 RSS。"]
+
+
 def gather(
     *,
     since: str | None = None,
@@ -255,6 +280,12 @@ def gather(
     补做过去的期次时会露馅：实测给 08-W3（8/17–8/23）跑召回，拿回来的是 8/24–8/25
     的稿子——那些属于下一期。
     """
+    fixture = (os.environ.get("IR_NEWS_RECALL_FIXTURE") or "").strip()
+    if fixture:
+        return _gather_from_fixture(
+            fixture, since=since, until=until, scoped_only=scoped_only,
+        )
+
     if since:
         cutoff = datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=timezone.utc)
     else:

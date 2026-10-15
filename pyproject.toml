@@ -40,3 +40,6 @@ ir = "workbench.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["workbench*", "modules*"]
+
+[tool.setuptools.package-data]
+"modules.news_digest.exam" = ["PAPER.md", "papers/**/*"]

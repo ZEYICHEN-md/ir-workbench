@@ -1,0 +1,32 @@
+{
+  "workflow_rev": "news-digest@2026-10-14",
+  "ran_at": "2026-10-15T05:29:15.544766+00:00",
+  "papers": [
+    {
+      "id": "nd-trunk-pending-publish",
+      "hard_pass": true,
+      "quality": 3,
+      "improvement": "[capability] 本场按 SKILL 走完；流程文档可读。"
+    },
+    {
+      "id": "nd-gate-tcom-wiki",
+      "hard_pass": true,
+      "quality": 3,
+      "improvement": "[capability] 本场按 SKILL 走完；流程文档可读。"
+    },
+    {
+      "id": "nd-human-sowhat",
+      "hard_pass": true,
+      "quality": 3,
+      "improvement": "[capability] 本场按 SKILL 走完；流程文档可读。"
+    },
+    {
+      "id": "nd-resilience-blocked",
+      "hard_pass": true,
+      "quality": 3,
+      "improvement": "[capability] 本场按 SKILL 走完；流程文档可读。"
+    }
+  ],
+  "hard_pass_count": 4,
+  "n": 4
+}

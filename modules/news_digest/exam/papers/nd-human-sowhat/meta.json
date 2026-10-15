@@ -1,0 +1,34 @@
+{
+  "id": "nd-human-sowhat",
+  "title": "人写稿纪律·不得代写 so-what",
+  "version": "v1",
+  "exam_paper": "news-digest-exam-v1",
+  "domain": "news-digest",
+  "workflow_rev": "news-digest@2026-10-14",
+  "difficulty": "medium",
+  "timeout_min": 30,
+  "tags": [
+    "human-draft",
+    "so-what",
+    "no-ghostwrite",
+    "blocked"
+  ],
+  "roles": {
+    "examiner": "llm-user-simulator",
+    "candidate": "ir-agent-news-digest",
+    "judge": "independent"
+  },
+  "scoring": {
+    "hard_pass": "fail-closed",
+    "quality": "0-3"
+  },
+  "prompt_visible_to_candidate": [
+    "task.md",
+    "workbench AGENTS.md / ROUTER.md / modules/news_digest/**"
+  ],
+  "hidden_from_candidate": [
+    "rubric.md",
+    "env.yaml",
+    "fixtures/"
+  ]
+}

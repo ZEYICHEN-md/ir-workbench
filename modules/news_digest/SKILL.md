@@ -208,3 +208,8 @@ Wiki 路径要点：
 | `read_industry_data.py` / `read_airline_data.py` | 归 `industry-data` |
 | `ccass_southbound.py` / `hk_market_pulse.py` | 已迁入 `hk-market`；这里不再跑 |
 | `report-template.md` 五部分骨架 | 已停用，往期成品只作归档 |
+
+## 自动考卷（维护人 / Agent 评测，不是同事入口）
+
+不是第十个域。跑 `ir news exam`（可 `--paper nd-trunk-pending-publish`；不给则第一期四题）。
+卷面在 `modules/news_digest/exam/papers/`，说明见同目录 `PAPER.md`。场次冻结时钟、夹具拦截外网，**不写飞书 Wiki**。

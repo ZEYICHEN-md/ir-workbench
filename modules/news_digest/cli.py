@@ -461,6 +461,15 @@ def cmd_status(args, base) -> Result:
     )
 
 
+def cmd_exam(args, base) -> Result:
+    """评测入口。不发布飞书，不走活网。"""
+    from .exam.runner import run_exam
+
+    if getattr(args, "list", False):
+        return run_exam(base, paper="list")
+    return run_exam(base, paper=args.paper, keep=args.keep)
+
+
 def register(subparsers, common) -> None:
     parser = subparsers.add_parser("news", help="旅行行业新闻精选（对外交付物）")
     sub = parser.add_subparsers(dest="news_command", required=True)
@@ -527,3 +536,13 @@ def register(subparsers, common) -> None:
     p = sub.add_parser("status", help="本域状态", parents=[common])
     p.add_argument("--period")
     p.set_defaults(func=cmd_status)
+
+    p = sub.add_parser(
+        "exam",
+        help="新闻精选自动考卷（评测入口，不是业务域）",
+        parents=[common],
+    )
+    p.add_argument("--paper", help="题目 id；不给则跑第一期四题")
+    p.add_argument("--list", action="store_true", help="列出卷面")
+    p.add_argument("--keep", help="成绩单目录；默认写到 modules/news_digest/exam/runs/")
+    p.set_defaults(func=cmd_exam)

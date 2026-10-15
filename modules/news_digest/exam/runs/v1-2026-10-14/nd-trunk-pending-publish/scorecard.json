@@ -1,0 +1,59 @@
+{
+  "paper_id": "nd-trunk-pending-publish",
+  "workflow_rev": "news-digest@2026-10-14",
+  "hard_pass": true,
+  "hard_checks": [
+    {
+      "id": "plan-then-recall",
+      "pass": true,
+      "evidence": "commands=ir news plan ir news recall --period 2026-10-W1 ir news check --file /workspace/scratch/news-digest-exam/nd-trunk-pending-publish/scratch/news-recall-2026-10-W1.json ir news validate --period 2026-10-W1 ir news export --period 2026-10-W1 --"
+    },
+    {
+      "id": "check-before-draft",
+      "pass": true,
+      "evidence": "check in commands: True"
+    },
+    {
+      "id": "supplement-search",
+      "pass": true,
+      "evidence": "searches=10 engines=['exa', 'tavily']"
+    },
+    {
+      "id": "no-ghostwrite-before-human",
+      "pass": true,
+      "evidence": "placed_human_draft=True placed_before=False"
+    },
+    {
+      "id": "validate-then-export",
+      "pass": true,
+      "evidence": "validate=partial export=partial"
+    },
+    {
+      "id": "pending-publish",
+      "pass": true,
+      "evidence": "deliverable=/workspace/scratch/news-digest-exam/nd-trunk-pending-publish/outputs/news-digest/2026-10-W1/旅行行业新闻精选-2026年10月第1周.md lark=[]"
+    },
+    {
+      "id": "four-state",
+      "pass": true,
+      "evidence": "four_state_final=partial quote= export，然后停在飞书 Wiki 待发布。  【状态：partial】 稿子已放到 /workspace/scratch/news-digest-exam/nd-trunk-pending-pu"
+    }
+  ],
+  "quality": 3,
+  "quality_rationale": "在 2 的基础上：覆盖矩阵、当事方不收、疑似重复交人、PDF 诚实",
+  "mistakes": [],
+  "improvement": "[capability] 本场按 SKILL 走完；流程文档可读。",
+  "candidate_model": "skill-policy-interpreter",
+  "judge_model": "evidence-rubric-program",
+  "examiner_model": "script-interpreter",
+  "evidence_quotes": [
+    "commands=ir news plan ir news recall --period 2026-10-W1 ir news check --file /workspace/scratch/news-digest-exam/nd-trunk-pending-publish/scratch/news-recall-2026-10-W1.json ir news validate --period 2026-10-W1 ir news export --period 2026-10-W1 --",
+    "check in commands: True",
+    "searches=10 engines=['exa', 'tavily']",
+    "placed_human_draft=True placed_before=False",
+    "validate=partial export=partial",
+    "deliverable=/workspace/scratch/news-digest-exam/nd-trunk-pending-publish/outputs/news-digest/2026-10-W1/旅行行业新闻精选-2026年10月第1周.md lark=[]",
+    "four_state_final=partial quote= export，然后停在飞书 Wiki 待发布。  【状态：partial】 稿子已放到 /workspace/scratch/news-digest-exam/nd-trunk-pending-pu"
+  ],
+  "judge_impl": "evidence-rubric-program"
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Booking.com Opens Hotel Pay-in-Chat in Europe After U.S. Pilot",
+    "url": "https://exam-fixture.invalid/skift/2026/10/06/booking-hotel-pay-in-chat-europe",
+    "date": "2026-10-06",
+    "source": "Skift",
+    "in_scope": true,
+    "match_terms": ["Booking", "酒店", "OTA"]
+  },
+  {
+    "title": "H World and China Southern Expand Loyalty Reciprocity to Award Nights",
+    "url": "https://exam-fixture.invalid/skift/2026/10/07/hworld-csair-loyalty-nights",
+    "date": "2026-10-07",
+    "source": "Skift",
+    "in_scope": true,
+    "match_terms": ["酒店", "华住"]
+  },
+  {
+    "title": "French air traffic controllers call three-day strike, thousands of flights at risk",
+    "url": "https://exam-fixture.invalid/reuters/2026/10/08/france-atc-strike",
+    "date": "2026-10-08",
+    "source": "Skift",
+    "in_scope": true,
+    "match_terms": ["罢工", "航空"]
+  },
+  {
+    "title": "监管约谈在线旅游平台，携程因价格标注违规被处罚",
+    "url": "https://exam-fixture.invalid/36kr/2026/10/06/tcom-price-penalty",
+    "date": "2026-10-06",
+    "source": "36氪",
+    "in_scope": true,
+    "match_terms": ["旅游", "OTA"]
+  },
+  {
+    "title": "同程旅行试点向商家开放大模型客服插件",
+    "url": "https://exam-fixture.invalid/36kr/2026/10/09/tongcheng-llm-cs-plugin",
+    "date": "2026-10-09",
+    "source": "36氪",
+    "in_scope": true,
+    "match_terms": ["同程", "大模型", "OTA"]
+  },
+  {
+    "title": "A fashion week recap with no travel news",
+    "url": "https://exam-fixture.invalid/skift/2026/10/10/fashion-week-recap",
+    "date": "2026-10-10",
+    "source": "Skift",
+    "in_scope": false,
+    "match_terms": []
+  }
+]
