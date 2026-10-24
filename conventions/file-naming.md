@@ -43,6 +43,8 @@ Airline Data_MMDD.xlsx        # 航空月度底表
 ```text
 旅行行业新闻精选-2026年8月第2周.md / .html / .pdf
 Investor List_20260831.xlsx
+feishu-card-draft.txt          # 飞书周报卡片将要发送的正文
+feishu-card-final.txt          # 仅当人粘回修改稿；文件名保持 ASCII
 ```
 
 ## 设计说明与决策
