@@ -121,3 +121,57 @@ lark-cli api POST /open-apis/im/v1/messages --as bot --params @scratch/im-send-p
 |---|---|
 | 2026-07-13 群内旧卡 | 排版源头：两节 + 脚注；Card 1.0 行列格式 |
 | 2026-09-01 8月第4周 | 本模板首张 Card 2.0，私聊发出后用户确认「呈现还不错」 |
+
+## 质量评估与迭代门禁
+
+命令是 `ir news card-eval`。它只评估本文件和 [feishu-im-card.template.json](feishu-im-card.template.json)。它不评估 Peers。它不调用 `lark-cli`，不发送卡片。它不合并。
+
+打分对象是草稿（将要发送的卡片正文）。终稿只归档。
+
+### 文件
+
+| 文件 | 何时出现 |
+|---|---|
+| `outputs/news-digest/<期次键>/feishu-card-draft.txt` | 每次评估都写。内容是 `--draft-file` 传入的卡片正文；不传则沿用已保存的草稿。 |
+| `outputs/news-digest/<期次键>/feishu-card-final.txt` | 仅当本次传入 `--final-file`（人粘回的修改稿）。不传则删除已有终稿。空文件不写入，也不删除已有终稿。 |
+| `runs/news-digest/<期次键>/feishu-card-eval.json` | 仅当裁判打分成功。里面是基线、每次分数和建议。 |
+
+两个正文文件名是 ASCII。期次键仍是 `2026-08-W4` 这种格式。
+
+没有草稿时命令停住，不单独写终稿。
+
+### 指标
+
+裁判是外部模型，不是写这张卡的模型。用 `--writer-model` 写明写卡模型。两者相同则不打分。
+
+必填环境变量是 `IR_CARD_JUDGE_API_KEY`。没有这个变量时，状态是 `blocked`。命令不编造信息量，也不编造隐喻率。
+
+可选：`IR_CARD_JUDGE_MODEL`（默认 `gpt-4.1`）、`IR_CARD_JUDGE_BASE_URL`（默认 `https://api.openai.com/v1`）。接口是该地址上的 `POST /chat/completions`。
+
+| 指标 | 算法 |
+|---|---|
+| 信息量 | 事实点个数。一个事实点是一条具体陈述：一个数字、一个日期、一个名称、一个产品，或一个事件。评价句不是事实点，例如「这很重要」。裁判不核对陈述是否为真。 |
+| 隐喻率 | 隐喻个数 / 句子数 × 100。隐喻是可以换成更直白说法的词或短语。给不出更直白的说法，就不是隐喻。 |
+
+句子由程序切，不由裁判切。切分符只有 `。？！`。半角 `.` `!` `?` 不切。没有句末标点的一行算一句。
+
+不计入句子的行：
+
+- 标题行：行首 1 到 6 个 `#`，后面还有文字。
+- 表格行：以 `|` 开头或结尾，或一行里至少两个 `|`。
+- 纯链接行：整行只有一个 `http(s)` URL，或只有一个 Markdown 链接。去掉首尾强调符号后仍是这样，也算。行里还有别的字，就要计入。
+
+下列词或短语即使被裁判标成隐喻，也不计入：`字段`、`运行`、`面对挑战`、`神经网络`。按整词排除，不按子串排除。隐喻原文必须出现在计入的句子里。
+
+### 门禁
+
+同一期次的第一次成功打分是基线。以后每次评估都用这个期次，和这份基线比。本命令不改基线。另一期次有自己的基线，不拿来比。
+
+仅当信息量不低于基线，且隐喻率不高于基线时，建议写成 `pending-confirm`。否则建议是 `reject`。信息量相等、隐喻率相等，可以是 `pending-confirm`。
+
+`pending-confirm` 只是记录。人确认之前，不得合并本模板的改动。本命令没有合并动作。确认之后仍由人合并。
+
+```powershell
+ir news card-eval --period 2026-08-W4 --draft-file scratch/feishu-card.txt --writer-model <写卡模型名>
+ir news card-eval --period 2026-08-W4 --draft-file scratch/feishu-card.txt --final-file scratch/feishu-card-final.txt --writer-model <写卡模型名>
+```

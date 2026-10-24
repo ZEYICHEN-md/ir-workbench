@@ -64,6 +64,7 @@
 | 你想要 | 去哪 | 随包走吗 |
 |---|---|---|
 | 上期新闻精选正文 | `outputs/news-digest/<期次>/` 的 `.md` | **走**（HTML/PDF 本机生成） |
+| 飞书卡片周报草稿 / 终稿 | `outputs/news-digest/<期次>/feishu-card-draft.txt`；有人粘回修改稿才有 `feishu-card-final.txt`。打分记录在 `runs/news-digest/<期次>/feishu-card-eval.json` | **走** |
 | 国内行业数据底稿 | `data/workbooks/` 被锁定的那份 | **走** |
 | 看板数字 / 洞察 | `data/canonical/`，上线后看 datamax.fun | **走** |
 | 竞对按公司/主题查 | 对 Agent 说；真源在 `data/intel/` | **走** |

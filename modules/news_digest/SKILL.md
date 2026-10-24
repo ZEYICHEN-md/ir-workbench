@@ -104,7 +104,7 @@ ir intel deposit --commit --period <期次>       # 核对打标后
 | [source-quality.md](references/source-quality.md) | **搜索捞回稿要落地时必读。**可信源清单与判定原则、排除特征、摘要防脑补 |
 | [editorial-standards.md](references/editorial-standards.md) | **第 4 步写稿时必读。**选稿三步、定稿自检、图标语义、概览写法、语气 |
 | [feishu-publish.md](references/feishu-publish.md) | **第 8 步发布 Wiki 时读。**旅业资讯库（撤旧换新）+ 历史周报汇总（追加） |
-| [feishu-im-card.md](references/feishu-im-card.md) | **独立触发。**用户说「做这周飞书卡片周报」时读；结构冻结，只填占位符 |
+| [feishu-im-card.md](references/feishu-im-card.md) | **独立触发。**用户说「做这周飞书卡片周报」时读；结构冻结，只填占位符。说「评估飞书卡片」时读文末质量评估：`ir news card-eval` |
 
 这五份是**判据**，上面那份剧本是**顺序**。只按剧本跑不读判据，会跑出「流程都对、
 选稿和写法都飘」的结果——第一次迁移就只搬来了顺序。
@@ -180,6 +180,7 @@ URL 规范化、事件指纹（`主体|事件核心`）、标题相似度（默�
   本地精选完成后只进入待发布状态；Agent单独问清发布目标并取得用户肯定答复后，才更新两份文档。
 - **飞书卡片周报**（内部群聊即时交付）：**[references/feishu-im-card.md](references/feishu-im-card.md)**。
   **独立触发**：用户说「做这周飞书卡片周报」时跑。读取当期定稿精选 + `travel.json` 最新行业数据与洞察，套冻结模板，用本机 `lark-cli` 当前登录者的身份私聊发给 TA，由 TA 转发。不是对外精选，也不是五部分周报。身份约定见 `conventions/lark-cli-windows.md`。
+- **飞书卡片质量评估**（模板迭代，不是每周必跑的一步）：`ir news card-eval`。保存将要发送的正文为 `feishu-card-draft.txt`；只有人粘回修改稿才有 `feishu-card-final.txt`。裁判打信息量与隐喻率，和该期第一次分数比。不发飞书，不合并。规则在 `feishu-im-card.md` 文末。
 
 Wiki 路径要点：
 

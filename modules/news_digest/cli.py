@@ -13,7 +13,7 @@ from pathlib import Path
 from workbench.fileio import write_text
 from workbench.result import Result
 
-from . import calendar_, digest, ledger, recall, steps
+from . import calendar_, card_eval, digest, ledger, recall, steps
 from .steps import DOMAIN
 
 
@@ -527,3 +527,24 @@ def register(subparsers, common) -> None:
     p = sub.add_parser("status", help="本域状态", parents=[common])
     p.add_argument("--period")
     p.set_defaults(func=cmd_status)
+
+    p = sub.add_parser(
+        "card-eval",
+        help="飞书周报卡片的信息量、隐喻率与迭代门禁（不发飞书，不合并）",
+        parents=[common],
+    )
+    p.add_argument("--period", help="期次键，如 2026-08-W4；不给取最近完整情报主周")
+    p.add_argument(
+        "--draft-file",
+        help="将要发送的卡片正文。写入 outputs/news-digest/<期次>/feishu-card-draft.txt",
+    )
+    p.add_argument(
+        "--final-file",
+        help="人粘回的修改稿。不传则本期没有 feishu-card-final.txt",
+    )
+    p.add_argument(
+        "--writer-model",
+        default="",
+        help="写这张卡的模型名。与裁判模型相同则不打分",
+    )
+    p.set_defaults(func=card_eval.cmd_card_eval)

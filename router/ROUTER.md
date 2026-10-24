@@ -17,6 +17,7 @@
 |---|---|---|---|
 | 做这周新闻精选 / 更新新闻周报 / 行业新闻精选 | `news-digest` | `plan` → `recall`（枚举 + 我另跑 5 条补充检索）→ `check` 查重 → **人写稿** → `validate` → `export` → `log` 登台账 → 沉淀情报库；完成后给出飞书 Wiki 待发布说明 | **飞书 Wiki 不自动写。发布前单独问清“是否把本期精选发布到飞书 Wiki”；用户在该问题下回复“OK / 可以 / 确认”等肯定答复即可放行。**脱离该上下文时须重新说明目标并确认；写后自动回读复核 |
 | 做这周飞书卡片周报 / 发飞书卡片周报 / 发周报卡片 | `news-digest` | 套 `modules/news_digest/references/feishu-im-card.md`：读取当期已定稿精选 + `travel.json` 最新一周 KPI + 已确认洞察；`lark-cli whoami` 解析当前同事后私聊发给 TA，由 TA 转发 | 缺精选定稿或最新一周三序列则 `blocked`；whoami 失败同样 `blocked`，不沿用任何人的旧 ID |
+| 评估飞书卡片 / 飞书卡片打分 / 卡片迭代门禁 | `news-digest` | `ir news card-eval`：把将要发送的卡片正文写入 `outputs/news-digest/<期次>/feishu-card-draft.txt`；人粘回修改稿才写 `feishu-card-final.txt`。裁判计算信息量与隐喻率，和该期次第一次打分比较。范围只有 feishu-im-card | 没有 `IR_CARD_JUDGE_API_KEY` 则 `blocked`，不编分数。程序只记录建议，不合并，不发飞书 |
 | 这周有什么新闻可以写 / 有哪些候选 | `news-digest` | `recall` 枚举 + 补充检索对账，并跨期查重后给候选清单 | — |
 | 这条是不是上期写过了 | `news-digest` | `check`（台账只报疑似，判断交给人） | — |
 | 更新国内行业数据 / 补数 / 更新看板 / 同步指标 | `industry-data` | 读底稿 → merge 逐格 diff → **自动识别周/月/季变动并只出对应洞察中文草稿** → 给用户审查 → 用户说「写入上线」后入库、英译、看板、发布 | 清空格超阈值须确认；**不再问要不要刷新洞察，只在最后问是否写入上线** |
